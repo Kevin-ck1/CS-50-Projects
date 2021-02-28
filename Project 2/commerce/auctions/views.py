@@ -9,8 +9,17 @@ from .models import User, AuctionListing, Bid, Comment, Category, Info
 
 def index(request):
     auction_listings = AuctionListing.objects.exclude(listing_open=False)
+    
+    for listing in auction_listings:
+        try:
+            Bid.objects.get(bid_identifier=listing.id, watchBidder=request.user)
+            listing.display_button = False
+        except:
+            listing.display_button = True
+
     return render(request, "auctions/index.html",{
-        "listings": auction_listings
+        "listings": auction_listings,
+        "type": "Active Listings"
     })
 
 
@@ -72,12 +81,21 @@ def create(request):
         price = request.POST['start_bid']
         photo = request.POST['listing_image']
         creator = request.user
+
         if request.POST['listing_category']:
             listing_category = Category.objects.get(pk=int(request.POST['listing_category']))
         else:
             listing_category = Category.objects.get(pk=1)
         
-        new_listing = AuctionListing(title=title, description=description, start_price=price, current_bid=price, photo=photo, creator=creator, listing_category=listing_category)
+        new_listing = AuctionListing(
+            title=title, 
+            description=description, 
+            start_price=price, 
+            current_bid=price, 
+            photo=photo, 
+            creator=creator, 
+            listing_category=listing_category)
+
         new_listing.save()
 
         return HttpResponseRedirect(reverse("index"))
@@ -91,51 +109,120 @@ def listing_page(request, listing_id):
 
     if listing.listing_open == False:
         close = "CLOSED"
-        info = Info.objects.get(won_listing=listing) 
+        try:
+            info = Info.objects.get(won_listing=listing)
+        except:
+            pass 
     else:
         close = ""
-        info = "" 
+        info = ""
+
+    try:
+        Bid.objects.get(bid_identifier=listing_id).filter(bidder__isnull=True)
+        close_button = True   
+    except:
+       close_button = False
+
+    try:
+        Bid.objects.get(bid_identifier=listing_id)
+        button = False   
+    except:
+        button = True
 
     return render(request, "auctions/listing.html",{
         "listing": listing,
         "status": listing.listing_open,
         "min_bid": min_bid,
         "info": info,
-        "closed": close 
+        "closed": close,
+        "button": button,
+        "cButton": close_button
     })
 
 def watchlist(request):
     if request.method == "POST":
         wList = request.POST['wList']
+        page = request.POST['page']
         watch_list = AuctionListing.objects.get(pk=wList)
-        watch_list.watchBidder = request.user
-        watch_list.save()
+        Bidder = request.user
+        
+        new_bid = Bid(
+            bid_item=watch_list, 
+            bid_price=watch_list.current_bid,
+            watchBidder=Bidder, 
+            bid_identifier=wList
+        )
+        
+        new_bid.save()
+
+        if page == 1:
+            return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":wList}))
+        else:
+            return HttpResponseRedirect(reverse("index"))
+            
     
-        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":wList}))
     else:
-        wList_listings = request.user.listing_watchBidder.all()
+        listings = []
+        bid_listings = request.user.listing_watchBidder.all()
+        for bid in bid_listings:
+            listings.append(AuctionListing.objects.get(pk=bid.bid_identifier))
+
+        for listing in listings:
+            try:
+                Bid.objects.get(bid_identifier=listing.id, watchBidder=request.user)
+                listing.display_button = False
+            except:
+                listing.display_button = True
+
         return render(request, "auctions/index.html",{
-            "listings": wList_listings
+            "listings": listings,
+            "type": "my Watchlist"
         })
 
+
 def bidlist(request):
+    bid_listings = request.user.listing_bidder.all()
     if request.method == "POST":
         bItem = request.POST['bItem']
         bid_list = AuctionListing.objects.get(pk=bItem)
-        bid_list.watchBidder = request.user
-        Bidder = request.user
         bid_list.current_bid = request.POST["bid_price"]
         bid_list.save()
-        
-        bid_item = Bid(bid_item=bid_list, bid_price=bid_list.current_bid, bidder=Bidder)
-        bid_item.save()
+        Bidder = request.user
+
+        try:
+            update_bid = Bid.objects.get(bid_item=bid_list, watchBidder=Bidder)
+            update_bid.bidder = Bidder
+            update_bid.bid_price = bid_list.current_bid 
+            update_bid.save()
+        except:
+            new_bid = Bid(
+                bid_item=bid_list, 
+                bid_price=bid_list.current_bid, 
+                bidder=Bidder, 
+                watchBidder=Bidder, 
+                bid_identifier=bItem
+            )
+            new_bid.save()
+
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":bItem}))
     
     else:
-        bid_listings = request.user.listing_Bidder.all()
+        listings = []
+
+        for bid in bid_listings:
+            listings.append(AuctionListing.objects.get(pk=bid.bid_identifier))
+
+        for listing in listings:
+            try:
+                Bid.objects.get(bid_identifier=listing.id, watchBidder=request.user)
+                listing.display_button = False
+            except:
+                listing.display_button = True
+
         return render(request, "auctions/index.html",{
-            "listings": bid_listings
+            "listings": listings,
+            "type": "my Bids"
         })
 
 def close_lisiting(request):
@@ -160,7 +247,8 @@ def close_lisiting(request):
 def my_listing(request):
     listings = request.user.listing_creator.all()
     return render(request, "auctions/index.html",{
-        "listings": listings
+        "listings": listings,
+        "type": "my Listings"
     })
 
 

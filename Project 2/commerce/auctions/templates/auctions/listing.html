@@ -2,13 +2,11 @@
 
 {% block body %}
 
-<h2>Listing</h2>
-
    <div class="row">
        <div class="col-6 row">
            <div class="col-2"></div>
             <div class="col-8">
-                <div class="embed-responsive embed-responsive-4by3 bg-light p-5">
+                <div class="embed-responsive embed-responsive-4by3 bg-secondary p-5">
                     <img src="{{listing.photo}}" alt="{{listing.title}}" class="card-img-top embed-responsive-item text-center text-uppercase">
                  </div>
             </div>
@@ -18,11 +16,17 @@
         <div class="d-flex align-items-center justify-content-between">
             <div><h2 class="text-uppercase">{{listing.title}} <span class="text-danger">{{closed}}</span> </h2></div>
             <div>
-                <form action="{% url 'index' %}" method="POST">
+                {% if listing.listing_open %}
+                {% if cButton %}
+                <form action="{% url 'close' %}" method="POST">
                     {% csrf_token %}
                     <input name="lastBid" type="text" value="{{listing.id}}" hidden>
                     <input class="btn-danger" type="submit" value="Close Listing">
                 </form>
+                {%else%}
+                <p class="text-info">Waiting for Bids</p>
+                {%endif%}
+                {%endif%}
             </div>
         </div>
         <div class="col-12">
@@ -30,12 +34,14 @@
                 <span class="text-muted">Current Bid:</span>
                 <span class="font-weight-bold">KSH {{listing.current_bid}} </span>
             </p>
+            <p>
+                <span class="text-muted small">Inital Price:</span>
+                <span class="font-weight-bold small">KSH {{listing.start_price}} </span>
+            </p>
             {% if info %}
             <h3>Top-Bidder Info:  </h3>
             <p>Username: {{info.winner_Username}}</p>
             <p>Email: {{info.winner_Email}} </p>
-            {%else%}
-            <h3>No Bids Yet</h3>
             {%endif%}
         </div>
        </div>
@@ -45,11 +51,16 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div><h2 class="text-uppercase">{{listing.title}}</h2></div>
                 <div>
+                    {%if button %}
                     <form action="{% url 'watchlist' %}" method="POST">
                         {% csrf_token %}
                         <input name="wList" type="text" value="{{listing.id}}" hidden>
+                        <input name="page" type="number" value="2" hidden>
                         <input class="btn-success" type="submit" value="+ Watchlist">
                     </form>
+                    {%else%}
+                    <p class="text-success">In Watchlist</p>
+                    {%endif%}
                 </div>
             </div>
             <div class="row bg-light my-5 rounded py-5">

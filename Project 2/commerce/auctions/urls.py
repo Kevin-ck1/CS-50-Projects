@@ -11,5 +11,6 @@ urlpatterns = [
     path("listing/<int:listing_id>",views.listing_page, name="listing"),
     path("watchlist", views.watchlist, name="watchlist"),
     path("bidlist", views.bidlist, name="bidlist"),
-    path("closeListing", views.close_lisiting, name="close")
+    path("closeListing", views.close_lisiting, name="close"),
+    path("myListing", views.my_listing, name="myListing")
 ]
