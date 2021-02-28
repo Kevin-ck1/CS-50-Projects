@@ -1,0 +1,35 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Add Entry
+{% endblock %}
+
+{% block body %}
+
+    {% if edit %}
+        <h2>Editing {{title}}</h2>
+    {%else%}
+        <h2>Add New Entry</h2>
+    {%endif%}
+
+    <form action="{% url 'wiki:add_entry' %}" method="post">
+        {% csrf_token %}
+        {% if errorMessage %}
+            <h2 class="text-warning">The Page on <a href="{% url 'wiki:entry_page' entry %}">{{entry}}</a> already exist</h2>
+        {%endif%}
+        {{form}}
+        <div class="input_form">
+            <div class="title"></div>
+            <div class="input_button">
+                <button type="submit">
+                    {% if edit %}
+                        Save Changes
+                    {% else %}
+                        Save Entry
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

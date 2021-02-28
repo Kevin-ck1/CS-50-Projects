@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Active Listings</h2>
+
+    <div class="row m-2">
+        {% for listing in listings %}
+            <div class="col-6 col-md-4 col-lg-3 mb-5">
+                <div class="border rounded shadow-sm">
+                    <div class="embed-responsive embed-responsive-4by3 bg-light">
+                        <a href="{%url 'listing' listing.id %}" class="text-muted"><img src="{{listing.photo}}" alt="{{listing.title}}" class="card-img-top embed-responsive-item text-center"></a>
+                    </div>
+                    <div class="p-4">
+                        <h5><a href="{%url 'listing' listing.id %}" class="text-dark text-uppercase">{{listing.title}}</a></h5>
+                        <p class="small text-muted">{{listing.description}}</p>
+                        <div class="d-flex align-items-center justify-content-between rounded-pill bg-light px-3 py-2 mt-4">
+                            <p class="small">{{listing.price}}</p>
+                            <div class="badge badge-danger px-3 rounded-pill font-weight-normal">Add to Watchlist</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+{% endblock %}

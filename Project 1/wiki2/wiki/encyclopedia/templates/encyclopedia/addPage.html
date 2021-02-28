@@ -1,0 +1,38 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    {% if not editing %}
+        Add New Page
+    {%else%}
+        Editing 
+    {%endif%}
+{% endblock %}
+
+{% block body %}
+    <form action="{% url 'wiki:addPage' %}" method="post">
+        {% csrf_token %}
+
+        {% if not editing %}
+            <h1>Add New Page</h1>
+        {%else%}
+            <h1> Editing <a href="{% url 'wiki:entry_page' title %}">{{title}}</a> </h1>
+        {%endif%}
+
+        {% if errorMessage %}
+            <h2 class="text-muted">The page 
+                <a href="{% url 'wiki:entry_page' entryTitle %}">{{ entryTitle }}</a>
+                already Exists
+            </h2>
+        {% endif %}
+        <div>
+            {{form}}
+        </div>
+        <button class="mt-3 btn btn-outline-primary" type="submit">
+            {%if not editing %}
+                Save Entry
+            {%else%}
+                Save Changes
+            {%endif%}
+        </button>
+    </form>
+{% endblock %}

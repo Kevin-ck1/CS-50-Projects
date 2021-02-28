@@ -1,0 +1,14 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    {{title}}
+{% endblock %}
+
+{% block body %}
+
+{% if errorMessage == 1 %}
+    <h1>The requestated Page Does Not Exist</h1>
+{% else %}
+    <h1>The search item <span class="text-info">{{errorDisplay}}</span> does not exit</h1>
+{% endif%}
+{% endblock %}

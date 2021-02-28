@@ -1,0 +1,17 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Test
+{% endblock %}
+
+{% block body %}
+
+    <ul>        
+        {% for i in lists %}            
+            <li>{{i}}</li> 
+        {% empty %}
+            <li> No item </li>       
+        {% endfor %}    
+    </ul>
+
+{% endblock %}
