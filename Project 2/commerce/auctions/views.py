@@ -112,17 +112,33 @@ def listing_page(request, listing_id):
         try:
             info = Info.objects.get(won_listing=listing)
         except:
-            pass 
+            info = "" 
     else:
         close = ""
         info = ""
-
     try:
-        Bid.objects.get(bid_identifier=listing_id).filter(bidder__isnull=True)
-        close_button = True   
+        condition = listing.bids.get(bidder__isnull=False)
     except:
-       close_button = False
+        condition =""
+    
+    if not condition:
+        close_button = False
+    else:
+        close_button = True
 
+
+    # if not listing.bids.all():
+    #     close_button = False
+    # else:
+        # try:
+        #     if Bid.objects.get(bid_identifier=listing_id, bidder__isnull=True):
+        #         close_button = False  
+        #     else:
+        #         close_button = True
+        # except:
+        #     close_button = False 
+        
+        
     try:
         Bid.objects.get(bid_identifier=listing_id)
         button = False   
