@@ -13,13 +13,13 @@ class Category(models.Model):
 
 class AuctionListing(models.Model):
     title = models.CharField(max_length=64)
-    description = models.CharField(max_length=64)
+    description = models.TextField()
     start_price = models.IntegerField()
     current_bid = models.IntegerField()
-    photo = models.CharField(max_length=132, null = True, blank=True)
+    photo = models.CharField(max_length=255, null = True, blank=True)
     display_button = models.BooleanField(default=True) 
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listing_creator")
-    listing_category = models.ForeignKey(Category, default=1, on_delete=models.CASCADE, blank=True, related_name="listing_category")
+    listing_category = models.ForeignKey(Category, default=1, on_delete=models.CASCADE, blank=True, related_name="item_category")
     listing_open = models.BooleanField(default=True) 
     
     def __str__(self):
@@ -38,6 +38,7 @@ class Bid(models.Model):
 class Comment(models.Model):
     comment = models.CharField(max_length=64)
     commentor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listing_commentor")
+    comment_item = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="listing_comment")
 
     def __str__(self):
         return f"{self.comment}"

@@ -106,6 +106,7 @@ def create(request):
 def listing_page(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
     min_bid = listing.current_bid + 5
+    comments = listing.listing_comment.all()
 
     if listing.listing_open == False:
         close = "CLOSED"
@@ -145,15 +146,17 @@ def listing_page(request, listing_id):
     except:
         button = True
 
-    return render(request, "auctions/listing.html",{
+    context = {
         "listing": listing,
         "status": listing.listing_open,
         "min_bid": min_bid,
         "info": info,
         "closed": close,
         "button": button,
-        "cButton": close_button
-    })
+        "cButton": close_button,
+        "comments": comments
+    }
+    return render(request, "auctions/listing.html", context)
 
 def watchlist(request):
     if request.method == "POST":
@@ -266,6 +269,33 @@ def my_listing(request):
         "listings": listings,
         "type": "my Listings"
     })
+
+def comments(request):
+    if request.method == "POST":
+        comment = request.POST['comment']
+        listing_id = request.POST['listing_id']
+        item = AuctionListing.objects.get(pk=listing_id)
+        new_comment = Comment(comment=comment,commentor=request.user, comment_item=item)
+        new_comment.save()
+
+        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+
+def category(request):
+    if request.method == "POST":
+        listing_category = request.POST['category']  
+        category = Category.objects.get(list_category=listing_category)
+
+        listings = category.item_category.exclude(listing_open=False)
+        return render(request, "auctions/index.html",{
+            "listings": listings,
+            "type": f"Listings on: {category}"
+        })
+
+    categories = Category.objects.all()
+    return render(request, "auctions/category.html", {
+        "categories": categories
+    })
+
 
 
 
