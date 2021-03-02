@@ -29,7 +29,7 @@ class Bid(models.Model):
     bid_item = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True, related_name="listing_bidder")
     watchBidder = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default=0, related_name="listing_watchBidder")
-    bid_price = models.IntegerField()
+    bid_price = models.IntegerField(null=True, blank=True)
     bid_identifier = models.IntegerField()
     
     def __str__(self):

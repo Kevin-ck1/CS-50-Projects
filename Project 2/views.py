@@ -1,18 +1,17 @@
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionListing, Bid, Comment, Category, Info
 
 
 def index(request):
-    active_listings = AuctionListing.objects.exclude(listing_open=False)
+    auction_listings = AuctionListing.objects.exclude(listing_open=False)
     
-    #Check for the watchlist button in the home page
-    for listing in active_listings:
+    for listing in auction_listings:
         try:
             Bid.objects.get(bid_identifier=listing.id, watchBidder=request.user)
             listing.display_button = False
@@ -20,7 +19,7 @@ def index(request):
             listing.display_button = True
 
     return render(request, "auctions/index.html",{
-        "listings": active_listings,
+        "listings": auction_listings,
         "type": "Active Listings"
     })
 
@@ -76,9 +75,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-@login_required(login_url="login")
 def create(request):
-    #Creating new listing from the form data
     if request.method == "POST":
         title = request.POST['listing_title']
         description = request.POST['listing_description']
@@ -103,7 +100,6 @@ def create(request):
         new_listing.save()
 
         return HttpResponseRedirect(reverse("index"))
-
     return render(request, "auctions/create.html",{
         "categories": Category.objects.exclude(pk=1)
     })
@@ -113,7 +109,6 @@ def listing_page(request, listing_id):
     min_bid = listing.current_bid + 5
     comments = listing.listing_comment.all()
 
-    #Identify when to display the Close Listing Button for Listing Creator
     if listing.listing_open == False:
         close = "CLOSED"
         try:
@@ -132,10 +127,9 @@ def listing_page(request, listing_id):
         close_button = False
     else:
         close_button = True
-
-    #Identify when to display the + Watch List Button for a bidder
+        
     try:
-        Bid.objects.get(bid_identifier=listing_id, watchBidder=request.user)
+        Bid.objects.get(bid_identifier=listing_id)
         button = False   
     except:
         button = True
@@ -152,9 +146,7 @@ def listing_page(request, listing_id):
     }
     return render(request, "auctions/listing.html", context)
 
-@login_required(login_url="login")
 def watchlist(request):
-    #To add item to a Watch List
     if request.method == "POST":
         wList = request.POST['wList']
         page = request.POST['page']
@@ -162,7 +154,8 @@ def watchlist(request):
         Bidder = request.user
         
         new_bid = Bid(
-            bid_item=watch_list,
+            bid_item=watch_list, 
+            bid_price=watch_list.current_bid,
             watchBidder=Bidder, 
             bid_identifier=wList
         )
@@ -174,7 +167,7 @@ def watchlist(request):
         else:
             return HttpResponseRedirect(reverse("index"))
             
-    #Obtaining items to display in Watchlist page
+    
     else:
         listings = []
         bid_listings = request.user.listing_watchBidder.all()
@@ -193,10 +186,9 @@ def watchlist(request):
             "type": "my Watchlist"
         })
 
-@login_required(login_url="login")
+
 def bidlist(request):
     bid_listings = request.user.listing_bidder.all()
-    #Add Items to a bid list
     if request.method == "POST":
         bItem = request.POST['bItem']
         bid_list = AuctionListing.objects.get(pk=bItem)
@@ -222,7 +214,6 @@ def bidlist(request):
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":bItem}))
     
-    #To obtain items to display in the bid list
     else:
         listings = []
 
@@ -241,7 +232,6 @@ def bidlist(request):
             "type": "my Bids"
         })
 
-#To close a listing by the creator
 def close_lisiting(request):
     if request.method == "POST":
         bItem = request.POST['lastBid']
@@ -260,8 +250,7 @@ def close_lisiting(request):
         
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":bItem}))
 
-#To track items that a person has uploaded
-@login_required(login_url="login")
+
 def my_listing(request):
     listings = request.user.listing_creator.all()
     return render(request, "auctions/index.html",{
@@ -269,7 +258,6 @@ def my_listing(request):
         "type": "my Listings"
     })
 
-@login_required(login_url="login")
 def comments(request):
     if request.method == "POST":
         comment = request.POST['comment']
@@ -277,18 +265,6 @@ def comments(request):
         item = AuctionListing.objects.get(pk=listing_id)
         new_comment = Comment(comment=comment,commentor=request.user, comment_item=item)
         new_comment.save()
-
-        #Adding an item to the watch list that, after a someone comments
-        try:
-            update_bid = Bid.objects.get(bid_item=item, watchBidder=request.user)
-        except:
-            new_bid = Bid(
-                bid_item=item, 
-                watchBidder=request.user, 
-                bid_identifier=listing_id
-            )
-            new_bid.save()
-
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 
@@ -307,17 +283,3 @@ def category(request):
     return render(request, "auctions/category.html", {
         "categories": categories
     })
-
-
-
-
-
-        
-
-
-
-
-
-
-
-        
