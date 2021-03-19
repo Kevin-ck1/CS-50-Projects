@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // By default, load the inbox
   load_mailbox('inbox');
 });
+
+
 var state;
 
 function compose_email() {
@@ -26,6 +28,7 @@ function compose_email() {
     document.querySelector('#readMail').remove();
   }
   catch{}
+
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
@@ -33,34 +36,19 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
-
-  state = mailbox
-  console.log(state)
-  // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
-  //document.querySelector('#readMail').remove();
-  try {
-    document.querySelector('#readMail').remove();
-  }
-  catch{}
-  // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-
-  //My code
-  //Fetching the sent mail
+  
+  //Fetching sent mail
   fetch('/emails/'+mailbox+'')
   //fetch(`/emails/${mailbox}`) -- This can also be used for the fetch url
     .then(response => response.json())
     .then(emails => { 
 
       //Displaying the emails in a table format
-      const emailTable =  document.createElement('table');
+      const emailTable =  document.createElement('div');
       emailTable.setAttribute("id", "mail");
-      emailTable.setAttribute("class", "table");
-      const tableBody = document.createElement('tbody');
+      emailTable.setAttribute("class", "col-12");
+      const tableBody = document.createElement('div');
       tableBody.setAttribute("id", "tableBody")
-      //tableBody.setAttribute("class", "row justify-content-between")
       emailTable.append(tableBody)
 
       //Iterating the emails and placing each into a row
@@ -68,20 +56,23 @@ function load_mailbox(mailbox) {
         emails.forEach(function(email) {
           if (state == "sent"){
             email_list = 
-            ` <th>To: ${email.recipients}</th>
-              <th>${email.subject}</th>
-              <th>${email.timestamp}</th>
+            ` <div class="col-3">To: ${email.recipients}</div>
+              <div>${email.subject}</div>
+              <div class="ml-auto">${email.timestamp}</div>
             `;
           }else{
             email_list = 
-          ` <th>${email.sender}</th>
-            <th>${email.subject}</th>
-            <th>${email.timestamp}</th>
+          ` <div class="col-3">${email.sender}</div>
+            <div>${email.subject}</div>
+            <div class="ml-auto">${email.timestamp}</div>
           `;
           };
           
-          emailRow = document.createElement('tr');
+          emailRow = document.createElement('div');
           emailRow.innerHTML = email_list;
+          emailRow.setAttribute("class", "d-flex border-bottom border-dark p-2")
+          emailRow.setAttribute("id", "emailRow")
+
           //To show read status of the email
           if(email.read){
             emailRow.style.backgroundColor = "#f1f1f1"
@@ -93,11 +84,26 @@ function load_mailbox(mailbox) {
         //Appending the table to the view div
         document.querySelector('#emails-view').append(emailTable);     
 
-});
+    });
+
+  state = mailbox
+  //console.log(state)
+
+  // Show the mailbox and hide other views
+  document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#compose-view').style.display = 'none';
+
+  try {
+    document.querySelector('#readMail').remove();
+  }
+  catch{}
+
+  // Show the mailbox name
+  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
 }
 
-//My Functions
+//To post an email
 function post_email(e) {
   e.preventDefault();
   
@@ -107,7 +113,6 @@ function post_email(e) {
   console.log(compose_subject)
 
   fetch('/emails', {
-
     method: 'POST',
     body: JSON.stringify({
         recipients: compose_recipients,
@@ -116,16 +121,12 @@ function post_email(e) {
     })
   })
   .then(response => response.json())
-  .then(result => {
-      // Print result
-      console.log(result);
-  })
-
   .catch(error => {
     console.log('Error', error);
   });
+
+  fetch(`/emails/sent`)
   load_mailbox('sent')
-  
 }
 
 function view_mail(emailNo){
@@ -170,12 +171,9 @@ function view_mail(emailNo){
       `
      button1 = document.querySelector('#button1')
       if (state == "inbox"){
-        //<button class="btn btn-sm btn-info">Archive</button>
-        //button1.value = "Archive"
         button1.setAttribute("value", "Archive");
         button1.setAttribute("class", "btn btn-sm btn-info")
       }else if (state == "archive"){
-        //<button class="btn btn-sm btn-info">Archive</button>
         button1.value = "Unarchive"
         button1.setAttribute("class", "btn btn-sm btn-warning")
       }else {
