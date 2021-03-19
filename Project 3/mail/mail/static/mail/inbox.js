@@ -5,29 +5,27 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
+  
 
   //My added events
   // To initiate post request, when posting the mail
   document.querySelector('#compose-form').addEventListener('submit', post_email);
-  //To view an email
-  //document.querySelector('#mail').addEventListener('click', () => view_mail(`${email.id}`));
-  document.querySelectorAll('#mail').forEach(email_item =>{
-    email_item.onclick = function() {
-        view_mail(this.dataset.emailNo);
-    }
-})
   
 
   // By default, load the inbox
   load_mailbox('inbox');
 });
+var state;
 
 function compose_email() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
-
+  try {
+    document.querySelector('#readMail').remove();
+  }
+  catch{}
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
@@ -35,11 +33,17 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
-  
+
+  state = mailbox
+  console.log(state)
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
-
+  //document.querySelector('#readMail').remove();
+  try {
+    document.querySelector('#readMail').remove();
+  }
+  catch{}
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -48,39 +52,48 @@ function load_mailbox(mailbox) {
   fetch('/emails/'+mailbox+'')
   //fetch(`/emails/${mailbox}`) -- This can also be used for the fetch url
     .then(response => response.json())
-    .then(emails => {
-        // Print emails
-        //console.log(emails);
+    .then(emails => { 
+
+      //Displaying the emails in a table format
+      const emailTable =  document.createElement('table');
+      emailTable.setAttribute("id", "mail");
+      emailTable.setAttribute("class", "table");
+      const tableBody = document.createElement('tbody');
+      tableBody.setAttribute("id", "tableBody")
+      //tableBody.setAttribute("class", "row justify-content-between")
+      emailTable.append(tableBody)
+
+      //Iterating the emails and placing each into a row
         let email_list = "";
         emails.forEach(function(email) {
-          email_list += 
-          // <div id="email${email.id}" class="card card-body">
-          //   <p> 
-          //     <span class="col-3" >${email.sender}</span>
-          //     <span>${email.subject}</span>
-          //     <span class="text-muted">${email.timestamp}</span>
-          //   </p>
-          // </div>`;
-          `
-          <div id="email" class="card card-body" data-emailNo=${email.id}>
-            <p> 
-              <span class="col-3" >${email.sender}</span>
-              <span>${email.subject}</span>
-              <span class="text-muted">${email.timestamp}</span>
-            </p>
-          </div>`;
-
+          if (state == "sent"){
+            email_list = 
+            ` <th>To: ${email.recipients}</th>
+              <th>${email.subject}</th>
+              <th>${email.timestamp}</th>
+            `;
+          }else{
+            email_list = 
+          ` <th>${email.sender}</th>
+            <th>${email.subject}</th>
+            <th>${email.timestamp}</th>
+          `;
+          };
           
-          //console.log(email)
-         // document.querySelector(`#mail${email.id}`).addEventListener('click', () => view_mail(`${email.id}`));
-        });
+          emailRow = document.createElement('tr');
+          emailRow.innerHTML = email_list;
+          //To show read status of the email
+          if(email.read){
+            emailRow.style.backgroundColor = "#f1f1f1"
+          };
+          //To view the mail once clicked
+          emailRow.addEventListener("click", ()=>view_mail(email.id));
+          tableBody.append(emailRow);    
+        }); 
+        //Appending the table to the view div
+        document.querySelector('#emails-view').append(emailTable);     
 
-        const element = document.createElement('div');
-        element.innerHTML = email_list;
-        document.querySelector('#emails-view').append(element)
-        // ... do something else with emails ...
 });
-
 
 }
 
@@ -111,20 +124,114 @@ function post_email(e) {
   .catch(error => {
     console.log('Error', error);
   });
-
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-
+  load_mailbox('sent')
   
 }
 
 function view_mail(emailNo){
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  const read_mail =  document.createElement('div');
+  read_mail.setAttribute("id", "readMail");
+  read_mail.style.display = 'flex';
+  document.querySelector('.container').append(read_mail);
+  
+
   fetch(`/emails/${emailNo}`)
   .then(response => response.json())
   .then(email => {
       // Print email
       console.log(email);
+      
+      read_mail.innerHTML = `
+      <div class="col-12">
+        <div class="row justify-content-between">
+        <h2 class="pl-2">${email.subject}</h2>
+        <input type="button" id="button1">
+        </div>
+        <hr>
+        <div class="row justify-content-between">
+          <div>
+          <span class="font-weight-bold pl-4"> ${email.sender}</span>
+          to
+          <span class"text-muted">${email.recipients}</span>
+          </div>
+          <div >
+          <span class"text-muted">${email.timestamp}</span>
+          </div>
+        </div>
+        <hr>
+        <p class="pl-2" style="white-space: pre-line">${email.body}</p>
+        <div class="">
+          <button class="btn btn-sm btn-primary" id="reply">Reply</button>
+        </div>
+      </div>
+      
+      `
+     button1 = document.querySelector('#button1')
+      if (state == "inbox"){
+        //<button class="btn btn-sm btn-info">Archive</button>
+        //button1.value = "Archive"
+        button1.setAttribute("value", "Archive");
+        button1.setAttribute("class", "btn btn-sm btn-info")
+      }else if (state == "archive"){
+        //<button class="btn btn-sm btn-info">Archive</button>
+        button1.value = "Unarchive"
+        button1.setAttribute("class", "btn btn-sm btn-warning")
+      }else {
+        button1.style.display = "none"
+      }
 
-      // ... do something else with email ...
-});
+      button1.addEventListener('click', () => archiveState(email.id));
+      document.querySelector('#reply').addEventListener('click', () => replyMail(email.id));
+  });
 
+  fetch(`/emails/${emailNo}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  })
 }
+
+function archiveState(emailNo){
+  var status; 
+
+  if (state == "inbox"){
+    status = true
+  }else {
+    status = false
+  }
+
+  fetch(`/emails/${emailNo}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: status
+    })
+  });
+
+  load_mailbox('inbox');
+}
+
+function replyMail(emailNo){
+  fetch(`/emails/${emailNo}`)
+  .then(response => response.json())
+  .then(email =>{
+    compose_email()
+    var email_subject;
+    var a = email.subject
+    if(a.includes("RE:")){
+      email_subject = a
+    }else{
+      email_subject = `RE: ${a}`
+    }
+    if(state == "sent"){
+      document.querySelector('#compose-recipients').value = email.recipients;
+    }else{
+      document.querySelector('#compose-recipients').value = email.sender;
+    }
+    document.querySelector('#compose-subject').value = email_subject;
+    document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: \r\n [${email.body}]: \r\n`
+  });
+}
+
