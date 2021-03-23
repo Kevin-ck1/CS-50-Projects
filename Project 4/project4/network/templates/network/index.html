@@ -1,5 +1,23 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div class="container">
+        <div id="create" class="border ">
+            <div>
+                <h2>New Post</h2>
+            </div>
+            <div id="post_form">
+                <form action="" id = "form">
+                    <div class="form-group">
+                        <textarea name="postArea" id="postContent" cols="10" rows="2" class="form-control" ></textarea>
+                        <input type="submit" value="Post">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="posts">
+
+        </div>
+    </div>
 {% endblock %}

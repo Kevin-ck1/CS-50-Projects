@@ -125,7 +125,6 @@ function post_email(e) {
     console.log('Error', error);
   });
 
-  fetch(`/emails/sent`)
   load_mailbox('sent')
 }
 
