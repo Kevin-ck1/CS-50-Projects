@@ -32,6 +32,7 @@ class Like(models.Model):
     liked_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name="liked")
     liker = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True, related_name="post_liker")
     
-class Follower(models.Model):
-    follower =  models.ForeignKey(User, on_delete=models.CASCADE, related_name="my_followers")
-    following =  models.ForeignKey(User, on_delete=models.CASCADE, related_name="my_following")
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    follower =  models.ManyToManyField(User, related_name="my_followers")
+    following =  models.ManyToManyField(User, related_name="my_following")

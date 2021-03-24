@@ -8,11 +8,17 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 
-from .models import User, Posts, Comment, Like, Follower
+from .models import User, Posts, Comment, Like, Profile
 
 
 def index(request):
-    return render(request, "network/index.html")
+    #return render(request, "network/index.html")
+    posts = Posts.objects.all()
+    posts = posts.order_by("-dateTime").all()
+    
+    return render(request, "network/index.html",{
+        "posts": posts,
+    })
 
 
 def login_view(request):
@@ -82,8 +88,38 @@ def new(request):
 
 def allPost(request):
     posts = Posts.objects.all()
-   
     posts = posts.order_by("-dateTime").all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
     print([post.serialize() for post in posts])
     
+def profile(request, profilename):
+    user = User.objects.get(username = profilename)
+    profile = Profile.objects.get(user = user)
+
+    followers = profile.follower.count()
+    following = profile.following.count()
+
+    
+    posts = Posts.objects.filter(posterUsername = user)
+
+    return render(request, "network/index.html",{
+        "profileUser" : profile.user,
+        "followers": followers,
+        "following": following,
+        "posts": posts
+    })
+
+def following(request):
+    user = request.user
+    posts  = ""
+
+    profile = Profile.objects.get(user = user)
+
+    posts = None
+    for person in profile.following.all():
+        posts = posts | Posts.objects.filter(posterUsername = person)
+        #posts.append(Posts.objects.filter(posterUsername = person))
+    print(posts)
+
+    
+     

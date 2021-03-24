@@ -16,8 +16,24 @@
             </div>
         </div>
 
-        <div id="posts">
+        <div id="posts"></div>
 
+        <div id="profile" class="card">
+            <h2>{{profileUser}}</h2>
+            <p>Follewers {{ followers }}</p>
+            <p>Follewers {{ following }}</p>
         </div>
+
+        <div id="display_posts">
+            {% for post in posts %}
+            <div id="postItem" >
+                <p id="posterUsername" data-idno="{{post.posterUsername}}"> {{post.posterUsername}}</p>
+                <p>{{post.postContent }}</p>
+                <p>{{post.dateTime}}</p>
+                <p>{{post.like}}</p>
+            </div>
+            {%endfor%}
+        </div>
+       
     </div>
 {% endblock %}

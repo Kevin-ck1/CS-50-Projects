@@ -1,6 +1,9 @@
 document.querySelector("#form").addEventListener('submit', submitForm);
 
-document.addEventListener("DOMContentLoaded", displayPost)
+//cument.addEventListener("DOMContentLoaded", displayPost)
+var postname = document.querySelector('#posterUsername').dataset.idno;
+
+document.querySelector("#posterUsername").addEventListener('click', () => viewProfile(postname))
 
 function submitForm(e) {
     e.preventDefault();
@@ -24,7 +27,7 @@ function submitForm(e) {
 };
 
 function displayPost(){
-    
+    document.querySelector('#display_posts').style.display ="none"
     fetch('/allPost')
     .then(response => response.json())
     .then(posts => {
@@ -33,8 +36,8 @@ function displayPost(){
         posts.forEach(function(post){
             const post_item = document.createElement('div')
             postContent = 
-                `<div>
-                    <p>${post.poster}</p>
+                `<div class="border">
+                    <p id="posterUsername">${post.poster}</p>
                     <p>${post.content}</p>
                     <p>${post.dateTime}</p>
                     <p>${post.like}</p>
@@ -42,7 +45,16 @@ function displayPost(){
             
             post_item.innerHTML = postContent;
             document.querySelector('#posts').append(post_item);
+            document.querySelector("#posterUsername").addEventListener('click',() => viewProfile(post.poster))
         });
         
     });   
+}
+
+function viewProfile(p){
+    fetch(`/profile/${p}`)
+    .then( response => response.text())
+    .then( html => {
+        document.body.innerHTML = html
+    })
 }
