@@ -113,29 +113,53 @@ def profile(request, profilename):
     
     posts = Posts.objects.filter(posterUsername = user)
 
-    if request.method == "GET":
-        return render(request, "network/index.html",{
+    
+    return render(request, "network/index.html",{
         "profile" : profile,
         "followers": followers,
         "following": following,
         "posts": posts,
         "displaybutton":button
     })
-    else:
-        profile.follower.remove(username=request.user)
+    
+        
 
 def following(request):
     user = request.user
-    posts  = ""
-
     profile = Profile.objects.get(user = user)
 
     #Creating an empty queryset
     posts = Posts.objects.none()
+    #To merge the various queryset
     for person in profile.following.all():
-        #To merge the various queryset
         posts = posts | Posts.objects.filter(posterUsername = person)
     return render(request, "network/index.html",{
         "posts": posts
     })
 
+def followUnfollow(request, profileId):
+    profile = Profile.objects.get(id = profileId)
+    followers = profile.follower.count()
+
+    try:
+        profile.follower.get(username=request.user)
+        profile.follower.remove(request.user)
+        followers -= 1
+        button = "Follow" 
+    except:
+        profile.follower.add(request.user)
+        followers += 1
+        button = "unFollow"
+    
+    responseData = {
+        "followers": followers,
+        "buttontype": button
+    }
+
+    return JsonResponse(responseData, safe=False)
+
+def editPost(request):
+    1
+
+def likePost(request):
+    return "hello"   

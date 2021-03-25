@@ -1,16 +1,37 @@
-document.querySelector("#form").addEventListener('submit', submitForm);
+document.addEventListener('DOMContentLoaded', function(){
+    //Event Listener for submiting the form
+    document.querySelector("#form").addEventListener('submit', submitForm);
 
-//cument.addEventListener("DOMContentLoaded", displayPost)
-var postname = document.querySelector('#posterUsername').dataset.idno;
+    //Event Listener for clicking the followning link
+    document.querySelector('#followingLink').addEventListener('click', () =>{
+        document.querySelector('#create').style.display = "none";
+        document.querySelector('#profile').style.display ="none";
+    });
 
-document.querySelectorAll("#posterUsername").forEach((a) => {
-    a.addEventListener('click', () => viewProfile(postname))
+    //To obtain a person who has post a particular post
+    var postname = document.querySelector('#posterUsername').dataset.idno;
+    //Event Listener for clicking a post poster
+    document.querySelectorAll("#posterUsername").forEach((a) => {
+        a.addEventListener('click', () => viewProfile(postname));
+    });
+
+    //To obtain the post id
+    //var postId = document.querySelector('#postContent').dataset.postId;
+    
+    //var postid = document.querySelector('#editButton').dataset.postId;
+    
+    //Event Listener for Editing Post
+    document.querySelectorAll('#editButton').forEach((link) => {
+        //console.log(postid)
+        //link.addEventListener('click', ()=> editPost(postid))
+
+    });
+
+    let currentuser2 = document.querySelector('#currentUser1').dataset.currentUser;
+    console.log(currentuser2)
+
 });
 
-document.querySelector('#followingLink').addEventListener('click', () =>{
-    document.querySelector('#create').style.display = "none";
-    document.querySelector('#profile').style.display ="none";
-});
 
 function submitForm(e) {
     e.preventDefault();
@@ -66,6 +87,31 @@ function viewProfile(p){
         document.body.innerHTML = html;
         window.scrollTo(0, 0);
         document.querySelector('#create').style.display = "none"
+        var profileId = document.querySelector('#followbutton').dataset.idno
+        document.querySelector('#followbutton').addEventListener('click', () => followUnfollow(profileId));
 
-    })
+    });
+};
+
+function followUnfollow(p){
+    fetch(`/followUnfollow/${p}`)
+    .then(response => response.json())
+    .then(a => {
+        document.querySelector('#followNo').innerHTML = a.followers
+        document.querySelector('#followbutton').innerHTML = a.buttontype
+    });
+};
+
+function editPost(id){
+    // fetch(`/editPost/${id}`, {
+    //     method: 'POST',
+    //     body: JSON.stringify({
+    //         content: postcontent
+    //     })
+    // });
+    console.log(id)
+};
+
+function likes(o){
+    fetch(`/likePost/${0}`)
 }

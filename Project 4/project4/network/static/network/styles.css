@@ -4,3 +4,12 @@
 #body1 {
     background-color: aqua;
 }
+
+.link {
+    color: blue;
+}
+
+.link:hover {
+    color: gray;
+    border-bottom: 1px solid gray;
+}

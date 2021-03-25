@@ -1,6 +1,7 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+    <div id="currentUser1" data-currentUser=1></div>
     <div class="container">
         <div id="create" class="border p-3 mt-4">
             <div>
@@ -27,14 +28,16 @@
                             <small><i>{{profile.user}}</i></small>
                         </h2>
                         <div class="justify-content-center">
-                            {% if user.is_authenticated%}
-                            <button id="followbutton" class="btn btn-primary rounded">Follow</button>
+                            {% if user != profile.user%}
+                                {% if user.is_authenticated%}
+                                <button id="followbutton" class="btn btn-primary rounded" data-idno="{{profile.id}}">{{displaybutton}}</button>
+                                {%endif%}
                             {%endif%}
                         </div>
                     </div>
                     
                     <p class="row justify-content-around">
-                        <span class="col-2">{{ followers }} Follewers </span>
+                        <span class="col-2"> <span id="followNo">{{ followers }} </span> Follewers </span>
                         <span class="col-2">{{ following }} Following</span>
                     </p>
                 </div>
@@ -43,7 +46,7 @@
 
         <div id="display_posts">
             {% for post in posts %}
-            <div class="card mt-2">
+            <div class="card mt-2" id="postContent" data-postId="{{post.id}}">
                 <div class="card-header">
                     <h3 class="media-heading">
                         <span id="posterUsername" data-idno="{{post.posterUsername}}" >{{post.posterUsername}}</span>
@@ -52,10 +55,12 @@
                 </div>
                 <div class="card-body">
                     <p>{{post.postContent}}</p>
-                    <p class="text-muted">Likes {{post.like}}</p>
-                    {% if user.username == post.posterUsername %}
-                    <p class="link">Edit</p>
-                    {%endif%}
+                    <div class="row justify-content-between">
+                        <p class="text-muted ml-3">Likes {{post.like}}</p>
+                        {% if user == post.posterUsername %}
+                        <p class="link mr-3" id="editButton" data-postId="{{post.id}}">Edit</p>
+                        {%endif%}
+                        </div>
                 </div>
             </div>
 

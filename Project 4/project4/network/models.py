@@ -9,6 +9,7 @@ class Posts(models.Model):
     posterUsername = models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_creator")
     postContent = models.CharField(max_length=64)
     dateTime =  models.DateTimeField(auto_now_add=True)
+    likers = models.ManyToManyField(User, related_name="post_likers")
     like = models.IntegerField()
 
     # def __str__(self):
@@ -30,7 +31,7 @@ class Comment(models.Model):
 
 class Like(models.Model):
     liked_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name="liked")
-    liker = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True, related_name="post_liker")
+    liker = models.ManyToManyField(User, related_name="post_liker")
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
