@@ -3,7 +3,14 @@ document.querySelector("#form").addEventListener('submit', submitForm);
 //cument.addEventListener("DOMContentLoaded", displayPost)
 var postname = document.querySelector('#posterUsername').dataset.idno;
 
-document.querySelector("#posterUsername").addEventListener('click', () => viewProfile(postname))
+document.querySelectorAll("#posterUsername").forEach((a) => {
+    a.addEventListener('click', () => viewProfile(postname))
+});
+
+document.querySelector('#followingLink').addEventListener('click', () =>{
+    document.querySelector('#create').style.display = "none";
+    document.querySelector('#profile').style.display ="none";
+});
 
 function submitForm(e) {
     e.preventDefault();
@@ -52,9 +59,13 @@ function displayPost(){
 }
 
 function viewProfile(p){
+    //document.querySelector('body').animate({ scrollTop: 0 }, "slow");
     fetch(`/profile/${p}`)
     .then( response => response.text())
     .then( html => {
-        document.body.innerHTML = html
+        document.body.innerHTML = html;
+        window.scrollTo(0, 0);
+        document.querySelector('#create').style.display = "none"
+
     })
 }

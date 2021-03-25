@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
+from django.core.paginator import Paginator
 
 from .models import User, Posts, Comment, Like, Profile
 
@@ -15,9 +16,14 @@ def index(request):
     #return render(request, "network/index.html")
     posts = Posts.objects.all()
     posts = posts.order_by("-dateTime").all()
-    
+
+    #paginating the posts
+    paginator = Paginator(posts, 2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "network/index.html",{
-        "posts": posts,
+        "posts": page_obj,
     })
 
 
@@ -99,15 +105,24 @@ def profile(request, profilename):
     followers = profile.follower.count()
     following = profile.following.count()
 
+    try:
+        profile.follower.get(username=request.user)
+        button = "unFollow"
+    except:
+        button = "Follow" 
     
     posts = Posts.objects.filter(posterUsername = user)
 
-    return render(request, "network/index.html",{
-        "profileUser" : profile.user,
+    if request.method == "GET":
+        return render(request, "network/index.html",{
+        "profile" : profile,
         "followers": followers,
         "following": following,
-        "posts": posts
+        "posts": posts,
+        "displaybutton":button
     })
+    else:
+        profile.follower.remove(username=request.user)
 
 def following(request):
     user = request.user
@@ -115,11 +130,12 @@ def following(request):
 
     profile = Profile.objects.get(user = user)
 
-    posts = None
+    #Creating an empty queryset
+    posts = Posts.objects.none()
     for person in profile.following.all():
+        #To merge the various queryset
         posts = posts | Posts.objects.filter(posterUsername = person)
-        #posts.append(Posts.objects.filter(posterUsername = person))
-    print(posts)
+    return render(request, "network/index.html",{
+        "posts": posts
+    })
 
-    
-     
