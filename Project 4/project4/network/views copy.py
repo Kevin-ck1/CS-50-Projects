@@ -95,13 +95,7 @@ def new(request):
 def allPost(request):
     posts = Posts.objects.all()
     posts = posts.order_by("-dateTime").all()
-
-    #paginating the posts
-    paginator = Paginator(posts, 2)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return JsonResponse([post.serialize() for post in page_obj], safe=False)
+    return JsonResponse([post.serialize() for post in posts], safe=False)
     print([post.serialize() for post in posts])
     
 def profile(request, profilename):
@@ -164,41 +158,8 @@ def followUnfollow(request, profileId):
 
     return JsonResponse(responseData, safe=False)
 
-@csrf_exempt
-def updatePost(request, postId):
-    if request.method == "PUT":
-        updated_post = Posts.objects.get(id=postId)
-        data = json.loads(request.body)
-        updated_content = data.get("content", "")
-        updated_post.postContent = updated_content
-        updated_post.save()
+def editPost(request):
+    1
 
-        return JsonResponse({"message": "Post Updated Successfully."}, status=201)
-
-def likePost(request, postId):
-    liked_post = Posts.objects.get(id=postId) 
-    likes = liked_post.like
-    
-    try:
-        liked_post.likers.get(username=request.user)
-        liked_post.likers.remove(request.user)
-        likes -= 1
-        liked_post.like -=1
-        liked_post.save()
-        like = True
-    except:
-        liked_post.likers.add(request.user)
-        likes += 1
-        liked_post.like +=1
-        liked_post.save()
-        like = False
-
-    liked_post.save()
-
-    responsedata = {
-        "likes": likes,
-        "like": like
-    }
-    
-    return JsonResponse(responsedata, safe=False)
-
+def likePost(request):
+    return "hello"   

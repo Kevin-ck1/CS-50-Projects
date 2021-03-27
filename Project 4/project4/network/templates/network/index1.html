@@ -1,7 +1,7 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <div id="currentUser1" data-currentuser=1></div>
+    <div id="currentUser" data-currentuser={{user.username}}></div>
     <div class="container">
         <div id="create" class="border p-3 mt-4">
             <div>
@@ -46,33 +46,21 @@
 
         <div id="display_posts">
             {% for post in posts %}
-            <div class="card mt-2" id="post{{post.id}}">
-                <div id="postbody">
-                    <div class="card-header">
-                        <h3 class="media-heading">
-                            <span id="posterUsername" data-idno="{{post.posterUsername}}" >{{post.posterUsername}}</span>
-                            <small><i>{{post.dateTime}}</i></small>
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="postcontent">{{post.postContent}}</p>
-                        <div class="row justify-content-between">
-                            {% if user in post.likers %}
-                            <p class="text-muted ml-3" style="color:red" id="likediv"> 
-                                <span id="heartIcon" onclick="likepost('{{post.id}}')">&#x2665; </span> 
-                                <span id="likeno">{{post.like}}</span>
-                            </p>
-                            {%else%}
-                            <p class="text-muted ml-3" id="likediv"> 
-                                <span id="heartIcon" onclick="likepost('{{post.id}}')">&#x2661; </span> 
-                                <span id="likeno">{{post.like}}</span>
-                            </p>
-                            {%endif%}
-                            {% if user == post.posterUsername %}
-                            <p class="link mr-3" id="editButton" onclick="editPost('{{post.id}}')">Edit</p>
-                            {%endif%}
+            <div class="card mt-2" id="postContent" data-postid="{{post.id}}">
+                <div class="card-header">
+                    <h3 class="media-heading">
+                        <span id="posterUsername" data-idno="{{post.posterUsername}}" >{{post.posterUsername}}</span>
+                        <small><i>{{post.dateTime}}</i></small>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p>{{post.postContent}}</p>
+                    <div class="row justify-content-between">
+                        <p class="text-muted ml-3">Likes {{post.like}}</p>
+                        {% if user == post.posterUsername %}
+                        <p class="link mr-3" id="editButton" data-postId="{{post.id}}">Edit</p>
+                        {%endif%}
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -83,23 +71,23 @@
         <div class="pagination">
             <span class="step-links">
                 {% if posts.has_previous %}
-                    <a class="btn btn-outline-info mt-4" href="?page=1">First</a>
-                    <a class="btn btn-outline-info mt-4" href="?page={{ posts.previous_page_number }}">previous</a>
+                    <a class="btn btn-outline-info mt-4" onclick="displayPost(1)">First</a>
+                    <a class="btn btn-outline-info mt-4" onclick="displayPost('{{ posts.previous_page_number }}')">previous</a>
                 {% endif %}
         
                 <span class="current">
                     {% for num in posts.paginator.page_range %}
                         {% if posts.number == num %}
-                            <a class="btn btn-info mt-4" href="?page={{ num }}">{{ num }}</a>
+                            <a class="btn btn-info mt-4" onclick="displayPost('{{num}}')">{{ num }}</a>
                         {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
-                            <a class="btn btn-outline-info mt-4" href="?page={{ num }}">{{ num }}</a>
+                            <a class="btn btn-outline-info mt-4" onclick="displayPost('{{num}}')">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
                 </span>
         
                 {% if posts.has_next %}
-                    <a class="btn btn-outline-info mt-4" href="?page={{ posts.next_page_number }}">next</a>
-                    <a class="btn btn-outline-info mt-4" href="?page={{ post.paginator.num_pages }}">last &raquo;</a>
+                    <a class="btn btn-outline-info mt-4" href="allPost?page={{ posts.next_page_number }}" onclick="displayPost('{{ posts.next_page_number }}')">next</a>
+                    <a class="btn btn-outline-info mt-4" href="allPost?page={{ post.paginator.num_pages }}" onclick="displayPost('{{ post.paginator.num_pages }}')">last &raquo;</a>
                 {% endif %}
             </span>
             

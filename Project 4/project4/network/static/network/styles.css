@@ -13,3 +13,12 @@
     color: gray;
     border-bottom: 1px solid gray;
 }
+
+#heartIcon{
+    font-size: 20px;
+}
+
+#likedive>#heartIcon:hover {
+    box-shadow: 0px 0px 20px;
+    font-size: 25px;
+}
