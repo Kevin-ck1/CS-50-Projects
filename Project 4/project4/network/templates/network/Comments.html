@@ -1,0 +1,21 @@
+<ul class="list-group row">
+    <li class="list-group-item">
+        <form  method="POST" class="commentform">
+            {% csrf_token %}
+            <div class="d-flex align-items-center justify-content-around">
+                <div class="input-group mb-3">
+                    <input id="commentContent" type="text" class="form-control" placeholder="Place Comment">
+                    <div class="input-group-append">
+                      <input class="btn btn-outline-secondary" type="submit" value="Add Comment">
+                    </div>
+                  </div>
+            </div>
+        </form>
+    </li>
+    {% for comment in comments %}
+    <li class="list-group-item">
+        <p class="d-flex align-items-center py-0 my-0">{{comment.comment}}</p>
+        <span class="small text-muted">by: {{comment.commentor}}</span>
+    </li>
+    {%endfor%}
+</ul>

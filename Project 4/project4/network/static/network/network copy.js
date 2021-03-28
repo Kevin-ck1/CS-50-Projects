@@ -1,82 +1,37 @@
 document.addEventListener('DOMContentLoaded', function(){
     //To obtain the current user
     let currentUser = document.querySelector('#currentUser1').dataset.currentuser;
-    //console.log(currentUser);
+    console.log(currentUser);
 
-    try{
-        //Event Listener for submiting the form
-        document.querySelector("#form").addEventListener('submit', submitForm);
-            //event.preventDefault();
-            
-    }
-    catch{
-        console.log("Visit All_Posts Page to Make a post, :)")
-    }
+    //Event Listener for submiting the form
+    document.querySelector("#form").addEventListener('submit', submitForm);
 });
 
-try{
-    //To obtain a person who has post a particular post
-    let postname = document.querySelector('#posterUsername').dataset.idno;
-    //Event Listener for clicking a post poster
-    document.querySelectorAll("#posterUsername").forEach((a) => {
-        a.addEventListener('click', () => {
-            history.pushState({state:postname},"",`/profile/${postname}`);
-            viewProfile(postname);
-        });
+//To obtain a person who has post a particular post
+let postname = document.querySelector('#posterUsername').dataset.idno;
+//Event Listener for clicking a post poster
+document.querySelectorAll("#posterUsername").forEach((a) => {
+    a.addEventListener('click', () => {
+        history.pushState({state:postname},"",`/profile/${postname}`);
+        viewProfile(postname);
     });
-}
-catch{
-    console.log("No Posts Yet, Watch Snyder's Cut While Waiting :)")
-}
-
-
-//Function for getting crsf token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+});
 
 function submitForm(e) {
-    e.preventDefault()
-    //To get the csrftoken
-    const csrftoken = (
-        document.querySelector('#form')
-        .querySelector('[name=csrfmiddlewaretoken]').value
-    );
-    console.log(csrftoken)
-    const request = new Request(
-        `/newPost`,
-        {headers: {'X-CSRFToken': csrftoken}}
-    );
+    e.preventDefault();
     
     //To get the value of the post
-    let postcontent = document.querySelector("#postContent").value;
+    postcontent = document.querySelector("#postContent").value;
     console.log(postcontent)
 
     //Sending the content to the server
-    fetch(request,{
+    fetch('/newPost',{
         method: 'POST',
-        mode: 'same-origin', 
         body: JSON.stringify({
             content: postcontent
         })
     })
     .then(response => response.json())
-    .then(document.querySelector("#postContent").innerHTML="")
-    .then(()=>{
-        location.reload();
-    })
     .catch(error => {
         console.log('Error', error);
     });
@@ -114,13 +69,8 @@ function viewProfile(p){
     .then( html => {
         document.body.innerHTML = html;
         window.scrollTo(0, 0);
-        try{
-            var profileId = document.querySelector('#followbutton').dataset.idno
-            document.querySelector('#followbutton').addEventListener('click', () => followUnfollow(profileId));
-        }
-        catch{
-            console.log("Hear me, and rejoice! This is your Profile")
-        }
+        var profileId = document.querySelector('#followbutton').dataset.idno
+        document.querySelector('#followbutton').addEventListener('click', () => followUnfollow(profileId));
 
     });
 };
@@ -155,19 +105,9 @@ function editPost(id){
 };
 
 function updatepost(id){
-    //To get the crsf token
-    const csrftoken = getCookie('csrftoken');
-    console.log(csrftoken);
-
-    const request = new Request(
-        `/updatePost/${id}`,
-        {headers: {'X-CSRFToken': csrftoken}}
-    );
-
     editedcontent = document.querySelector("#editContent").value;
-    fetch(request, {
+    fetch(`/updatePost/${id}`, {
         method: 'PUT',
-        mode: 'same-origin', 
         body: JSON.stringify({
             content: editedcontent
         })
@@ -192,6 +132,8 @@ function likepost(id){
             document.querySelector(`#post${id}`).querySelector('#likeno').removeAttribute("class");  
         }else{
             document.querySelector(`#post${id}`).querySelector('#heartIcon').innerHTML=`&#x2665;`;
+            //document.querySelector(`#post${id}`).querySelector('#heartIcon').style.color = "red";
+            //document.querySelector(`#post${id}`).querySelector('#likeno').style.color = "red";
             document.querySelector(`#post${id}`).querySelector('#heartIcon').setAttribute("class", "red");
             document.querySelector(`#post${id}`).querySelector('#likeno').setAttribute("class", "red");
         };
@@ -218,21 +160,11 @@ function showcomments(id){
 
 function createComment(id){
     let commentContent = document.querySelector(`#post${id}`).querySelector('#commentContent').value;
-    const csrftoken = (
-        document.querySelector(`#post${id}`)
-        .querySelector('.commentform')
-        .querySelector('[name=csrfmiddlewaretoken]').value
-    );
-    const request = new Request(
-        `/createComment/${id}`,
-        {headers: {'X-CSRFToken': csrftoken}}
-    );
-    
-    fetch(request,{
+    fetch(`/createComment/${id}`,{
         method: 'POST',
-        mode: 'same-origin', 
         body: JSON.stringify({
-            content: commentContent
+            content: commentContent,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
         })
     })
     .then(commentContent.value="")

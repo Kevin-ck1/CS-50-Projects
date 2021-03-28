@@ -35,5 +35,6 @@ class Like(models.Model):
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    usermail = models.CharField(max_length=64)
     follower =  models.ManyToManyField(User, related_name="my_followers")
     following =  models.ManyToManyField(User, related_name="my_following")

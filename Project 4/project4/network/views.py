@@ -8,6 +8,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
 from .models import User, Posts, Comment, Like, Profile
 
@@ -69,6 +70,9 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            #Creating a Profile for a user once registered
+            profile = Profile(user = user, usermail=email)
+            profile.save()
         except IntegrityError:
             return render(request, "network/register.html", {
                 "message": "Username already taken."
@@ -78,7 +82,7 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-@csrf_exempt
+@login_required(login_url="login")
 def new(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -103,6 +107,7 @@ def allPost(request):
 
     return JsonResponse([post.serialize() for post in page_obj], safe=False)
     print([post.serialize() for post in posts])
+
     
 def profile(request, profilename):
     user = User.objects.get(username = profilename)
@@ -119,12 +124,17 @@ def profile(request, profilename):
     
     posts = Posts.objects.filter(posterUsername = user)
 
+    #paginating the posts
+    paginator = Paginator(posts, 2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     
     return render(request, "network/index.html",{
         "profile" : profile,
         "followers": followers,
         "following": following,
-        "posts": posts,
+        "posts": page_obj,
         "displaybutton":button
     })
     
@@ -139,24 +149,43 @@ def following(request):
     #To merge the various queryset
     for person in profile.following.all():
         posts = posts | Posts.objects.filter(posterUsername = person)
+
+    #paginating the posts
+    paginator = Paginator(posts, 2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    
     return render(request, "network/index.html",{
-        "posts": posts
+        "posts": page_obj
     })
 
+@login_required(login_url="login")
 def followUnfollow(request, profileId):
+    #To get the profile of someone
     profile = Profile.objects.get(id = profileId)
+    #Getting the current user profile
+    profile2 = Profile.objects.get(user = request.user)
     followers = profile.follower.count()
 
     try:
+        #To unfollow
         profile.follower.get(username=request.user)
         profile.follower.remove(request.user)
+        profile2.following.remove(profile.user)
         followers -= 1
         button = "Follow" 
     except:
+        #To follow
         profile.follower.add(request.user)
+        profile2.following.add(profile.user)
         followers += 1
         button = "unFollow"
-    
+
+    profile.save()
+    profile2.save()
+
+    #Data to send back
     responseData = {
         "followers": followers,
         "buttontype": button
@@ -164,7 +193,7 @@ def followUnfollow(request, profileId):
 
     return JsonResponse(responseData, safe=False)
 
-@csrf_exempt
+@login_required(login_url="login")
 def updatePost(request, postId):
     if request.method == "PUT":
         updated_post = Posts.objects.get(id=postId)
@@ -175,25 +204,27 @@ def updatePost(request, postId):
 
         return JsonResponse({"message": "Post Updated Successfully."}, status=201)
 
+@login_required(login_url="login")
 def likePost(request, postId):
     liked_post = Posts.objects.get(id=postId) 
-    likes = liked_post.like
+    likes = liked_post.likers.count()
+    #likes = liked_post.like
     
     try:
         liked_post.likers.get(username=request.user)
         liked_post.likers.remove(request.user)
         likes -= 1
-        liked_post.like -=1
-        liked_post.save()
         like = True
     except:
         liked_post.likers.add(request.user)
         likes += 1
-        liked_post.like +=1
-        liked_post.save()
+        #liked_post.like +=1
         like = False
-
+    liked_post.like = likes
     liked_post.save()
+
+
+    print(liked_post.likers.all())
 
     responsedata = {
         "likes": likes,
@@ -202,3 +233,28 @@ def likePost(request, postId):
     
     return JsonResponse(responsedata, safe=False)
 
+@login_required(login_url="login")
+def createComment(request, postId):
+    post = Posts.objects.get(id=postId)
+    data = json.loads(request.body)
+    content = data.get("content", "")
+
+    new_comment = Comment(
+        comment = content,
+        commentor = request.user,
+        comment_item = post
+    )
+    new_comment.save()
+    #return JsonResponse({"message": "Comment Created Successfully."}, status=201)
+    comments = Comment.objects.filter(comment_item=post).order_by('-id')
+    return render(request,"network/Comments.html",{
+        "comments": comments
+    })
+
+def displayComments(request, postId):
+    post = Posts.objects.get(id=postId)
+
+    comments = Comment.objects.filter(comment_item=post).order_by('-id')
+    return render(request,"network/Comments.html",{
+        "comments": comments
+    })
