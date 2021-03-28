@@ -19,7 +19,7 @@ def index(request):
     posts = posts.order_by("-dateTime").all()
 
     #paginating the posts
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -95,19 +95,6 @@ def new(request):
         )
         new_post.save()
         return JsonResponse({"message": "Post create successfully."}, status=201)
-
-def allPost(request):
-    posts = Posts.objects.all()
-    posts = posts.order_by("-dateTime").all()
-
-    #paginating the posts
-    paginator = Paginator(posts, 2)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return JsonResponse([post.serialize() for post in page_obj], safe=False)
-    print([post.serialize() for post in posts])
-
     
 def profile(request, profilename):
     user = User.objects.get(username = profilename)
@@ -123,9 +110,9 @@ def profile(request, profilename):
         button = "Follow" 
     
     posts = Posts.objects.filter(posterUsername = user)
-
+    posts = posts.order_by("-dateTime").all()
     #paginating the posts
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -139,7 +126,7 @@ def profile(request, profilename):
     })
     
         
-
+@login_required(login_url="login")
 def following(request):
     user = request.user
     profile = Profile.objects.get(user = user)
@@ -150,8 +137,9 @@ def following(request):
     for person in profile.following.all():
         posts = posts | Posts.objects.filter(posterUsername = person)
 
+    posts = posts.order_by("-dateTime").all()
     #paginating the posts
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -218,8 +206,8 @@ def likePost(request, postId):
     except:
         liked_post.likers.add(request.user)
         likes += 1
-        #liked_post.like +=1
         like = False
+
     liked_post.like = likes
     liked_post.save()
 
@@ -245,11 +233,7 @@ def createComment(request, postId):
         comment_item = post
     )
     new_comment.save()
-    #return JsonResponse({"message": "Comment Created Successfully."}, status=201)
-    comments = Comment.objects.filter(comment_item=post).order_by('-id')
-    return render(request,"network/Comments.html",{
-        "comments": comments
-    })
+    return JsonResponse({"message": "Comment Created Successfully."}, status=201)
 
 def displayComments(request, postId):
     post = Posts.objects.get(id=postId)

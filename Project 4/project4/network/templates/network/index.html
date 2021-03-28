@@ -5,20 +5,26 @@
     <div class="container">
         <div id="posts"></div>
         {%if request.path == "/" %}
+        {% if user.is_authenticated %}
         <div id="create" class="border p-3 mt-4">
             <div>
                 <h2>New Post</h2>
             </div>
             <div id="post_form">
-                <form action="" id = "form">
+                <form id = "form">
                     {% csrf_token %}
                     <div class="form-group">
-                        <textarea name="postArea" id="postContent" cols="10" rows="2" class="form-control" ></textarea>
+                        <textarea name="postArea" id="postContent" cols="10" rows="2" class="form-control" required></textarea>
                         <input class="btn btn-primary mt-2" type="submit" value="Post">
                     </div>
                 </form>
             </div>
         </div>
+        {%else%}
+        <div class="mt-2">
+            <h2><a href="{% url 'login' %}">Sign In </a> To post</h2>
+        </div>
+        {%endif%}
         {%endif%}
 
         {% if profile %}
@@ -58,20 +64,20 @@
                             <small><i>{{post.dateTime}}</i></small>
                         </h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body mb-3">
                         <p id="postcontent">{{post.postContent}}</p>
                         <div class="row justify-content-between">
                             <div class="col-6 text-muted ml-0 row justify-content-between">
                                 <p class="comments" onclick="showcomments('{{post.id}}')">Comments</p>
                                 {% if user in post.likers.all %}
                                 <p id="likediv"> 
-                                    <span id="heartIcon" onclick="likepost('{{post.id}}')" class="red">&#x2665; </span> 
-                                    <span id="likeno" class="red">{{post.like}}</span>
+                                    <span id="heartIcon" onclick="likepost('{{post.id}}')" class="red rounded-circle likedicon">&#x2665; </span> 
+                                    <span id="likeno" class="red likedicon">{{post.like}}</span>
                                 </p>
                                 {%else%}
                                 <p id="likediv"> 
-                                    <span id="heartIcon" onclick="likepost('{{post.id}}')">&#x2661; </span> 
-                                    <span id="likeno">{{post.like}}</span>
+                                    <span id="heartIcon" class="unlikedicon" onclick="likepost('{{post.id}}')">&#x2661; </span> 
+                                    <span id="likeno" class="unlikedicon" >{{post.like}}</span>
                                 </p>
                                 {%endif%}
                             </div>
@@ -79,8 +85,8 @@
                             <p class="link mr-3" id="editButton" onclick="editPost('{{post.id}}')">Edit</p>
                             {%endif%}
                         </div>
-                        <div class="commentslists">
-
+                        <div class="commentsSection">
+                            <div id="commentslists"></div>
                         </div>
                     </div>
                 </div>
@@ -89,38 +95,50 @@
         </div>
 
         {% if posts %}
-        <div class="pagination">
-            <span class="step-links">
-                {% if posts.has_previous %}
-                    <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page=1">First</a>
-                    <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ posts.previous_page_number }}">previous</a>
-                {% endif %}
-        
-                <span class="current">
-                    {% for num in posts.paginator.page_range %}
-                        {% if posts.number == num %}
-                            <a class="btn btn-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
-                        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
-                            <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
-                        {% endif %}
-                    {% endfor %}
-                </span>
-        
-                {% if posts.has_next %}
-                    <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ posts.next_page_number }}">next</a>
-                    <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ post.paginator.num_pages }}">last &raquo;</a>
-                {% endif %}
-            </span>
+        <div class="d-flex justify-content-center">
+            <div>
+            <div class="pagination ">
+                <span class="step-links">
+                    {% if posts.has_previous %}
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page=1">First</a>
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ posts.previous_page_number }}">previous</a>
+                    {% endif %}
             
-        </div>
-        <div id="pageNo">
-            <span class="current">
-                Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
-            </span>
+                    <span class="current">
+                        {% for num in posts.paginator.page_range %}
+                            {% if posts.number == num %}
+                                <a class="btn btn-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
+                            {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                                <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+            
+                    {% if posts.has_next %}
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ posts.next_page_number }}">next</a>
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ posts.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            <div id="pageNo" class="d-flex justify-content-center">
+                <span class="current">
+                    Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+                </span>
+            </div>
         </div>
        {%else%}
        <div><h3>No Posts Available</h3></div>
        {%endif%}
+        </div>
+    </div>
+    <div class="floatingButton">
+        <a href="{% url 'index' %}">
+            {% if user.is_authenticated %}
+            <i>Add</i>
+            {%else%}
+            <i>Home</i>
+            {%endif%}
+        </a>
     </div>
 {% endblock %}
 

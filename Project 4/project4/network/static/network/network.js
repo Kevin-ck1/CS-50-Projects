@@ -1,24 +1,21 @@
 document.addEventListener('DOMContentLoaded', function(){
     //To obtain the current user
     let currentUser = document.querySelector('#currentUser1').dataset.currentuser;
-    //console.log(currentUser);
-
+    
     try{
-        //Event Listener for submiting the form
-        document.querySelector("#form").addEventListener('submit', submitForm);
-            //event.preventDefault();
-            
+        document.querySelector("#form").addEventListener('submit', submitForm) 
     }
     catch{
         console.log("Visit All_Posts Page to Make a post, :)")
     }
+    
 });
 
+
 try{
-    //To obtain a person who has post a particular post
-    let postname = document.querySelector('#posterUsername').dataset.idno;
     //Event Listener for clicking a post poster
     document.querySelectorAll("#posterUsername").forEach((a) => {
+        let postname = a.dataset.idno;
         a.addEventListener('click', () => {
             history.pushState({state:postname},"",`/profile/${postname}`);
             viewProfile(postname);
@@ -54,15 +51,14 @@ function submitForm(e) {
         document.querySelector('#form')
         .querySelector('[name=csrfmiddlewaretoken]').value
     );
-    console.log(csrftoken)
+
     const request = new Request(
         `/newPost`,
         {headers: {'X-CSRFToken': csrftoken}}
     );
     
     //To get the value of the post
-    let postcontent = document.querySelector("#postContent").value;
-    console.log(postcontent)
+    const postcontent = document.querySelector("#postContent").value;
 
     //Sending the content to the server
     fetch(request,{
@@ -73,40 +69,16 @@ function submitForm(e) {
         })
     })
     .then(response => response.json())
-    .then(document.querySelector("#postContent").innerHTML="")
     .then(()=>{
-        location.reload();
+        //location.reload();
+        window.location.replace("/");
     })
+    //.then(document.getElementById('postContent').value="")
     .catch(error => {
         console.log('Error', error);
     });
 
 };
-
-function displayPost(){
-    document.querySelector('#display_posts').style.display ="none"
-    fetch('/allPost')
-    .then(response => response.json())
-    .then(posts => {
-        //console.log(posts);
-
-        posts.forEach(function(post){
-            const post_item = document.createElement('div')
-            postContent = 
-                `<div class="border">
-                    <p id="posterUsername">${post.poster}</p>
-                    <p>${post.content}</p>
-                    <p>${post.dateTime}</p>
-                    <p>${post.like}</p>
-                </div>`
-            
-            post_item.innerHTML = postContent;
-            document.querySelector('#posts').append(post_item);
-            document.querySelector("#posterUsername").addEventListener('click',() => viewProfile(post.poster))
-        });
-        
-    });   
-}
 
 function viewProfile(p){
     fetch(`/profile/${p}`)
@@ -145,40 +117,52 @@ function editPost(id){
                 <h3>Editing Post</h3>
             </div>
             <div class="card-body" id="post_form">
-                <textarea name="postArea" id="editContent" cols="10" rows="2" class="form-control">${originalText}</textarea>
-                <button id="updateButton" class="btn btn-primary mt-2" onclick="updatepost(${id})">Update</button>
+                <textarea id="editContent" cols="10" rows="2" class="form-control" required>${originalText}</textarea>
+                <button id="updateButton" class="btn btn-primary mt-2" onclick="updatepost(${id})">Save</button>
             </div>
         </div>`
-    //<input class="btn btn-primary mt-2" type="submit" value="Update">
+    
     editForm.innerHTML = form;
     document.querySelector(`#post${id}`).append(editForm); 
 };
 
+//To submit the edited post
 function updatepost(id){
-    //To get the crsf token
-    const csrftoken = getCookie('csrftoken');
-    console.log(csrftoken);
-
-    const request = new Request(
-        `/updatePost/${id}`,
-        {headers: {'X-CSRFToken': csrftoken}}
-    );
-
     editedcontent = document.querySelector("#editContent").value;
-    fetch(request, {
-        method: 'PUT',
-        mode: 'same-origin', 
-        body: JSON.stringify({
-            content: editedcontent
+
+    if(editedcontent){
+        //To get the crsf token
+        const csrftoken = getCookie('csrftoken');
+
+        const request = new Request(
+            `/updatePost/${id}`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        );
+
+        
+        fetch(request, {
+            method: 'PUT',
+            mode: 'same-origin', 
+            body: JSON.stringify({
+                content: editedcontent
+            })
         })
-    })
-    .then(response => response.json())
-    .then((res) => {
-        console.log(res.message)
-        document.querySelector(`#post${id}`).querySelector('#postbody').style.display="contents";
-        document.querySelector(`#post${id}`).querySelector('#postcontent').innerHTML = editedcontent;
-        document.querySelector(`#post${id}`).querySelector('#editForm').remove()
-    });
+        .then(response => response.json())
+        .then((res) => {
+            console.log(res.message)
+            document.querySelector(`#post${id}`).querySelector('#postbody').style.display="contents";
+            document.querySelector(`#post${id}`).querySelector('#postcontent').innerHTML = editedcontent;
+            document.querySelector(`#post${id}`).querySelector('#editForm').remove()
+        });
+    }else{
+        let textfield = document.querySelector(`#post${id}`).querySelector("#editContent")
+        textfield.setAttribute("placeholder", "Input Some Text");
+        textfield.style.color = "red";
+        textfield.addEventListener('keyup',()=>{
+            textfield.style.color = "black"; 
+        })
+    }
+
 };
 
 
@@ -188,33 +172,54 @@ function likepost(id){
     .then(a => {
         if(a.like){
             document.querySelector(`#post${id}`).querySelector('#heartIcon').innerHTML=`&#x2661;`;
-            document.querySelector(`#post${id}`).querySelector('#heartIcon').removeAttribute("class");
-            document.querySelector(`#post${id}`).querySelector('#likeno').removeAttribute("class");  
+            document.querySelector(`#post${id}`).querySelector('#heartIcon').setAttribute("class", "unlikedicon");
+            document.querySelector(`#post${id}`).querySelector('#likeno').setAttribute("class", "unlikedicon"); 
         }else{
             document.querySelector(`#post${id}`).querySelector('#heartIcon').innerHTML=`&#x2665;`;
-            document.querySelector(`#post${id}`).querySelector('#heartIcon').setAttribute("class", "red");
-            document.querySelector(`#post${id}`).querySelector('#likeno').setAttribute("class", "red");
+            document.querySelector(`#post${id}`).querySelector('#heartIcon').setAttribute("class", "red likedicon");
+            document.querySelector(`#post${id}`).querySelector('#likeno').setAttribute("class", "red likedicon");
         };
         document.querySelector(`#post${id}`).querySelector('#likeno').innerHTML = a.likes;
         
     });
 }
 
+var timeoutValue;
 function showcomments(id){
     fetch(`/displayComments/${id}`)
     .then(response => response.text())
     .then( html =>{
-        document.querySelector(`#post${id}`).querySelector('.commentslists').innerHTML=html
-        let commentForm = document.querySelector(`#post${id}`).querySelector('.commentform')
+        let commentList = document.querySelector(`#post${id}`).querySelector('#commentslists');
+        commentList.innerHTML=html;
+        commentList.setAttribute('class','commentslists');
+        commentList.addEventListener('mouseleave', ()=>{
+            timeoutValue = setTimeout(() => { removeComments(commentList); }, 2000);
+        });
+        commentList.addEventListener('mouseenter', ()=>{
+            clearTimeout(timeoutValue);
+        });
+        document.querySelector(`#post${id}`).querySelector('.closeComments').addEventListener('click', ()=>{removeComments(commentList)});
+
+        let commentForm = document.querySelector(`#post${id}`).querySelector('.commentform');
         commentForm.addEventListener('submit', function(event){  
-            event.preventDefault()
-            createComment(id)
+            event.preventDefault();
+            createComment(id);
         });
     })
     .catch(error => {
         console.log('Error', error);
     });
 };
+
+function removeComments(cl){
+    cl.style.animationPlayState = 'running';
+    cl.addEventListener('animationend', ()=>{
+        cl.innerHTML ="";
+        cl.style.animationPlayState = 'paused';
+        cl.removeAttribute('class');
+        
+    })
+}
 
 function createComment(id){
     let commentContent = document.querySelector(`#post${id}`).querySelector('#commentContent').value;
@@ -236,9 +241,10 @@ function createComment(id){
         })
     })
     .then(commentContent.value="")
-    .then(response => response.text())
-    .then( html =>{
-        document.querySelector(`#post${id}`).querySelector('.commentslists').innerHTML=html
+    .then(response => response.json())
+    .then((res)=>{
+        showcomments(id)
+        console.log(res.message)
     })
     .catch(error => {
         console.log('Error', error);

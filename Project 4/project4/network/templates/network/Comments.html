@@ -1,17 +1,19 @@
-<ul class="list-group row">
-    <li class="list-group-item">
+<ul class="list-group">
+    {% if user.is_authenticated %}
+    <li class="list-group-item ">
         <form  method="POST" class="commentform">
             {% csrf_token %}
             <div class="d-flex align-items-center justify-content-around">
                 <div class="input-group mb-3">
                     <input id="commentContent" type="text" class="form-control" placeholder="Place Comment">
                     <div class="input-group-append">
-                      <input class="btn btn-outline-secondary" type="submit" value="Add Comment">
+                      <input class="btn btn-outline-secondary" type="submit" value="Add Comment" required>
                     </div>
                   </div>
             </div>
         </form>
     </li>
+    {%endif%}
     {% for comment in comments %}
     <li class="list-group-item">
         <p class="d-flex align-items-center py-0 my-0">{{comment.comment}}</p>
@@ -19,3 +21,7 @@
     </li>
     {%endfor%}
 </ul>
+<div class="mt-2 float-right text-muted">
+    <p class="closeComments">[x] Close</p>
+</div>
+
