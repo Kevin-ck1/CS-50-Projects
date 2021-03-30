@@ -13,6 +13,13 @@
             </div>
         </form>
     </li>
+    {%else%}
+    <li class="list-group-item">
+        <p class="d-flex align-items-center py-0 my-0 text-muted">
+            <a href="{% url 'login' %}">Log In</a>
+            To Make a Comment
+        </p>
+    </li>
     {%endif%}
     {% for comment in comments %}
     <li class="list-group-item">

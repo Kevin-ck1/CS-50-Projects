@@ -1,0 +1,65 @@
+{% extends "rfq/layout.html" %}
+
+{%block body%}
+<div class="container">
+    <h2 class="m-3">Add Supplier</h2>
+    <div class="form-supplier border p-3">
+        <form >
+            {% csrf_token %}
+            <div class="form-group mb-4">
+                <label for="supplier-name">Supplier's Name</label>
+                <input type="text" class="form-control" id="supplier-name" placeholder="Name">
+            </div>
+            <div id="location">
+                <fieldset class=" form-group row">
+                    <legend class="ml-3">Location</legend>
+                    <div class="form-group col-md-4">
+                        <label for="zone">Zone</label>
+                        <select name="zone-location" id="zone" class="form-control">
+                            <option value="1">Zone 1: Industrial Area</option>
+                            <option value="2">Zone 2: Industrial Area - Shams</option>
+                            <option value="3">Zone 3: Town</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 col-sm-6">
+                        <label for="road">Location</label>
+                        <select name="zone-location" id="road" class="form-control">
+                            <option value="1">Dae Es Salaam</option>
+                            <option value="2">Baricho</option>
+                            <option value="3">Enterprise</option>
+                            <option value="3">Lithuli</option>
+                            <option value="3">River Road - Upper</option>
+                            <option value="3">Nyama Kima</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 col-sm-6">
+                        <label for="road">Building</label>
+                        <select name="zone-location" id="road" class="form-control">
+                            <option value="1">Dae Es Salaam</option>
+                            <option value="2">Baricho</option>
+                            <option value="3">Enterprise</option>
+                            <option value="3">Lithuli</option>
+                            <option value="3">River Road - Upper</option>
+                            <option value="3">Nyama Kima</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <div class="form-group mb-4 col">
+                    <label for="postal-address">Postal Address</label>
+                    <input type="text" class="form-control" id="postal-address" placeholder="P.O BOX 0000-000">
+                </div>
+                <div class="form-group mb-4 col">
+                    <label for="company-number">Company Phone Number</label>
+                    <input type="text" class="form-control" id="company-number" placeholder="07000000">
+                </div>
+            </div>
+            <div class="form-group mb-4">
+                <label for="email-address">Email Address</label>
+                <input type="text" class="form-control" id="email-address" placeholder="Email Address">
+            </div>
+        </form>
+    </div>
+</div>
+{%endblock%}
