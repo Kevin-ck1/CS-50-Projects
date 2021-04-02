@@ -1,0 +1,13 @@
+.link:hover{
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.link{
+    color: #007bff;
+}
+
+.table-hover tbody tr:hover {
+    color: #212529;
+    background-color: rgba(141, 243, 243, 0.89);
+}

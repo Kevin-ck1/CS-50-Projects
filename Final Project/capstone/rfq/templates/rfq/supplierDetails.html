@@ -1,0 +1,178 @@
+{% extends "rfq/layout.html" %}
+
+{%block body%}
+<div class="container ">
+    <div class="row justify-content-between border-bottom mt-4 pb-3">
+        <div id="name">
+            <h2>Name</h2>
+        </div>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-outline-primary btn-sm mr-2">Update</button>
+            <button class="btn btn-outline-danger btn-sm">Delete</button>
+        </div>
+    </div>
+
+    <div id="supplierDetails" class="row mt-3 pb-3 border-bottom">
+        <div class="col-md-6">
+            <p class="mb-0">Zone <span class="text-info">Road</span> </p>
+            <p class="mb-0">P.O BOX 000-000</p>
+        </div>
+        <div class="col-md-6">
+            <p class="mb-0">Phone: <span class="text-info">0700000000</span></p>
+            <p class="mb-0">Email: <span class="text-info">supplier@gmail.com</span></p>
+        </div>
+    </div>
+
+    <div id="sContacts" class="mt-2 border-bottom pb-2"> 
+        <div>
+            <p class="link">Check Company Contacts</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Phone Number</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Position</th>
+                    <th scope="col" >Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>0700000000</td>
+                    <td>shopers.yrah@gmail.com</td>
+                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                    <td>@mdo</td>
+                    <td>@mdo</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                    <td>@mdo</td>
+                    <td>@mdo</td>
+                  </tr>
+                </tbody>
+            </table>
+
+            <div class="mr-1">
+                <p class="link float-right" >Hide Contacts</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="sProducts" class="mt-2 border-bottom pb-2">
+        <div>
+            <p class="link">Products Supplied</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Model</th>
+                    <th scope="col">Description</th>
+                    <th scope="col" >Price</th>
+                    <th scope="col" >Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>0700000000</td>
+                    <td>shopers.yrah@gmail.com</td>
+                    <td>shopers.yrah@gmail.com</td>
+                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                    <td>@mdo</td>
+                    <td>@mdo</td>
+                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                    <td>@mdo</td>
+                    <td>@mdo</td>
+                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
+                  </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="productList">
+            <div class="list-group">
+                <div class="list-group-item list-group-item-action flex-column align-items-start ">
+                    <div class="row align-items-center ml-0">
+                        <h2 class="mr-2">Product Name</h2>
+                        <h2 class="text-info">Price:100101001</h2>
+                    </div>
+                    <div class="row ml-0">
+                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
+                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
+                    </div>
+                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                    <small class="link text-danger">Delete Product</small>
+                </div>
+            </div>
+
+            <div class="list-group">
+                <div class="list-group-item list-group-item-action flex-column align-items-start ">
+                    <div class="row align-items-center ml-0">
+                        <h2 class="mr-2">Product Name</h2>
+                        <h2 class="text-info">Price:100101001</h2>
+                    </div>
+                    <div class="row ml-0">
+                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
+                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
+                    </div>
+                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                    <small class="link text-danger">Delete Product</small>
+                </div>
+            </div>
+
+            <div class="list-group">
+                <div class="list-group-item list-group-item-action flex-column align-items-start ">
+                    <div class="row align-items-center ml-0">
+                        <h2 class="mr-2">Product Name</h2>
+                        <h2 class="text-info">Price:100101001</h2>
+                    </div>
+                    <div class="row ml-0">
+                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
+                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
+                    </div>
+                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                    <small class="link text-danger">Delete Product</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

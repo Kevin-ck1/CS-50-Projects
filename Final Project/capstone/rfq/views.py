@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from . import templates 
-from .models import Supplier, Product, Contact, Zone, Road, Building, Location
+from .models import Supplier, Product, Contact, Zone, Road, Location
 
 # Create your views here.
 def index(request):
@@ -89,3 +89,7 @@ def productForm(request):
         new_product.save()
 
     return HttpResponseRedirect((reverse("index")))
+
+
+def supplierProfile(request, id):
+    return render(request, "rfq/supplierList.html")

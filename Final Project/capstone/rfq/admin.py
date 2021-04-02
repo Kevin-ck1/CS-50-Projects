@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Supplier, Product, Contact, Zone, Road, Building, Location
+from .models import Supplier, Product, Contact, Zone, Road, Location
 
 class SupplierAdmin(admin.ModelAdmin):
     list_display = ("supplierName","zone", "road", "building", "postal","phoneNumber", "emailSupplier")
@@ -17,11 +17,8 @@ class ProductAdmin(admin.ModelAdmin):
 class RoadAdmin(admin.ModelAdmin):
     list_display = ("roadName", "roadLocation")
 
-class BuildingAdmin(admin.ModelAdmin):
-    list_display = ("buildingName", "broad", "blocation")
-
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ("zone1", "road1", "building1")
+    list_display = ("zone1", "road1")
 
 # Register your models here.
 admin.site.register(Supplier, SupplierAdmin)
@@ -29,5 +26,4 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Contact,ContactAdmin)
 admin.site.register(Zone)
 admin.site.register(Road,RoadAdmin)
-admin.site.register(Building,BuildingAdmin)
 admin.site.register(Location,LocationAdmin)
