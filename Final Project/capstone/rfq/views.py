@@ -34,7 +34,8 @@ def supplierForm(request):
         # )
         new_supplier.save()
 
-    return HttpResponseRedirect((reverse("index")))
+    #return HttpResponseRedirect((reverse("index")))
+    return HttpResponseRedirect((reverse("supplierProfile", kwargs={"id":1})))
 
 def contactForm(request):
     if request.method == "POST":
@@ -90,6 +91,37 @@ def productForm(request):
 
     return HttpResponseRedirect((reverse("index")))
 
+def suppliers(request):
+    suppliers = Supplier.objects.all()
+    context = {
+        "suppliers": suppliers 
+    }
+    return render(request, "rfq/supplierList.html", context)
+
 
 def supplierProfile(request, id):
-    return render(request, "rfq/supplierList.html")
+    supplier = Supplier.objects.get(pk=id)
+    contacts = Contact.objects.filter(supplier_id=id)
+    products = Product.objects.filter(supplierP_id=id)
+    context = {
+        "sdetails": supplier,
+        "contacts":contacts,
+        "products": products
+    }
+    return render(request, "rfq/supplierDetails.html", context)
+
+def products(request):
+    products = Product.objects.all()
+
+    context = {
+        "products": products
+    }    
+    return render(request, "rfq/productList.html", context)
+
+def productProfile(request, id):
+    product = Product.objects.get(pk=id)
+    context = {
+        "product": product
+    }
+
+    return render(request, "rfq/productDetail.html", context)

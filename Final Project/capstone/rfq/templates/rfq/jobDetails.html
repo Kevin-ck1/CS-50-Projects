@@ -1,0 +1,98 @@
+{% extends "rfq/layout.html" %}
+
+{%block body%}
+<div class="container">
+    <div class="my-3 row pb-3 border-bottom">
+      <h2 class="col col-md-4">Job Details</h2>
+
+        <div class="input-group col-md-3">
+          <div class="input-group-prepend">
+            <div class="input-group-text">Status</div>
+          </div>
+          <select name="jobstaus" id="jobstaus" class="form-control">
+              <option value="1">Received RFQ</option>
+              <option value="2">Replied RFQ</option>
+              <option value="3">Reject RFQ</option>
+              <option value="4">Received LPO</option>
+              <option value="5">Waiting for Payment</option>
+              <option value="6">Paid</option>
+          </select>
+      </div>
+    </div>
+
+    <div id="supplierDetails" class="row mt-3 pb-3 border-bottom">
+      <div class="col-md-6">
+          <p class="mb-0">Client <span class="text-info">Name</span> </p>
+          <p class="mb-0">P.O BOX 000-000</p>
+      </div>
+      <div class="col-md-6">
+          <p class="mb-0">Phone: <span class="text-info">0700000000</span></p>
+          <p class="mb-0">Email: <span class="text-info">supplier@gmail.com</span></p>
+      </div>
+    </div>
+
+    <div class="row py-2 border-bottom">
+      <h4 class="text-muted col-md">Current Status: All</h4>
+    </div>
+
+    <div class="row justify-content-between mx-0 mt-2">
+      <p class="link" id="rfqMode">Check Items to add to rfq</p>
+      <p class="link " id="browsingMode"> Add Product</p>
+    </div>
+
+    <div id="productForm">
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product</th>
+                <th scope="col">Supplier</th>
+                <th scope="col">Shipping</th>
+                <th scope="col">Buying Price</th>
+                <th scope="col">Quotation Price</th>
+                <th scope="col">Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>0700000000</td>
+                <td>shopers.yrah@gmail.com</td>
+                <td>shopers.yrah@gmail.com</td>
+                <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+                <td>@mdo</td>
+                <td>shopers.yrah@gmail.com</td>
+                <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+                <td>@mdo</td>
+                <td>shopers.yrah@gmail.com</td>
+                <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+      <p>Notes:</p>
+      <p> Prices for the Cheapest Supplier Listed for the Buying Price</p>
+      <p>Quotation is Caluclated from the Expensive supplier</p>
+    </div>
+</div>
+{%endblock%}

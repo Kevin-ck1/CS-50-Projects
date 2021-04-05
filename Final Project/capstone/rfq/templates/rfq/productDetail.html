@@ -1,0 +1,66 @@
+{% extends "rfq/layout.html" %}
+
+{%block body%}
+<div class="container">
+    <div class="row justify-content-between border-bottom mt-4 pb-3">
+        <div id="name">
+            <h2>Product Name</h2>
+        </div>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-outline-primary btn-sm mr-2">Update</button>
+            <button class="btn btn-outline-danger btn-sm">Delete</button>
+        </div>
+    </div>
+
+    <div id="productDetails" class="row mt-3 border-bottom">
+        <div class="border-bottom col-12 row pb-2">
+            <div class="col-md-6">
+                <h5 class="">Category  <span class="text-info">Category</span> </h5>
+                <h5 class="">Brand: </h5>
+            </div>
+            <div class="col-md-6">
+                <h5>Weight: <span class="text-info">0kgs</span></h5>
+                <h5>Size: <span class="text-info">0cm</span></h5>
+            </div> 
+        </div>
+
+        <div class="col-12 pt-1">
+            <h4>Description</h4>
+            <p>Product Description goes here, detailed desc</p>
+        </div>   
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Supplier</th>
+                <th scope="col">Price</th>
+                <th scope="col">Model</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>0700000000</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{%endblock%}

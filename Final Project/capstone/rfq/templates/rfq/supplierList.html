@@ -17,27 +17,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>0700000000</td>
-                <td>shopers.yrah@gmail.com</td>
+              {% for supplier in suppliers %}
+              <!-- <a href="{% url 'supplierProfile' supplier.id %} "></a> -->
+              <tr onclick="window.location='supplier/{{supplier.id}}' ">
+                <th scope="row">{{supplier.id}}</th>
+                <td>{{supplier.supplierName}}</td>
+                <td>{{supplier.zone}}</td>
+                <td>{{supplier.road}}</td>
+                <td>{{supplier.phoneNumber}}</td>
               </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td>Larry</td>
-                <td>the Bird</td>
-                <td>@twitter</td>
-                <td>@mdo</td>
-              </tr>
+              {%endfor%}
             </tbody>
         </table>
     </div>

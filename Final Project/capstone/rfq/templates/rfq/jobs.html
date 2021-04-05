@@ -1,0 +1,69 @@
+{% extends "rfq/layout.html" %}
+
+{%block body%}
+<div class="container">
+    <div class="my-3 row pb-3 border-bottom">
+        <h2 class="col col-md-4">Job List</h2>
+        <div class="dropdown col">
+          <button class="dropbtn btn btn-info ">Choose Status</button>
+          <div class="dropdown-content">
+            <a href="#">Received RFQ</a>
+            <a href="#">Replied RFQ</a>
+            <a href="#">Reject RFQ</a>
+            <a href="#">Received LPO</a>
+            <a href="#">Waiting for Payment</a>
+            <a href="#">Paid</a>
+          </div>
+        </div>
+    </div>
+    <div class="row pb-3 border-bottom">
+      <h4 class="text-muted col-md">Category: All</h4>
+    </div>
+
+    <div class="row justify-content-between mx-0 mt-2">
+      <p class="link" id="rfqMode">List of Jobs</p>
+      <p class="link " id="browsingMode"> Add Product</p>
+    </div>
+
+    <div id="productForm">
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Client</th>
+                <th scope="col">Location</th>
+                <th scope="col">Cost</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>0700000000</td>
+                <td>shopers.yrah@gmail.com</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+                <td>@mdo</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+                <td>@mdo</td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{%endblock%}

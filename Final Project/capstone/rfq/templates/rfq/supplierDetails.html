@@ -4,7 +4,7 @@
 <div class="container ">
     <div class="row justify-content-between border-bottom mt-4 pb-3">
         <div id="name">
-            <h2>Name</h2>
+            <h2>{{sdetails.supplierName}}</h2>
         </div>
         <div class="d-flex align-items-center">
             <button class="btn btn-outline-primary btn-sm mr-2">Update</button>
@@ -14,18 +14,25 @@
 
     <div id="supplierDetails" class="row mt-3 pb-3 border-bottom">
         <div class="col-md-6">
-            <p class="mb-0">Zone <span class="text-info">Road</span> </p>
-            <p class="mb-0">P.O BOX 000-000</p>
+            <p class="mb-0">{{sdetails.zone}} <span class="text-info">{{sdetails.road}}</span> </p>
+            <p class="mb-0">P.O BOX {{sdetails.postal}}</p>
         </div>
         <div class="col-md-6">
-            <p class="mb-0">Phone: <span class="text-info">0700000000</span></p>
-            <p class="mb-0">Email: <span class="text-info">supplier@gmail.com</span></p>
+            <p class="mb-0">Phone: <span class="text-info">{{sdetails.phoneNumber}}</span></p>
+            <p class="mb-0">Email: <span class="text-info">{{sdetails.emailSupplier}}</span></p>
         </div>
     </div>
 
     <div id="sContacts" class="mt-2 border-bottom pb-2"> 
-        <div>
-            <p class="link">Check Company Contacts</p>
+        <div class="row">
+            <div class="col">
+                <p class="link">Supplier Contact Persons</p>
+                <p class="link" hidden>Show Contact Persons</p>
+            </div>
+
+            <div class="col ">
+                <p class="link float-right">Add Contact Persons</p>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -41,30 +48,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>0700000000</td>
-                    <td>shopers.yrah@gmail.com</td>
-                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    <td>@mdo</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                    <td>@mdo</td>
-                    <td>@mdo</td>
-                  </tr>
+                    {% for contact in contacts%}
+                    <tr>
+                        <th scope="row">{{contact.id}}</th>
+                        <td>{{contact.name}}</td>
+                        <td>{{contact.pNumber}}</td>
+                        <td>{{contact.email}}</td>
+                        <td>{{contact.position}}</td>
+                        <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                    </tr>
+                    {%endfor%}
                 </tbody>
             </table>
 
@@ -86,92 +79,46 @@
                     <th scope="col">#</th>
                     <th scope="col">Category</th>
                     <th scope="col">Product</th>
-                    <th scope="col">Model</th>
+                    <th scope="col">Brand</th>
                     <th scope="col">Description</th>
                     <th scope="col" >Price</th>
                     <th scope="col" >Delete</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>0700000000</td>
-                    <td>shopers.yrah@gmail.com</td>
-                    <td>shopers.yrah@gmail.com</td>
-                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
-                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    <td>@mdo</td>
-                    <td>@mdo</td>
-                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
-                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                    <td>@mdo</td>
-                    <td>@mdo</td>
-                    <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
-                    <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
-                  </tr>
+                    {% for product in products %}
+                    <tr>
+                        <th scope="row">{{product.id}}</th>
+                        <td>{{product.category}}</td>
+                        <td>{{product.nameP}}</td>
+                        <td>{{product.brand}}</td>
+                        <td>{{product.description}}</td>
+                        <td>{{product.price}}</td>
+                        <td class="text-center"><button class="btm btn-danger btn-sm">X</button></td>
+                        <td class="text-center" hidden><button class="btm btn-success btn-sm">Add</button></td>
+                    </tr>
+                    {%endfor%}
                 </tbody>
             </table>
         </div>
-
+        
         <div id="productList">
+            {% for product in products %}
             <div class="list-group">
                 <div class="list-group-item list-group-item-action flex-column align-items-start ">
                     <div class="row align-items-center ml-0">
-                        <h2 class="mr-2">Product Name</h2>
-                        <h2 class="text-info">Price:100101001</h2>
+                        <h2 class="mr-2">{{product.nameP}}</h2>
+                        <h2 class="text-info">Price:{{product.price}} </h2>
                     </div>
                     <div class="row ml-0">
-                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
-                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
+                        <p class="text-muted mr-3">Category: <a href="">{{product.category}}</a> </p>
+                        <p class="text-muted">Brand: <a href="">{{product.brand}}</a> </p>
                     </div>
-                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                    <p class="mb-1"> {{product.description}} </p>
                     <small class="link text-danger">Delete Product</small>
                 </div>
             </div>
-
-            <div class="list-group">
-                <div class="list-group-item list-group-item-action flex-column align-items-start ">
-                    <div class="row align-items-center ml-0">
-                        <h2 class="mr-2">Product Name</h2>
-                        <h2 class="text-info">Price:100101001</h2>
-                    </div>
-                    <div class="row ml-0">
-                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
-                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
-                    </div>
-                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    <small class="link text-danger">Delete Product</small>
-                </div>
-            </div>
-
-            <div class="list-group">
-                <div class="list-group-item list-group-item-action flex-column align-items-start ">
-                    <div class="row align-items-center ml-0">
-                        <h2 class="mr-2">Product Name</h2>
-                        <h2 class="text-info">Price:100101001</h2>
-                    </div>
-                    <div class="row ml-0">
-                        <p class="text-muted mr-3">Category: <a href="">Category Name</a> </p>
-                        <p class="text-muted">Model: <a href="">Model Name</a> </p>
-                    </div>
-                    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                    <small class="link text-danger">Delete Product</small>
-                </div>
-            </div>
+            {%endfor%}
         </div>
     </div>
 </div>
