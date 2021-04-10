@@ -26,22 +26,13 @@ def supplierForm(request):
         mydata['emailSupplier'] = request.POST['email-address']
 
         new_supplier = Supplier(**mydata)
-        #Supplier.objects.create(**mydata)
-        # new_supplier = Supplier(
-        #     supplierName= request.POST['supplier-name'],
-        #     zone = request.POST['zone'],
-        #     road= request.POST['road'],
-        #     building = request.POST['building'],
-        #     postal = request.POST['postal-address'],
-        #     phoneNumber = request.POST['phone-number'],
-        #     emailSupplier = request.POST['email-address']
-        # )
+        
         new_supplier.save()
 
-    #return HttpResponseRedirect((reverse("index")))
     return HttpResponseRedirect((reverse("supplierProfile", kwargs={"id":1})))
 
 def contactForm(request):
+    #Storing Created Contact
     if request.method == "POST":
         data = json.loads(request.body)
         newContact = data.get("newContact")
@@ -55,42 +46,35 @@ def contactForm(request):
         }
         return JsonResponse(response_data, status=201)
 
+    #Deleting a Contact
     elif request.method == "DELETE":
         data = json.loads(request.body)
         Contact.objects.get(pk=data).delete()
 
         return JsonResponse({"message": "Contact Removed"}, status=201)
-    #return HttpResponseRedirect((reverse("index")))
     
 
 def productForm(request):
+    #Storing the a new product
     if request.method == "POST":
-        #supplier = Supplier.objects.get(pk=request.POST['supplierP'])
-        mydata ={}
-        mydata['category'] = request.POST['category']
-        mydata['supplierP_id'] =  request.POST['supplierP']
-        mydata['nameP'] = request.POST['product-name']
-        mydata['brand'] = request.POST['brand']
-        mydata['price'] = request.POST['product-price']
-        mydata['size'] = request.POST['size']
-        mydata['weight'] = request.POST['weight']
-        mydata['description'] = request.POST['description']
-
-        new_product = Product(**mydata)
-
-        # new_product = Product(
-        #     category =
-        #     supplierP =  supplier,
-        #     nameP = request.POST['product-name'],
-        #     brand = request.POST['brand'],
-        #     price = request.POST['product-price'],
-        #     size = request.POST['size'],
-        #     weight = request.POST['weight'],
-        #     description = request.POST['description'] 
-        # )
+        data = json.loads(request.body)
+        newProduct = data.get("newProduct")
+        print(newProduct)
+        new_product = Product(**newProduct)
         new_product.save()
 
-    return HttpResponseRedirect((reverse("index")))
+        response_data = {
+                "message": "Product Stored Successfully.",
+                "id":new_product.id
+            }
+        return JsonResponse(response_data, status=201)
+
+    #Deleting a product
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        Product.objects.get(pk=data).delete()
+
+        return JsonResponse({"message": "Product Removed"}, status=201)
 
 def suppliers(request):
     suppliers = Supplier.objects.all()
