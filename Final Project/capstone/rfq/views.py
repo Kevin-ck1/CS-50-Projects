@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
 
 from . import templates 
 from .models import Supplier, Product, Contact, Zone, Road, Location
@@ -39,28 +43,25 @@ def supplierForm(request):
 
 def contactForm(request):
     if request.method == "POST":
-        supplier = Supplier.objects.get(pk=request.POST['supplier'])
-        mydata ={}
-        #mydata['supplier'] = supplier
-        mydata['supplier_id'] = request.POST['supplier']
-        mydata['name'] = request.POST['contact-name']
-        mydata['pNumber'] = request.POST['contact-phone']
-        mydata['email'] = request.POST['contact-email']
-        mydata['position'] = request.POST['contact-position']
-        new_contact = Contact(**mydata)
-
-        # new_contact = Contact(
-        #     supplier = request.POST['supplier'],
-        #     name = request.POST['contact-name'],
-        #     pNumber = request.POST['contact-phone'],
-        #     email = request.POST['contact-email'],
-        #     position = request.POST['contact-position']
-        # )
-
+        data = json.loads(request.body)
+        newContact = data.get("newContact")
+        new_contact = Contact(**newContact)
         new_contact.save()
-        
+        print(new_contact.id)
 
-    return HttpResponseRedirect((reverse("index")))
+        response_data = {
+            "message": "Contact Stored Successfully.",
+            "id":new_contact.id
+        }
+        return JsonResponse(response_data, status=201)
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        Contact.objects.get(pk=data).delete()
+
+        return JsonResponse({"message": "Contact Removed"}, status=201)
+    #return HttpResponseRedirect((reverse("index")))
+    
 
 def productForm(request):
     if request.method == "POST":
@@ -101,8 +102,8 @@ def suppliers(request):
 
 def supplierProfile(request, id):
     supplier = Supplier.objects.get(pk=id)
-    contacts = Contact.objects.filter(supplier_id=id)
-    products = Product.objects.filter(supplierP_id=id)
+    contacts = Contact.objects.filter(supplier_id=id).order_by("-id").all()
+    products = Product.objects.filter(supplierP_id=id).order_by("-id").all()
     context = {
         "sdetails": supplier,
         "contacts":contacts,

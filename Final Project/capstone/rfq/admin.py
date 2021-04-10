@@ -6,10 +6,10 @@ class SupplierAdmin(admin.ModelAdmin):
     list_display = ("supplierName","zone", "road", "building", "postal","phoneNumber", "emailSupplier")
 
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ("supplier","name", "pNumber", "email", "position")
+    list_display = ("id","name", "supplier", "pNumber", "email", "position")
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display =("supplierP", "category", "nameP", "brand", "price", "size", "weight", "description")
+    list_display =("id","supplierP", "category", "nameP", "brand", "price", "size", "weight", "description")
 
 # class ZoneAdmin(admin.ModelAdmin):
 #     list_display =("location")

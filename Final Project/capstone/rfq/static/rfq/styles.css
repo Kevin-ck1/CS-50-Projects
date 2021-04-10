@@ -52,3 +52,13 @@
   .dropdown:hover .dropbtn {
     background-color: #08b7ce;
   }
+
+  table {
+    counter-reset: rowCount;
+  }
+
+  .rowCounter::before{
+    /* Increment "my-sec-counter" by 1 */
+    counter-increment: rowCount;
+    content: counter(rowCount);
+  }

@@ -20,7 +20,7 @@
               {% for supplier in suppliers %}
               <!-- <a href="{% url 'supplierProfile' supplier.id %} "></a> -->
               <tr onclick="window.location='supplier/{{supplier.id}}' ">
-                <th scope="row">{{supplier.id}}</th>
+                <th scope="row"> {{ forloop.counter }}</th>
                 <td>{{supplier.supplierName}}</td>
                 <td>{{supplier.zone}}</td>
                 <td>{{supplier.road}}</td>
