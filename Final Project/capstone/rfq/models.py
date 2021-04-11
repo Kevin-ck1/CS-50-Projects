@@ -32,6 +32,11 @@ class Product(models.Model):
     weight = models.IntegerField()
     description = models.TextField()
 
+class Price(models.Model):
+    priceP = models.IntegerField()
+    supplierPp =  models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="supplierPp")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="productPrice")
+
 class Zone(models.Model):
     location = models.CharField(max_length=64)
 
@@ -47,7 +52,12 @@ class Location(models.Model):
     zone1 = models.CharField(max_length=64)
     road1 = models.CharField(max_length=64)
 
-
+class Client(models.Model):
+    clientName = models.CharField(max_length=64)
+    county = models.IntegerField()
+    postal = models.CharField(max_length=64)
+    clientNumber = models.IntegerField()
+    emailClient = models.CharField(max_length=64)
 
 
 

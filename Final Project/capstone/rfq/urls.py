@@ -9,5 +9,6 @@ urlpatterns = [
     path('suppliers', views.suppliers, name="suppliers"),
     path('supplier/<int:id>', views.supplierProfile, name="supplierProfile"),
     path('products', views.products, name="products"),
-    path('product/<int:id>', views.productProfile, name="productProfile")
+    path('product/<int:id>', views.productProfile, name="productProfile"),
+    path('jobstart', views.jobstart, name="jobstart")
 ]

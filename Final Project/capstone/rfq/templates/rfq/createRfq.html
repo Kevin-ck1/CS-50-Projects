@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="form-client border p-3 mt-2">
-        <form action="{% url 'supplierForm' %}" method="post" >
+        <form id="clientForm">
             {% csrf_token %}
             <div class="form-group mb-4">
                 <label for="client-name">Client's Name</label>
@@ -132,4 +132,9 @@
     </div>
 
 </div>
+{%endblock%}
+
+{% load static %}
+{% block scripttag%}      
+  <script src="{% static 'rfq/client.js' %}"></script>
 {%endblock%}

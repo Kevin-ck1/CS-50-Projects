@@ -13,19 +13,106 @@
           </div>
         </div>
     </div>
-    <div class="row pb-3 border-bottom">
+
+    <div class="row pb-3 border-bottom" id="info-bar">
       <h4 class="text-muted col-md">Category: All</h4>
       <h5 class="text-muted col-md">Showing: Top Price</h5>
       <h5 class="text-muted col-md">Mode: Browsing</h5>
     </div>
 
+    <div id="productForm" style="display: none;">
+      <div><h5 style="text-decoration: underline;">Adding Products</h5></div>
+
+        <div id="product-form" class="my-4 border pt-3 px-3">
+          <form class="row" id="productForm1">
+              {% csrf_token %}
+              <div class="input-group mb-3 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Category</div>
+                  </div>
+                  <select name="category" id="category" class="form-control">
+                      <option value="1">ICT</option>
+                      <option value="2">Electrical</option>
+                      <option value="3">Plumbing</option>
+                      <option value="4">MVM</option>
+                      <option value="5">Hairdressing</option>
+                      <option value="6">Woodwork</option>
+                      <option value="7">Masonry</option>
+                  </select>
+              </div>
+              <div class="input-group mb-2 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Name</div>
+                  </div>
+                  <input type="text" class="form-control" id="product-name" name="product-name" placeholder="Product Name">
+              </div>
+              <div class="input-group mb-2 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Brand</div>
+                  </div>
+                  <input type="text" class="form-control" id="brand" name="brand" placeholder="Brand">
+              </div>
+
+              <div class="input-group mb-2 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Price</div>
+                  </div>
+                  <input type="number" class="form-control" name="product-price" id="product-price" placeholder="Product Price">
+              </div>
+
+              <div class="input-group mb-3 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Supplier</div>
+                  </div>
+                  <select name="supplierP" id="supplierP" class="form-control">
+                    {%if sdetails%}
+                      <option value="{{sdetails.id}}">{{sdetails.id}}</option>
+                    {%else%}
+                    {% for supplier in suppliers%}
+                      <option value="{{supplier.id}}">{{supplier.supplierName}}</option>
+                    {%endfor%}
+                    {%endif%}
+                  </select>
+              </div>
+              
+              <div class="input-group mb-2 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Size</div>
+                  </div>
+                  <input type="number" class="form-control" id="size" name="size" placeholder="Box-Size">
+              </div>
+
+              <div class="input-group mb-2 col-md-6">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Weight</div>
+                  </div>
+                  <input type="number" class="form-control" name="weight" id="weight" placeholder="Weight in kg">
+              </div>
+
+              <div class="input-group mb-2 col">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Description</div>
+                  </div>
+                  <input type="text" class="form-control" name="description" id="description" placeholder="Product Description">
+              </div>
+
+              <div class="col-12 row justify-content-between">
+                  <div class="form-group mb-4 col-md-6">
+                      <input type="submit" class="btn btn-outline-primary" value="Submit">
+                  </div>
+
+                  <div>
+                      <small class="text-danger close-Product">[x] Close Form</small>
+                  </div>
+              </div>
+          </form>
+        </div>
+
+    </div>
+
     <div class="row justify-content-between mx-0 mt-2">
       <p class="link" id="rfqMode">Check Items to add to rfq</p>
       <p class="link addProduct" id="browsingMode"> Add Product</p>
-    </div>
-
-    <div id="productForm">
-
     </div>
 
     <div class="table-responsive">
@@ -40,7 +127,7 @@
                 <th scope="col">Price</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="product-table">
               {% for product in products %}
               <tr onclick="window.location='product/{{product.id}}'" id="{{product.id}}">
                 <th scope="row" class="rowCounter"></th>
@@ -55,4 +142,9 @@
         </table>
     </div>
 </div>
+{%endblock%}
+
+{% load static %}
+{% block scripttag%}      
+  <script src="{% static 'rfq/product.js' %}"></script>
 {%endblock%}

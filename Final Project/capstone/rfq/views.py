@@ -76,6 +76,14 @@ def productForm(request):
 
         return JsonResponse({"message": "Product Removed"}, status=201)
 
+    #Retrieving the product Form
+    else:
+        suppliers = Supplier.objects.all()
+        context = {
+            "suppliers": suppliers
+        }
+        return render(request, "rfq/productForm.html", context)
+
 def suppliers(request):
     suppliers = Supplier.objects.all()
     context = {
@@ -97,9 +105,10 @@ def supplierProfile(request, id):
 
 def products(request):
     products = Product.objects.all().order_by("-id").all()
-
+    suppliers = Supplier.objects.all()
     context = {
-        "products": products
+        "products": products,
+        "suppliers": suppliers
     }    
     return render(request, "rfq/productList.html", context)
 
@@ -110,3 +119,6 @@ def productProfile(request, id):
     }
 
     return render(request, "rfq/productDetail.html", context)
+
+def jobstart(requst):
+    return render(requst, "rfq/createRfq.html")
