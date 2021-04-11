@@ -1,0 +1,81 @@
+<div class="productForm" style="display: none;">
+    <div><h5 style="text-decoration: underline;">Adding Products</h5></div>
+    <div id="product-form" class="my-4 border pt-3 px-3">
+        <form class="row" class="productForm">
+            {% csrf_token %}
+            <div class="input-group mb-3 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Category</div>
+                </div>
+                <select name="category" id="category" class="form-control">
+                    <option value="1">ICT</option>
+                    <option value="2">Electrical</option>
+                    <option value="3">Plumbing</option>
+                    <option value="4">MVM</option>
+                    <option value="5">Hairdressing</option>
+                    <option value="6">Woodwork</option>
+                    <option value="7">Masonry</option>
+                </select>
+            </div>
+            <div class="input-group mb-2 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Name</div>
+                </div>
+                <input type="text" class="form-control" id="product-name" name="product-name" placeholder="Product Name">
+            </div>
+            <div class="input-group mb-2 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Brand</div>
+                </div>
+                <input type="text" class="form-control" id="brand" name="brand" placeholder="Brand">
+            </div>
+
+            <div class="input-group mb-2 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Price</div>
+                </div>
+                <input type="number" class="form-control" name="product-price" id="product-price" placeholder="Product Price">
+            </div>
+
+            <div class="input-group mb-3 col-md-6" hidden>
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Supplier</div>
+                </div>
+                <select name="supplierP" id="supplierP" class="form-control">
+                    <option value="{{sdetails.id}}">{{sdetails.id}}</option>
+                </select>
+            </div>
+            
+            <div class="input-group mb-2 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Size</div>
+                </div>
+                <input type="number" class="form-control" id="size" name="size" placeholder="Box-Size">
+            </div>
+
+            <div class="input-group mb-2 col-md-6">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Weight</div>
+                </div>
+                <input type="number" class="form-control" name="weight" id="weight" placeholder="Weight in kg">
+            </div>
+
+            <div class="input-group mb-2 col">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Description</div>
+                </div>
+                <input type="text" class="form-control" name="description" id="description" placeholder="Product Description">
+            </div>
+
+            <div class="col-12 row justify-content-between">
+                <div class="form-group mb-4 col-md-6">
+                    <input type="submit" class="btn btn-outline-primary" value="Submit">
+                </div>
+
+                <div>
+                    <small class="text-danger close-Product">[x] Close Form</small>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

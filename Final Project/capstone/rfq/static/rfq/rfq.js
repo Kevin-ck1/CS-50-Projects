@@ -247,7 +247,8 @@ class Store {
 };
 
 //Event Listener
-
+try {
+    
 //Display Contact Form
 document.querySelector('.addContact').addEventListener('click', ()=>{
     UI.displayContactForm();
@@ -260,6 +261,7 @@ document.querySelector('.close-Contact').addEventListener('click', ()=>{
 
 //Display Product Form
 document.querySelector('.addProduct').addEventListener('click', ()=>{
+    console.log('click')
     UI.displayProductForm();
 });
 
@@ -353,3 +355,11 @@ document.querySelector('.product-table').addEventListener('click', (event)=> {
         Store.deleteProduct(tr.id);
     }
 });
+
+}catch{
+    document.querySelector('.addProduct').addEventListener('click', ()=>{
+        console.log('click')
+        UI.displayProductForm();
+    });
+    console.log(":}")
+}

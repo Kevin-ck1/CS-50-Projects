@@ -96,7 +96,7 @@ def supplierProfile(request, id):
     return render(request, "rfq/supplierDetails.html", context)
 
 def products(request):
-    products = Product.objects.all()
+    products = Product.objects.all().order_by("-id").all()
 
     context = {
         "products": products

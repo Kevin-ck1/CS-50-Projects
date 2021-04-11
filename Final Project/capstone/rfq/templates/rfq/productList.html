@@ -4,7 +4,7 @@
 <div class="container">
     <div class="my-3 row pb-3 border-bottom">
         <h2 class="col col-md-4">Product List</h2>
-        <div class="dropdown col">
+        <div class="dropdown">
           <button class="dropbtn btn btn-info ">Choose Category</button>
           <div class="dropdown-content">
             <a href="#">Link 1</a>
@@ -21,7 +21,7 @@
 
     <div class="row justify-content-between mx-0 mt-2">
       <p class="link" id="rfqMode">Check Items to add to rfq</p>
-      <p class="link " id="browsingMode"> Add Product</p>
+      <p class="link addProduct" id="browsingMode"> Add Product</p>
     </div>
 
     <div id="productForm">
@@ -42,8 +42,8 @@
             </thead>
             <tbody>
               {% for product in products %}
-              <tr onclick="window.location='product/{{product.id}}'">
-                <th scope="row">{{product.id}}</th>
+              <tr onclick="window.location='product/{{product.id}}'" id="{{product.id}}">
+                <th scope="row" class="rowCounter"></th>
                 <td>{{product.nameP}}</td>
                 <td>{{product.category}}</td>
                 <td>{{product.brand}}</td>
