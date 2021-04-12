@@ -10,5 +10,6 @@ urlpatterns = [
     path('supplier/<int:id>', views.supplierProfile, name="supplierProfile"),
     path('products', views.products, name="products"),
     path('product/<int:id>', views.productProfile, name="productProfile"),
-    path('jobstart', views.jobstart, name="jobstart")
+    path('jobstart', views.jobstart, name="jobstart"),
+    path('clients', views.clients, name="clients")
 ]

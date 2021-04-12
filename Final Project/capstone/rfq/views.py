@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 
 from . import templates 
-from .models import Supplier, Product, Contact, Zone, Road, Location
+from .models import Supplier, Product, Contact, Zone, Road, Location, Price, Client
 
 # Create your views here.
 def index(request):
@@ -121,4 +121,19 @@ def productProfile(request, id):
     return render(request, "rfq/productDetail.html", context)
 
 def jobstart(requst):
+    products = Product.objects.all()
     return render(requst, "rfq/createRfq.html")
+
+def clients(request):
+    if request.method == "POST":
+        #Obtaining the posted data for the client
+        data = json.loads(request.body)
+        client = data.get("newClient")
+        #Saving the client details to the database
+        new_client = Client(**client)
+        new_client.save()
+
+    responsedata = {
+        "message": "Product Stored Successfully."
+    }
+    return JsonResponse(responsedata)
