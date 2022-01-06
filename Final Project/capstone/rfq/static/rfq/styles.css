@@ -59,7 +59,7 @@
   }
 
   .rowCounter::before{
-    /* Increment "my-sec-counter" by 1 */
+    /* Increase row by 1 */
     counter-increment: rowCount;
     content: counter(rowCount);
   }

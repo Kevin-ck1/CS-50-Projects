@@ -52,9 +52,10 @@ class UI {
 
     //Add Product
     static addProduct(product){
-        const table = document.querySelector('.product-table')
+        const table = document.querySelector('.product-table');
 
-        const newRow = document.createElement('tr')
+        const newRow = document.createElement('tr');
+
         newRow.innerHTML = `
         <tr>
             <th scope="row" class="rowCounter"></th>

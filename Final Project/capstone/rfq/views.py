@@ -133,7 +133,18 @@ def clients(request):
         new_client = Client(**client)
         new_client.save()
 
-    responsedata = {
-        "message": "Product Stored Successfully."
-    }
-    return JsonResponse(responsedata)
+        responsedata = {
+            "message": "Product Stored Successfully.",
+            "client_id": new_client.id
+        }
+        return JsonResponse(responsedata)
+    
+    else:
+        clients = Client.objects.all()
+        #print(client.serialize() for client in clients)
+        responsedata = {
+            "message": "Working on database stuff"
+        }
+        clients_list = list(Client.objects.values())   
+        print(clients_list)
+        return JsonResponse(clients_list , safe=False)

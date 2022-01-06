@@ -9,6 +9,14 @@ class Client {
     }
 };
 
+//Job object
+class Job {
+    constructor (client, items){
+        this.client = client;
+        this.itmes = items;
+    }
+};
+
 //Function for getting crsf token
 function getCookie(name) {
     let cookieValue = null;
@@ -40,8 +48,35 @@ class UI {
     //
     static resetForm(){
         document.querySelector('form').reset();
-        console.log("Form fields cleared")
-    }
+        console.log("Form fields cleared");
+        document.querySelector('.form-client').style.display = 'none';
+    };
+
+    static displayClientList(clients){
+        //console.log(clients)
+        const ul = document.querySelector('#client-list')
+
+        clients.forEach(element => {
+            const li = document.createElement('li');
+            li.setAttribute('class', 'list-group-item');
+            li.style.display = 'none';
+            li.innerHTML = element.clientName;
+            ul.append(li);
+        });
+
+        //Creating a create client button if the client list is empty
+        const createButton = document.createElement('li');
+        createButton.setAttribute('class', 'list-group-item');
+        createButton.setAttribute('id', 'createLink');
+        createButton.innerHTML = `
+            <p>
+            Client Does don't Exist. 
+            <span class="link">Click Here to create Client</span>
+            </p>
+        `
+
+
+    };
 };
 
 //Store Class
@@ -67,12 +102,55 @@ class Store {
         })
         .then(response => response.json())
         .then(res => {
-            console.log(res.message)
+            console.log(res.message);
+            console.log(res.id);
+        })
+    };
+
+    
+    static getClients(){
+        var clients;
+        fetch("/clients")
+        .then(response => response.json())
+        .then(res => {
+            //Display items in list of clients
+            UI.displayClientList(res)
         })
     }
+
 };
 
+//Search Class
+
+class SearchClient{
+    static clientFilter(){
+        const clientFilterValue = clientSearch.value.toUpperCase();
+        console.log(clientFilterValue);
+        const clientItem = document.querySelectorAll('.list-group-item');
+        clientItem.forEach(client => {
+            if(client.innerHTML.toUpperCase().indexOf(clientFilterValue) > -1 && clientFilterValue.length > 0 ){
+                client.style.display = '';
+            }else{
+                client.style.display = 'none';
+            };
+        });
+    }
+}
+
 //Event Listners
+
+//Load Clients
+document.addEventListener('DOMContentLoaded', ()=>{
+    //Get list of clients
+    Store.getClients();
+});
+
+//Display Creat client form
+document.querySelector('#createClient').querySelector('button').addEventListener('click', ()=>{
+    document.querySelector('.form-client').style.display = '';
+})
+
+//Submit Form
 document.querySelector('#clientForm').addEventListener('submit', (event)=>{
     event.preventDefault()
     console.log('Form submit button clicked')
@@ -99,3 +177,7 @@ document.querySelector('#clientForm').addEventListener('submit', (event)=>{
 
     };    
 });
+
+//Search bar
+const clientSearch = document.querySelector('#search-client')
+clientSearch.addEventListener('keyup', SearchClient.clientFilter)

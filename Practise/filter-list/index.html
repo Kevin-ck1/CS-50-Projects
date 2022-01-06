@@ -83,22 +83,10 @@
 
             //loop throught the collection
 
-            // for (let i = 0; i<li.length; i++){
-            //     let a1 = li[i].getElementsByTagName('a')[0];
-                
-            //     //if matched
-            //     if(a1.innerHTML.toUpperCase().indexOf(filterValue) > -1){
-            //         li[i].style.display = '';
-            //         console.log(a1.innerHTML.toUpperCase())
-            //     } else {
-            //         li[i].style.display = "none";
-            //     }
-            // }
-
             li.forEach((item)=>{
                 let a = item.querySelector('a');
-
-                if(a.innerHTML.toUpperCase().indexOf(filterValue)> -1){
+                //Check match
+                if(a.innerHTML.toUpperCase().indexOf(filterValue) > -1){
                     item.style.display = '';
                 } else {
                     item.style.display = "none";
