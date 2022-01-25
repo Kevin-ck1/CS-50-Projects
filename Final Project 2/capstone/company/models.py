@@ -17,4 +17,14 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.brand}: {self.nameP}"
+
+class Supplier(models.Model):
+    nameS = models.CharField(max_length=64)
+    address = models.IntegerField()
+    contact = models.IntegerField()
+    zone = models.IntegerField()
+    location = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.nameS}: {self.contact}"
         

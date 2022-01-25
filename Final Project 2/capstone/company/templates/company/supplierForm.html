@@ -1,0 +1,58 @@
+{% extends "company/layout.html"%}
+
+{% block body %}
+
+<div class="supplierForm m-3">
+    <form id="supplierForm">
+        <div class="form-group row">
+            <label for="nameS" class="col-sm-2 col-form-label">Supplier's Name</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="nameS" placeholder="Supplier's Name">
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="address" class="col-sm-2 col-form-label">Address</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="address" placeholder="Address">
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="contact" class="col-sm-2 col-form-label">Contact</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="contact" placeholder="Contact">
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="Zone" class="col-sm-2 col-form-label">Zone</label>
+            <div class="col-sm-5">
+              <select name="" id="zone">
+                  <option value="1">Zone 1: CBD</option>
+                  <option value="2">Zone 2: Down Town</option>
+                  <option value="3">Zone 3: Industrial Area</option>
+              </select>
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="location" class="col-sm-2 col-form-label">Location</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="location" placeholder="Location">
+            </div>
+        </div>
+       
+        <div class="submit mt-3">
+            <button class="btn btn-primary col-sm-7" type="submit">Add Supplier</button>
+        </div>   
+
+    </form>
+</div>
+
+{%endblock%}
+
+{% load static %}
+{% block scripttag%}
+<script src="{% static 'company/supplier.js' %}"></script>
+{%endblock%}

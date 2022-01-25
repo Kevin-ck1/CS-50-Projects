@@ -32,4 +32,5 @@ table {
     /* Increase counter by 1 */
     counter-increment: rowCount;
     content: counter(rowCount);
-  }
+}
+

@@ -6,31 +6,53 @@
         <div id="name">
             <h2>
                 <span  class="pdetail">{{product.nameP}}</span>
-                <input style="display: none;" type="text" value="{{product.nameP}}">
+                <input id="nameP" class="inputUpdate" style="display: none;" type="text" value="{{product.nameP}}">
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
-            <button class="btn btn-outline-primary btn-sm mx-2" id="updateProduct">Update</button>
-            <button class="btn btn-outline-danger btn-sm">Delete</button>
+            <button class="btn btn-outline-primary btn-sm mx-2" id="editProduct">Edit Product</button>
+            <button class="btn btn-outline-danger btn-sm" id="deleteProduct">Delete</button>
         </div>
     </div>
 
     <div id="productDetails" class="row mt-3 border-bottom">
         <div class="border-bottom col-12 row pb-2">
             <div class="col-md-6">
-                <h5 class="pdetail">Category  <span class="text-info">{{product.category}}</span> </h5>
-                <h5 class="pdetail">Brand: {{product.brand}}</h5>
+                <h5>
+                    Category  
+                    <span class="text-info pdetail">{{product.category}}</span>
+                    <input id="category" class="inputUpdate" style="display: none;" type="text" value="{{product.category}}"> 
+                </h5>
+                <h5>
+                    Brand: 
+                    <span class="text-info pdetail">{{product.brand}}</span> 
+                    <input id="brand" class="inputUpdate" style="display: none;" type="text" value="{{product.brand}}"> 
+                </h5>
             </div>
             <div class="col-md-6">
-                <h5>Weight: <span class="text-info pdetail">{{product.weight}}kgs</span></h5>
-                <h5>Size: <span class="text-info pdetail">{{product.size}}cm</span></h5>
+                <h5>
+                    Size: 
+                    <span class="text-info pdetail">{{product.size}}cm</span>
+                    <input id="size" class="inputUpdate" style="display: none;" type="text" value="{{product.size}}"> 
+                </h5>
+                
+                <h5>
+                    Weight: 
+                    <span class="text-info pdetail">{{product.weight}}kgs</span>
+                    <input id="weight" class="inputUpdate" style="display: none;" type="text" value="{{product.weight}}"> 
+                </h5>
             </div> 
         </div>
 
         <div class="col-12 pt-1">
             <h4>Description</h4>
             <p class="pdetail">{{product.description}}</p>
-        </div>   
+            <input id="description" class="inputUpdate" style="display: none;" type="text" value="{{product.description}}"> 
+        </div>  
+        
+        <div class="col-12">
+            <input id="updateProduct" class="btn btn-primary inputUpdate" style="display: none;" type="submit" value="Update product">
+        </div>
     </div>
 
     <div class="table-responsive">

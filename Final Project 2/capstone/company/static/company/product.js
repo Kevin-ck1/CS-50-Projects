@@ -61,6 +61,9 @@ class UI {
         //Placing the new row into the table
         table.insertBefore(newRow, table.firstElementChild);
 
+        //Closing form
+        UI.closeForm();
+
     }
 
     static clearForm(){
@@ -77,6 +80,39 @@ class UI {
     //To redirect to the product details
     static prodcutDetails(id){
         window.location=`/company/products/${id}`;
+
+    }
+
+    //To rename the new product row
+    static renameRow(id){
+        const table = document.querySelector('#tableProduct')
+        console.log(table.firstElementChild)
+        const row = table.firstElementChild
+        row.setAttribute('id', id)
+        row.addEventListener('click',()=>{
+            UI.prodcutDetails(id)
+        })
+
+    }
+
+    //To close the update field
+    static finishUpdate(product){
+        console.log(product.nameP)
+        //window.location=`/company/products/${id}`;
+        document.querySelector('#nameP').previousElementSibling.innerHTML = product.nameP;
+        document.querySelector('#category').previousElementSibling.innerHTML = product.category;
+        document.querySelector('#brand').previousElementSibling.innerHTML = product.brand;
+        document.querySelector('#size').previousElementSibling.innerHTML = product.size;
+        document.querySelector('#weight').previousElementSibling.innerHTML = product.weight;
+        document.querySelector('#description').previousElementSibling.innerHTML = product.description;
+
+        document.querySelectorAll('.pdetail').forEach((i)=>{
+            i.style.display = '';
+        });
+        document.querySelectorAll('.inputUpdate').forEach((i)=>{
+            i.style.display = 'none';
+            
+        });
 
     }
 };
@@ -100,9 +136,58 @@ class Store {
         .then(response => response.json())
         .then((res)=>{
             console.log(res.message)
+            //Rename New Product Row
+            UI.renameRow(res.id);
         })
     };
+
+    static updateProduct(id, product){
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request (
+            `${id}`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        )
+
+        fetch(request, {
+            method: "PUT",
+            mode: "same-origin",
+            body: JSON.stringify({
+                editedProduct: product
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        }).then(()=>{
+            
+        })
+    };
+
+    
+
+    static deleteProduct(id){
+        
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request (
+            `${id}`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        )
+
+        fetch(request, {
+            method: "DELETE",
+            mode: "same-origin",
+            body:`${id}` 
+        })
+        .then(response => response.json())
+        .then((res) =>{
+            console.log(res.message)
+        })
+        .then(()=>{
+            window.location=`/company/products`
+        })
+    }
 }
+
 
 try {
     //Event, addButton click
@@ -114,7 +199,6 @@ try {
     //Event, submiting form
     document.querySelector('#productForm').addEventListener('submit', (event)=>{
         event.preventDefault();
-        console.log('Form Submitted')
         const nameP = document.querySelector('#nameP').value;
         const brand = document.querySelector('#brand').value;
         const category = document.querySelector('#category').value;
@@ -138,6 +222,7 @@ try {
 
             //Clear the form fields
             UI.clearForm();
+
         }
 
         
@@ -151,13 +236,46 @@ try {
     });
 
 } catch {
-   //Event, Update product details
-    document.querySelector('#updateProduct').addEventListener('click', ()=>{
-        console.log('Update Button Clicked')
+   //Event, Activate Edit Mode 
+    document.querySelector('#editProduct').addEventListener('click', ()=>{
         document.querySelectorAll('.pdetail').forEach((detail)=>{
             detail.style.display = 'none';
         })
+        document.querySelectorAll('.inputUpdate').forEach((i)=>{
+            i.style.display = '';
+            
+        });
     }); 
+
+    //Submit Form, to update product details
+    document.querySelector('#updateProduct').addEventListener('click', (e)=>{
+        e.preventDefault();
+        console.log('Update Submitted')
+        const nameP = document.querySelector('#nameP').value;
+        const brand = document.querySelector('#brand').value;
+        const category = document.querySelector('#category').value;
+        //const price = document.querySelector('#price').value;
+        const size = document.querySelector('#size').value;
+        const weight = document.querySelector('#weight').value;
+        //const supplier = document.querySelector('#supplier').value;
+        const description = document.querySelector('#description').value;
+
+        const url = window.location.href;
+        const productId = url.split("/").pop();
+        const newProduct = new Product(nameP, brand, category,  size, weight, description); 
+
+        Store.updateProduct(productId, newProduct);
+        UI.finishUpdate(newProduct);
+        
+    })
+
+    //Event, Deleting A product
+    document.querySelector('#deleteProduct').addEventListener('click', ()=>{
+        const url = window.location.href;
+        const productId = url.split("/").pop();
+
+        Store.deleteProduct(productId);
+    })
 }
 
 
