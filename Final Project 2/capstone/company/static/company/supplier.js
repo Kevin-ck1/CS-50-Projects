@@ -1,8 +1,9 @@
 //Supplier Class
 class Supplier{
-    constructor(nameS, address, contact, zone, location){
+    constructor(nameS, address, email, contact, zone, location){
         this.nameS = nameS;
         this.address = address;
+        this.email = email;
         this.contact = contact;
         this.zone = zone;
         this.location = location;
@@ -42,9 +43,14 @@ class UI {
     static clearForm(){
         document.querySelector('#nameS').value = '';
         document.querySelector('#address').value = '';
+        document.querySelector('#email').value = '';
         document.querySelector('#contact').value = '';
         document.querySelector('#zone').value = '';
         document.querySelector('#nameS').value = '';
+    }
+
+    static supplierDetails(id){
+        window.location=`/company/suppliers/${id}`
     }
 }
 
@@ -62,33 +68,45 @@ class Storage {
         })
         .then(response => response.json())
         .then((res)=>{
-            console.log(res)
+            console.log(res.message)
+            window.location=`/company/suppliers/${res.id}`
+              
         })
+        
     }
 }
 
 //Events
+try {
+    //Clicking Product: Opening supplier details
+    document.querySelector('#supplierTable').querySelectorAll('tr').forEach((tr)=>{
+        tr.addEventListener('click', ()=>{
+            UI.supplierDetails(tr.id)
+        })
+    })
+} catch {
+    //Submiting Form
+    document.querySelector('#supplierForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const nameS = document.querySelector('#nameS').value;
+        const address = document.querySelector('#address').value;
+        const email = document.querySelector('#email').value;
+        const contact = document.querySelector('#contact').value;
+        const zone = document.querySelector('#zone').value;
+        const location = document.querySelector('#nameS').value;
 
-//Submiting Form
-document.querySelector('#supplierForm').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const nameS = document.querySelector('#nameS').value;
-    const address = document.querySelector('#address').value;
-    const contact = document.querySelector('#contact').value;
-    const zone = document.querySelector('#zone').value;
-    const location = document.querySelector('#nameS').value;
+        if(nameS == '' || address == '' || email =='' || contact == '' || zone == '' || location == ''){
+            alert('Please Fill in All the Fields')
+        }else{
+            const newSupplier = new Supplier(nameS, address, email, contact, zone, location)
 
-    if(nameS == '' || address == '' || contact == '' || zone == '' || location == ''){
-        alert('Please Fill in All the Fields')
-    }else{
-        const newSupplier = new Supplier(nameS, address, contact, zone, location)
+            //Add The new Supplier to the database
+            Storage.addSupplier(newSupplier);
 
-        //Add The new Supplier to the database
-        
-        Storage.addSupplier(newSupplier);
+            //Clear Form Fields
+            UI.clearForm()
+        }
 
-        //Clear Form Fields
-        UI.clearForm()
-    }
+    })
+}
 
-})

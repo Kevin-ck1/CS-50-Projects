@@ -2,7 +2,7 @@ from django.shortcuts import render
 from . import templates, static
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Product, Supplier
+from .models import Product, Supplier, Personnel
 import json
 
 # Create your views here.
@@ -64,7 +64,6 @@ def productDetail(request,id):
 
 def suppliers(request):
     suppliers = Supplier.objects.all()
-    print(suppliers)
     return render(request, "company/suppliers.html",{
         "suppliers" : suppliers
     })
@@ -77,8 +76,16 @@ def supplierForm(request):
         new_supplier.save()
         
         response_data = {
-            "message": "Supplier Added."
+            "message": "Supplier Added.",
+            "id": new_supplier.id
         }
         return JsonResponse(response_data, status=201)
     else:
         return render(request, "company/supplierForm.html")
+
+def supplierDetail(request, id):
+    supplier = Supplier.objects.get(pk=id)
+    response_data = {
+        "supplier": supplier
+    }
+    return render(request, "company/supplierDetails.html", response_data)

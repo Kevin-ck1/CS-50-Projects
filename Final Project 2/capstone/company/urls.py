@@ -10,4 +10,5 @@ urlpatterns = [
     path('products/<int:id>', views.productDetail, name='productDetail'),
     path('suppliers', views.suppliers, name='suppliers'),
     path('supplierform', views.supplierForm, name='supplierForm'),
+    path('suppliers/<int:id>', views.supplierDetail, name='supplierDetail'),
 ]
