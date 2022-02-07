@@ -85,7 +85,27 @@ def supplierForm(request):
 
 def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
+    personnel = supplier.personnel.all()
     response_data = {
-        "supplier": supplier
+        "supplier": supplier,
+        "personnel": personnel
     }
     return render(request, "company/supplierDetails.html", response_data)
+
+def personnel(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        person = data.get("newPerson")
+
+        name = person["name"]
+        phone = person["phone"]
+        email = person["email"]
+        companyId = person["companyId"]
+        if person["type"] == supplier:
+            company = Supplier.objects.get(pk=companyId)
+        p = Personnel(nameC = name, contact=phone, email = email, content_object = company)
+        p.save()
+    response_data ={
+        "message": "Personnel Successfully Added"
+    }
+    return JsonResponse(response_data, status=201)

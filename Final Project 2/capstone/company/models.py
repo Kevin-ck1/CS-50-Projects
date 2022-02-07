@@ -25,7 +25,7 @@ class Personnel(models.Model):
     nameC = models.CharField(max_length=64)
     contact = models.IntegerField()
     email = models.CharField(max_length=64)
-    content_type = models.ForeignKey(ContentType, related_name="personel", blank=True, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, related_name="personnel", blank=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
