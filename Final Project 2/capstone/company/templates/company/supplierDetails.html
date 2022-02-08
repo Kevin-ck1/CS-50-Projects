@@ -71,14 +71,14 @@
                     {% for person in personnel %}
                         <tr>
                             <th scope="row" class="rowCounter text-center"></th>
-                            <td class="text-center">{{person.nameC}}</td>
-                            <td class="text-center">{{person.contact}}</td>
-                            <td class="text-center">{{person.email}}</td>
+                            <td id="name" class="text-center" >{{person.nameC}}</td>
+                            <td id="phone" class="text-center">{{person.contact}}</td>
+                            <td id="email" class="text-center">{{person.email}}</td>
                             <td class="d-flex justify-content-center">
-                                <button class="pr-1 btn btn-lg text-dark edit-button" >
+                                <button id="editButton" class="pr-1 btn btn-lg text-dark" >
                                     <i class="far fa-edit"></i>
                                 </button>
-                                <button class="pl-0 btn btn-lg text-dark delete-button ">
+                                <button id="deleteButton" class="pl-0 btn btn-lg text-dark">
                                     <i class="far fa-trash-alt"></i>
                                 </button>
                             </td>

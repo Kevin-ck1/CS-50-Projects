@@ -49,10 +49,10 @@ class UI{
             <td class="text-center"><input type="text" class="phone"></td>
             <td class="text-center"><input type="text" class="email"></td>
             <td class="d-flex justify-content-center">
-                <button id="savePerson" class="pr-1 btn btn-lg text-dark edit-button" >
+                <button id="savePerson" class="pr-1 btn btn-lg text-dark" >
                     <i class="fa fa-check"></i>
                 </button>
-                <button class="pl-0 btn btn-lg text-dark delete-button ">
+                <button class="pl-0 btn btn-lg text-dark">
                     <i class="far fa-trash-alt"></i>
                 </button>
             </td>
@@ -71,14 +71,14 @@ class UI{
         newRow.innerHTML = 
             `
             <th scope="row" class="rowCounter text-center"></th>
-            <td class="text-center">${person.name}</td>
-            <td class="text-center">${person.phone}</td>
-            <td class="text-center">${person.email}</td>
+            <td id="name" class="text-center">${person.name}</td>
+            <td id="phone" class="text-center">${person.phone}</td>
+            <td id="email" class="text-center">${person.email}</td>
             <td class="d-flex justify-content-center">
-                <button class="pr-1 btn btn-lg text-dark edit-button" >
+                <button id="editButton" class="pr-1 btn btn-lg text-dark" >
                     <i class="far fa-edit"></i>
                 </button>
-                <button class="pl-0 btn btn-lg text-dark delete-button ">
+                <button id="deleteButton" class="pl-0 btn btn-lg text-dark">
                     <i class="far fa-trash-alt"></i>
                 </button>
             </td>
@@ -93,6 +93,28 @@ class UI{
 
     static removeRow(row){
         row.remove();
+    };
+
+    static editForm(tr){
+        const name = tr.querySelector('#name').innerHTML;
+        const phone = tr.querySelector('#phone').innerHTML;
+        const email = tr.querySelector('#email').innerHTML;
+
+        tr.innerHTML = 
+            `
+            <th scope="row" class="rowCounter text-center"></th>
+            <td class="text-center"><input type="text" class="name" value="${name}"></td>
+            <td class="text-center"><input type="text" class="phone" value="${phone}"></></td>
+            <td class="text-center"><input type="text" class="email" value="${email}"></></td>
+            <td class="d-flex justify-content-center">
+                <button id="savePerson" class="pr-1 btn btn-lg text-dark" >
+                    <i class="fa fa-check"></i>
+                </button>
+                <button class="pl-0 btn btn-lg text-dark">
+                    <i class="far fa-trash-alt"></i>
+                </button>
+            </td>
+            `;
     }
 }
 
@@ -120,6 +142,7 @@ document.querySelector('#addPerson').addEventListener('click',()=>{
     UI.addRow()
 })
 
+
 //Add Person Event
 document.querySelector('#personnelTable').addEventListener('click', (e)=>{
     if(e.target.parentElement.id == "savePerson" || e.target.id == "savePerson"){
@@ -144,4 +167,12 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
 
         }
     }
+});
+
+//Event: Edit Person
+document.querySelectorAll('#editButton').forEach((b)=>{
+    b.addEventListener('click', ()=>{
+        const row = b.parentElement.parentElement;
+        UI.editForm(row);
+    })
 })

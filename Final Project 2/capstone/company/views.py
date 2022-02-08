@@ -101,7 +101,7 @@ def personnel(request):
         phone = person["phone"]
         email = person["email"]
         companyId = person["companyId"]
-        if person["type"] == supplier:
+        if person["type"] == "supplier":
             company = Supplier.objects.get(pk=companyId)
         p = Personnel(nameC = name, contact=phone, email = email, content_object = company)
         p.save()
