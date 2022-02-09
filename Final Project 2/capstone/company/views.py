@@ -101,11 +101,32 @@ def personnel(request):
         phone = person["phone"]
         email = person["email"]
         companyId = person["companyId"]
+
         if person["type"] == "supplier":
             company = Supplier.objects.get(pk=companyId)
         p = Personnel(nameC = name, contact=phone, email = email, content_object = company)
         p.save()
-    response_data ={
-        "message": "Personnel Successfully Added"
-    }
-    return JsonResponse(response_data, status=201)
+
+        response_data ={
+            "message": "Personnel Successfully Added",
+            "id": p.id
+        }
+        return JsonResponse(response_data, status=201)
+    
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        editperson = data.get("updatePerson")
+        personId = data.get("personId")
+        person = Personnel.objects.get(pk=personId)
+
+        person.nameC = editperson["name"]
+        person.contact = editperson["phone"]
+        person.email = editperson['email']
+        person.save()
+
+        response_data ={
+            "message": "Personnel Successfully Updated",
+            "id": person.id
+        }
+        return JsonResponse(response_data, status=201)
+

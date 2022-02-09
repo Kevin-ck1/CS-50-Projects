@@ -69,7 +69,7 @@
                 </thead>
                 <tbody id="personnelTable">
                     {% for person in personnel %}
-                        <tr>
+                        <tr id="{{person.id}}">
                             <th scope="row" class="rowCounter text-center"></th>
                             <td id="name" class="text-center" >{{person.nameC}}</td>
                             <td id="phone" class="text-center">{{person.contact}}</td>

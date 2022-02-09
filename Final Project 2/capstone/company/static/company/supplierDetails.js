@@ -52,20 +52,18 @@ class UI{
                 <button id="savePerson" class="pr-1 btn btn-lg text-dark" >
                     <i class="fa fa-check"></i>
                 </button>
-                <button class="pl-0 btn btn-lg text-dark">
-                    <i class="far fa-trash-alt"></i>
+                <button id="cancelButton" class="pl-0 btn btn-lg text-dark">
+                    <i class="fa fa-ban"></i>
                 </button>
             </td>
             `;
         table.appendChild(newRow);
 
-        const button = document.querySelector('#addPerson')
-        button.className = "btn btn-secondary"
-        button.disabled = true;
+        UI.disableButtons();
 
     };
 
-    static addPerson(person){
+    static savePerson(person, rIndex){
         const table = document.querySelector('#personnelTable')
         const newRow = document.createElement('tr');
         newRow.innerHTML = 
@@ -83,12 +81,17 @@ class UI{
                 </button>
             </td>
             `;
-        UI.removeRow(table.lastElementChild)
-        table.appendChild(newRow);
 
-        const button = document.querySelector('#addPerson')
-        button.className = "btn btn-primary"
-        button.disabled = false;
+        if (rIndex){
+            const oldRow = table.rows[rIndex-1];
+            oldRow.replaceWith(newRow);
+        }else {
+            UI.removeRow(table.lastElementChild)
+            table.appendChild(newRow);
+        }
+
+        UI.enableButtons();
+        
     }
 
     static removeRow(row){
@@ -100,6 +103,10 @@ class UI{
         const phone = tr.querySelector('#phone').innerHTML;
         const email = tr.querySelector('#email').innerHTML;
 
+        const person = {name:name, phone:phone, email:email};
+        localStorage.setItem("person", JSON.stringify(person))
+        
+
         tr.innerHTML = 
             `
             <th scope="row" class="rowCounter text-center"></th>
@@ -107,20 +114,53 @@ class UI{
             <td class="text-center"><input type="text" class="phone" value="${phone}"></></td>
             <td class="text-center"><input type="text" class="email" value="${email}"></></td>
             <td class="d-flex justify-content-center">
-                <button id="savePerson" class="pr-1 btn btn-lg text-dark" >
+                <button id="editPerson" class="pr-1 btn btn-lg text-dark" >
                     <i class="fa fa-check"></i>
                 </button>
-                <button class="pl-0 btn btn-lg text-dark">
-                    <i class="far fa-trash-alt"></i>
+                <button id="cancelEdit"class="pl-0 btn btn-lg text-dark">
+                    <i class="fa fa-ban"></i>
                 </button>
             </td>
             `;
+
+        UI.disableButtons();
     }
+
+    static disableButtons(){
+        document.querySelectorAll('#editButton').forEach((b)=>{
+            b.disabled = true;
+        })
+        document.querySelectorAll('#deleteButton').forEach((b)=>{
+            b.disabled = true;
+        })
+        const button = document.querySelector('#addPerson')
+        button.className = "btn btn-secondary"
+        button.disabled = true;
+    }
+
+    static enableButtons(){
+        document.querySelectorAll('#editButton').forEach((b)=>{
+            b.disabled = false;
+        })
+        document.querySelectorAll('#deleteButton').forEach((b)=>{
+            b.disabled = false;
+        })
+        const button = document.querySelector('#addPerson')
+        button.className = "btn btn-primary"
+        button.disabled = false;
+    };
+
+    static renameRow(rIndex, id){
+        const table = document.querySelector('#personnelTable')
+        const row = table.rows[rIndex-1]
+        console.log(row.innerHTML)
+        row.setAttribute('id', id)
+    };
 }
 
 //Storage Class
 class Store{
-    static storePerson(person){
+    static storePerson(person,rIndex){
         const request = requestPath(`personnel`);
         console.log(request)
         fetch(request, {
@@ -133,8 +173,29 @@ class Store{
         .then(response => response.json())
         .then((res)=>{
             console.log(res.message)
+            //Rename New Product Row
+            UI.renameRow(rIndex, res.id)
         })
-    }
+    };
+
+    static updatePerson(person, rIndex, id){
+        const request = requestPath(`personnel`);
+        console.log(request)
+        fetch(request, {
+            method: "PUT",
+            mode: "same-origin",
+            body: JSON.stringify({
+                updatePerson: person,
+                personId: id
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+            //Rename New Product Row
+            UI.renameRow(rIndex, id);
+        })
+    };
 }
 //Events
 //Generate New table Row
@@ -143,10 +204,13 @@ document.querySelector('#addPerson').addEventListener('click',()=>{
 })
 
 
-//Add Person Event
+//Add/edit Person Event
 document.querySelector('#personnelTable').addEventListener('click', (e)=>{
-    if(e.target.parentElement.id == "savePerson" || e.target.id == "savePerson"){
+    if(e.target.parentElement.id == "savePerson" || e.target.parentElement.id == "editPerson"){
         console.log(e.target)
+        const row = e.target.parentElement.parentElement.parentElement
+        const rIndex = row.rowIndex;
+        const rowId = row.id;
         const name = document.querySelector('.name').value;
         const phone = document.querySelector('.phone').value;
         const email = document.querySelector('.email').value;
@@ -159,20 +223,50 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
         }else {
             //Creating a new instance of a person
             const person = new Personnel(name, phone, email, companyId, type);
-            //Add the person to the display
-            UI.addPerson(person);
+            if(e.target.parentElement.id == "savePerson" || e.target.id == "savePerson"){
+                //Add the person to the display
+            UI.savePerson(person);
 
             //Store the Person to the database
-            Store.storePerson(person);
+            Store.storePerson(person, rIndex);
 
+            }else{
+                console.log("Edit Mode")
+                UI.savePerson(person, rIndex);
+                Store.updatePerson(person, rIndex, rowId);
+            }
         }
     }
 });
 
-//Event: Edit Person
-document.querySelectorAll('#editButton').forEach((b)=>{
-    b.addEventListener('click', ()=>{
-        const row = b.parentElement.parentElement;
-        UI.editForm(row);
-    })
+//Event: Cancel Button
+document.querySelector('#personnelTable').addEventListener('click', (e)=>{
+    if(e.target.parentElement.id == "cancelButton"){
+        const row = e.target.parentElement.parentElement.parentElement;
+        UI.removeRow(row);
+        UI.enableButtons();
+    }
 })
+//Event: Edit Person
+document.querySelector('#personnelTable').addEventListener('click', (e)=>{
+    if(e.target.parentElement.id == "editButton" ){
+        const row = e.target.parentElement.parentElement.parentElement;
+        UI.editForm(row);
+    }
+})
+
+
+//Event: Cancel Button
+document.querySelector('#personnelTable').addEventListener('click', (e)=>{
+    if(e.target.parentElement.id == "cancelEdit"){
+        const row = e.target.parentElement.parentElement.parentElement;
+        const rIndex = e.target.parentElement.parentElement.parentElement.rowIndex;
+        const rowId = row.id;
+        const person = JSON.parse(localStorage.getItem("person"))
+        
+        UI.savePerson(person, rIndex)
+        UI.renameRow(rIndex, rowId);
+        UI.enableButtons();
+    }
+})
+
