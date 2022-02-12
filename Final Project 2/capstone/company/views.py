@@ -86,11 +86,35 @@ def supplierForm(request):
 def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
     personnel = supplier.personnel.all()
-    response_data = {
-        "supplier": supplier,
-        "personnel": personnel
-    }
-    return render(request, "company/supplierDetails.html", response_data)
+    zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
+    
+
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        ES = data.get("updateSupplier")
+
+        supplier.nameS = ES["nameS"]
+        supplier.address = ES["address"]
+        supplier.email = ES["email"]
+        supplier.contact = ES["contact"]
+        supplier.zone = ES["zone"]
+        supplier.location = ES["location"]
+        supplier.save()
+
+        response_data = {
+            "message": "Supplier Edited."
+        }
+        return JsonResponse(response_data, status=201)
+    else:
+        response_data = {
+            "supplier": supplier,
+            "personnel": personnel,
+            "zones": zones
+        }
+
+        return render(request, "company/supplierDetails.html", response_data)
+
+    
 
 def personnel(request):
     if request.method == "POST":
@@ -129,4 +153,16 @@ def personnel(request):
             "id": person.id
         }
         return JsonResponse(response_data, status=201)
+
+    else:
+        data = json.loads(request.body)
+        personId = data.get("personId")
+        Personnel.objects.get(pk=personId).delete()
+
+        response_data ={
+            "message": "Personnel Successfully Deleted"
+        }
+        return JsonResponse(response_data, status=201)
+
+
 

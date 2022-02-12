@@ -12,5 +12,5 @@ urlpatterns = [
     path('supplierform', views.supplierForm, name='supplierForm'),
     path('suppliers/<int:id>', views.supplierDetail, name='supplierDetail'),
     path('suppliers/personnel', views.personnel, name="personnel")
-    
+   
 ]

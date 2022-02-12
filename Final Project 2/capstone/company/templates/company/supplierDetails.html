@@ -6,8 +6,7 @@
     <div class="d-flex justify-content-between border-bottom mt-4 pb-3">
         <div id="name">
             <h2>
-                <span  class="pdetail">{{supplier.nameS}}</span>
-                <input id="nameP" class="inputUpdate" style="display: none;" type="text" value="{{supplier.nameP}}">
+                <span  class="sName">{{supplier.nameS}}</span>
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
@@ -15,37 +14,103 @@
             <button class="btn btn-outline-danger btn-sm" id="deletesupplier">Delete</button>
         </div>
     </div>
+    <div class="modal1">
+        <div class="modal-content1 d-flex justify-content-center">
+            <div class="col-md-10">
+                
+                <div class="mb-4 d-flex justify-content-between">
+                    <div></div>
+                    <h5 class="text-center">Edit Supplier</h5>
+                    <span class="closeButton">X</span>
+                </div>
+                <hr>
+                <div>
+                    <form id="supplierForm">
+                        <div class="form-group row ">
+                            <label for="nameS" class="col-sm-2 col-form-label">Supplier's Name</label>
+                            <div class="col">
+                              <input type="text" class="form-control" id="nameS" value="{{supplier.nameS}}">
+                            </div>
+                        </div>
+                
+                        <div class="form-group row mt-3">
+                            <label for="address" class="col-sm-2 col-form-label">Address</label>
+                            <div class="col">
+                              <input type="text" class="form-control" id="address" value="{{supplier.address}}">
+                            </div>
+                        </div>
+                
+                        <div class="form-group row mt-3">
+                          <label for="email" class="col-sm-2 col-form-label">Email</label>
+                          <div class="col">
+                            <input type="text" class="form-control" id="email" value="{{supplier.email}}">
+                          </div>
+                        </div>
+                
+                        <div class="form-group row mt-3">
+                            <label for="contact" class="col-sm-2 col-form-label">Contact</label>
+                            <div class="col">
+                              <input type="text" class="form-control" id="contact" value="{{supplier.contact}}">
+                            </div>
+                        </div>
+                
+                        <div class="form-group row mt-3">
+                            <label for="Zone" class="col-sm-2 col-form-label">Zone</label>
+                            <div class="col">
+                              <select name="" id="zone">
+                                  {% for zone in zones %}
+                                    {%if supplier.zone == forloop.counter  %}
+                                        <option value="{{ supplier.zone }}" selected>{{zone}}</option>
+                                    {%else%}
+                                        <option value="{{ forloop.counter }}">{{zone}}</option>
+                                    {%endif%}
+                                  {%endfor%}
+                                  
+                              </select>
+                            </div>
+                        </div>
+                
+                        <div class="form-group row mt-3">
+                            <label for="location" class="col-sm-2 col-form-label">Location</label>
+                            <div class="col">
+                              <input type="text" class="form-control" id="location" value="{{supplier.location}}">
+                            </div>
+                        </div>
+                       
+                        <div class="submit mt-3 d-flex flex-row-reverse">
+                            <button class="btn btn-primary submitButton" type="submit" value="edit">Save Changes</button>
+                        </div>   
+                
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="supplierDetails" class="row mt-3 border-bottom">
         <div class="border-bottom col-12 row pb-2">
             <h5 class="col-md-4">
                 Address
-                <span class="text-info pdetail">{{supplier.address}}</span>
-                <input id="address" class="inputUpdate" style="display: none;" type="text" value="{{supplier.address}}"> 
+                <span class="text-info sAddress">{{supplier.address}}</span>
             </h5>
             <h5 class="col-md-4">
                 Email: 
-                <span class="text-info pdetail">{{supplier.email}}</span> 
-                <input id="email" class="inputUpdate" style="display: none;" type="text" value="{{supplier.email}}"> 
+                <span class="text-info sEmail">{{supplier.email}}</span>
             </h5>
             <h5 class="col-md-4">
                 Contact: 
-                <span class="text-info pdetail">{{supplier.contact}}</span> 
-                <input id="contact" class="inputUpdate" style="display: none;" type="text" value="{{supplier.contact}}"> 
-            </h5>
+                <span class="text-info sContact">{{supplier.contact}}</span>
         </div>
 
         <div class="col-12 pt-1 row">
             <h5 class="col-md-4">
                 Zone: 
-                <span class="text-info pdetail">{{supplier.zone}}</span>
-                <input id="zone" class="inputUpdate" style="display: none;" type="text" value="{{supplier.zone}}"> 
+                <span class="text-info sZone">{{supplier.zone}}</span> 
             </h5>
             
             <h5 class="col-md-6">
                 Location: 
-                <span class="text-info pdetail">{{supplier.location}}</span>
-                <input id="location" class="inputUpdate" style="display: none;" type="text" value="{{supplier.location}}"> 
+                <span class="text-info sLocation">{{supplier.location}}</span> 
             </h5>
         </div>  
         
@@ -98,6 +163,6 @@
 
 {% load static %}
 {% block scripttag%}
-<!-- <script src="{% static 'company/supplier.js' %}"></script> -->
+<script src="{% static 'company/supplier.js' %}"></script>
 <script src="{% static 'company/supplierDetails.js' %}"></script>
 {%endblock%}

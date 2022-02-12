@@ -1,4 +1,3 @@
-//Contact Personnel
 class Personnel {
     constructor(name, phone, email, companyId, type){
         this.name = name;
@@ -156,6 +155,10 @@ class UI{
         console.log(row.innerHTML)
         row.setAttribute('id', id)
     };
+
+    static removePerson(tr){
+        tr.remove()
+    }
 }
 
 //Storage Class
@@ -194,6 +197,22 @@ class Store{
             console.log(res.message)
             //Rename New Product Row
             UI.renameRow(rIndex, id);
+        })
+    };
+
+    static deletePerson(id){
+        const request = requestPath(`personnel`);
+        console.log(request)
+        fetch(request, {
+            method: "DELETE",
+            mode: "same-origin",
+            body: JSON.stringify({
+                personId: id
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
         })
     };
 }
@@ -260,7 +279,7 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
 document.querySelector('#personnelTable').addEventListener('click', (e)=>{
     if(e.target.parentElement.id == "cancelEdit"){
         const row = e.target.parentElement.parentElement.parentElement;
-        const rIndex = e.target.parentElement.parentElement.parentElement.rowIndex;
+        const rIndex = row.rowIndex;
         const rowId = row.id;
         const person = JSON.parse(localStorage.getItem("person"))
         
@@ -268,5 +287,24 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
         UI.renameRow(rIndex, rowId);
         UI.enableButtons();
     }
-})
+});
+
+//Event: Delete Person
+document.querySelector('#personnelTable').addEventListener('click', (e)=>{
+    if (e.target.parentElement.id == "deleteButton"){
+        const tr = e.target.parentElement.parentElement.parentElement;
+        const personId = tr.id;
+
+        //Remove row from display
+        UI.removePerson(tr);
+
+        //Remove person from data base
+        Store.deletePerson(personId);
+    }
+});
+
+//Event: Edit Supplier
+// document.querySelector('#editsupplier').addEventListener('click', ()=>{
+//     const editForm = document.createElement('div')  
+// })
 

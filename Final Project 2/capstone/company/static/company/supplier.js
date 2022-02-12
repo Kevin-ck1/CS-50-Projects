@@ -51,11 +51,20 @@ class UI {
 
     static supplierDetails(id){
         window.location=`/company/suppliers/${id}`
-    }
+    };
+
+    static editSupplier(supplier){
+        document.querySelector('.sName').innerHTML = supplier.nameS
+        document.querySelector('.sAddress').innerHTML = supplier.address;
+        document.querySelector('.sEmail').innerHTML = supplier.email;
+        document.querySelector('.sContact').innerHTML = supplier.contact;
+        document.querySelector('.sZone').innerHTML = supplier.zone;
+        document.querySelector('.sLocation').innerHTML = supplier.location;
+    };
 }
 
 //Storage Class
-class Storage {
+class Store {
     static addSupplier(supplier){
         const request = requestPath(`supplierform`);
         console.log(request)
@@ -73,6 +82,23 @@ class Storage {
               
         })
         
+    };
+
+    static updateSupplier(supplier){
+        const request = requestPath(``);
+        console.log(request)
+        fetch(request, {
+            method: "PUT",
+            mode: "same-origin",
+            body: JSON.stringify({
+                updateSupplier: supplier
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+              
+        })
     }
 }
 
@@ -93,18 +119,29 @@ try {
         const email = document.querySelector('#email').value;
         const contact = document.querySelector('#contact').value;
         const zone = document.querySelector('#zone').value;
-        const location = document.querySelector('#nameS').value;
+        const location = document.querySelector('#location').value;
 
         if(nameS == '' || address == '' || email =='' || contact == '' || zone == '' || location == ''){
             alert('Please Fill in All the Fields')
         }else{
-            const newSupplier = new Supplier(nameS, address, email, contact, zone, location)
+            const supplier = new Supplier(nameS, address, email, contact, zone, location)
 
-            //Add The new Supplier to the database
-            Storage.addSupplier(newSupplier);
+            //Obtain mode of submission either edit ot add
+            const buttonType = document.querySelector('.submitButton').value;
 
-            //Clear Form Fields
-            UI.clearForm()
+
+            if (buttonType == "add"){
+                //Add The new Supplier to the database
+                Store.addSupplier(supplier);
+
+                //Clear Form Fields
+                UI.clearForm()
+            } else {
+                //Change the Display
+                UI.editSupplier(supplier)
+                //Update the Data base
+                Store.updateSupplier(supplier)
+            }
         }
 
     })
