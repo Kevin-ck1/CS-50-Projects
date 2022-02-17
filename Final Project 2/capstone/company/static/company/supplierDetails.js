@@ -36,6 +36,9 @@ function requestPath(url){
     return request;
 }
 
+//Variables
+const modal = document.querySelector('.modal1') //Edit form form variable
+
 //UI Class
 class UI{
     static addRow(){
@@ -158,8 +161,43 @@ class UI{
 
     static removePerson(tr){
         tr.remove()
+    };
+
+     //Zones: Display the String Value for zones
+    static displayZone(){
+        const zone = document.querySelector('.sZone').innerHTML;
+        const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
+        if(parseInt(zone)){
+            document.querySelector('.sZone').innerHTML = zones[zone - 1];
+        };
+    };
+
+    //Open Supplier Form
+    static editSupplier(){
+        modal.style.display = "block";
+    };
+
+    //Close Supplier Form
+    static closeForm(){
+        modal.style.display = "none";
+    };
+
+    static displayPersonnels(){
+        document.querySelector('#personnel').style.display = "block";
+        const b = document.querySelector('.showPersonnel');
+        b.className = "hidePersonnel";
+        b.innerHTML = "Hide Personnel";
+    };
+    
+    static hidePersonnels(){
+        document.querySelector('#personnel').style.display = "none";
+        const b = document.querySelector('.hidePersonnel');
+        b.className = "showPersonnel";
+        b.innerHTML = "Show Personnel";
+
+        UI.disableButtons();
     }
-}
+};
 
 //Storage Class
 class Store{
@@ -215,13 +253,38 @@ class Store{
             console.log(res.message)
         })
     };
+
+    static deleteSupplier(){
+        const url = window.location.href;
+        const supplierId = document.querySelector('.sId').innerHTML;
+        const supplierName = document.querySelector('.sName').innerHTML;
+        const request = requestPath(``);
+
+        console.log(request)
+
+        fetch(request, {
+            method: "DELETE",
+            mode: "same-origin",
+            body: JSON.stringify({
+                supplierId: supplierId,
+                supplierName: supplierName
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+        .then(()=>{
+            window.location=`/company/suppliers`
+        })
+        
+    };
 }
 //Events
 //Generate New table Row
 document.querySelector('#addPerson').addEventListener('click',()=>{
     UI.addRow()
-})
-
+});
 
 //Add/edit Person Event
 document.querySelector('#personnelTable').addEventListener('click', (e)=>{
@@ -300,11 +363,50 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
 
         //Remove person from data base
         Store.deletePerson(personId);
+    };
+});
+
+//On Loading the Page
+document.addEventListener('DOMContentLoaded', ()=>{
+    //Display the Zones in propere format
+    UI.displayZone();
+
+    //Diable the add personnel Button
+    UI.disableButtons();
+});
+
+//Deleting A Supplier
+document.querySelector('#deletesupplier').addEventListener('click', ()=>{
+    Store.deleteSupplier();
+});
+
+//Editing A Supplier
+document.querySelector('#editsupplier').addEventListener('click', ()=>{
+    UI.editSupplier();
+})
+
+//Closing the supplier Form
+document.querySelector('.closeButton').addEventListener('click', ()=>{
+    UI.closeForm();
+})
+
+window.addEventListener('click',(e)=>{
+    
+    if(e.target == modal){
+        UI.closeForm();
     }
 });
 
-//Event: Edit Supplier
-// document.querySelector('#editsupplier').addEventListener('click', ()=>{
-//     const editForm = document.createElement('div')  
-// })
+//To Display and hide the personnels table
+document.querySelector('#personnelSection').addEventListener('click', (e)=>{
+    if(e.target.className == "showPersonnel"){
+        UI.enableButtons();
+        UI.displayPersonnels();
+    } else if(e.target.className == "hidePersonnel"){
+        UI.hidePersonnels();
+    }
+})
+
+
+
 

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from . import templates, static
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Product, Supplier, Personnel
+from .models import Product, Supplier, Personnel, Company, Price
 import json
 
 # Create your views here.
@@ -12,16 +12,25 @@ def index(request):
 
 def products(request):
     products = Product.objects.all()
+    suppliers = Supplier.objects.all()
     return render(request, "company/products.html",{
         #To display the products in reverse order, to place the recently added product on top
         "products": products[::-1],
+        "suppliers": suppliers
     })
 
 def productForm(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        newProduct = data.get("newProduct")
-        new_product = Product(**newProduct)
+        rawdata = json.loads(request.body)
+        data = rawdata.get("newProduct")
+        newProduct = data
+        supplierId = int(data["supplier"])
+        if supplierId:
+            supplier = Supplier.objects.get(pk=supplierId)
+            newProduct["supplier"] = supplier
+        print(newProduct)
+        new_product = Price(**newProduct)
+        print(new_product)
         new_product.save()
         response_data = {
             "message": "Product Stored Successfully.",
@@ -87,7 +96,7 @@ def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
     personnel = supplier.personnel.all()
     zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
-    
+    products = Product.objects.all()
 
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -105,11 +114,28 @@ def supplierDetail(request, id):
             "message": "Supplier Edited."
         }
         return JsonResponse(response_data, status=201)
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        print(data)
+        Id = data.get("supplierId")
+        name = data.get("supplierName")
+        s = Supplier.objects.get(pk=Id)
+        if name == s.nameS:
+            s.delete()
+
+            response_data = {
+                "message": "Supplier Deleted."
+                
+            }
+            return JsonResponse(response_data, status=201)
+
     else:
         response_data = {
             "supplier": supplier,
             "personnel": personnel,
-            "zones": zones
+            "zones": zones,
+            "products": products
         }
 
         return render(request, "company/supplierDetails.html", response_data)
@@ -128,7 +154,7 @@ def personnel(request):
 
         if person["type"] == "supplier":
             company = Supplier.objects.get(pk=companyId)
-        p = Personnel(nameC = name, contact=phone, email = email, content_object = company)
+        p = Personnel(nameC = name, contact=phone, email = email, company = company)
         p.save()
 
         response_data ={

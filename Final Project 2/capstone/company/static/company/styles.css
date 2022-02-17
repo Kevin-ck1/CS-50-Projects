@@ -36,7 +36,7 @@ table {
 
 /* The Modal (background) */
 .modal1 {
-    display: block; /* Hidden by default */
+    display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
     padding-top: 100px; /* Location of the box */
@@ -77,3 +77,17 @@ table {
       cursor: pointer;
       color: red;
   }
+
+/* Hide Personnel Table in Personnels */
+#personnel {
+    display: none;
+}
+
+/* Display the Personnel Table
+#personnelSection:hover > #personnel {
+    display: block;
+} */
+
+.showPersonnel, .hidePersonnel{
+    cursor: pointer;
+}

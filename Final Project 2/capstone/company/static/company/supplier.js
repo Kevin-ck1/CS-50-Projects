@@ -53,12 +53,15 @@ class UI {
         window.location=`/company/suppliers/${id}`
     };
 
+
     static editSupplier(supplier){
+        const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
+        const zone = zones[supplier.zone - 1];
         document.querySelector('.sName').innerHTML = supplier.nameS
         document.querySelector('.sAddress').innerHTML = supplier.address;
         document.querySelector('.sEmail').innerHTML = supplier.email;
         document.querySelector('.sContact').innerHTML = supplier.contact;
-        document.querySelector('.sZone').innerHTML = supplier.zone;
+        document.querySelector('.sZone').innerHTML = zone
         document.querySelector('.sLocation').innerHTML = supplier.location;
     };
 }
@@ -144,6 +147,7 @@ try {
             }
         }
 
-    })
+    });
+
 }
 

@@ -1,11 +1,11 @@
 
 //Product Class: 
 class Product{
-    constructor(nameP, brand, category, price, size, weight, supplier, description){
+    constructor(nameP, brand, category, productPrice, size, weight, supplier, description){
         this.nameP = nameP;
         this.brand = brand;
         this.category = category;
-        this.price = price;
+        this.productPrice = productPrice;
         this.size = size;
         this.weight = weight;
         this.description = description;

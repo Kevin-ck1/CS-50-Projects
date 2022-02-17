@@ -7,6 +7,7 @@
         <div id="name">
             <h2>
                 <span  class="sName">{{supplier.nameS}}</span>
+                <span  class="sId" hidden>{{supplier.id}}</span>
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
@@ -55,7 +56,7 @@
                         </div>
                 
                         <div class="form-group row mt-3">
-                            <label for="Zone" class="col-sm-2 col-form-label">Zone</label>
+                            <label for="zone" class="col-sm-2 col-form-label">Zone</label>
                             <div class="col">
                               <select name="" id="zone">
                                   {% for zone in zones %}
@@ -119,9 +120,12 @@
         </div>
     </div>
 
-    <div class="card mt-3">
-        <h5 class="card-header">Personnel Details</h5>
-        <div class="table-responsive my-4">
+    <div class="card mt-3" id="personnelSection">
+        <div class="card-header d-flex justify-content-between">
+            <h5>Personnel Details</h5>
+            <a class="showPersonnel">Show Personnel</a>
+        </div>
+        <div class="table-responsive my-4" id="personnel">
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                   <tr>
@@ -154,7 +158,35 @@
         </div>
 
         <div class="d-flex flex-row-reverse m-1">
-            <button class="btn btn-primary" id="addPerson">Add Personnel</button>
+            <button class="btn btn-secondary" id="addPerson">Add Personnel</button>
+        </div>
+    </div>
+
+    <div class="card mt-3" id="productSection">
+        <div class="card-header">
+            <h5>Supplier's Products</h5>
+        </div>
+        <div class="table-responsive my-4" id="products">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width:3%" class="text-center">#</th>
+                    <th scope="col" style="width:30%" class="text-center">Product</th>
+                    <th scope="col" style="width:30%" class="text-center">Brand</th>
+                    <th scope="col" style="width:30%" class="text-center">Price</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTable">
+                    {% for product in products %}
+                        <tr id="{{person.id}}">
+                            <th scope="row" class="rowCounter text-center"></th>
+                            <td id="nameP" class="text-center" >{{product.nameP}}</td>
+                            <td id="brand" class="text-center">{{product.brand}}</td>
+                            <td id="price" class="text-center">{{product.price}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -163,6 +195,6 @@
 
 {% load static %}
 {% block scripttag%}
-<script src="{% static 'company/supplier.js' %}"></script>
+<!-- <script src="{% static 'company/supplier.js' %}"></script> -->
 <script src="{% static 'company/supplierDetails.js' %}"></script>
 {%endblock%}
