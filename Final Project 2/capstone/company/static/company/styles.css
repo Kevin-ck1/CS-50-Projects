@@ -91,3 +91,11 @@ table {
 .showPersonnel, .hidePersonnel{
     cursor: pointer;
 }
+
+.productWarning {
+    display: none;
+}
+
+a {
+    cursor: pointer;
+}

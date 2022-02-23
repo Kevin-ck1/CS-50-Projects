@@ -62,16 +62,16 @@
                 <th scope="col">#</th>
                 <th scope="col">Supplier</th>
                 <th scope="col">Price</th>
-                <th scope="col">Model</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <th scope="row" class="rowCounter"></th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>0700000000</td>
-              </tr>
+                {% for price in prices %}
+                <tr>  
+                    <th scope="row" class="rowCounter"></th>
+                    <td>{{price.supplier}}</td>
+                    <td>{{price.price}}</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

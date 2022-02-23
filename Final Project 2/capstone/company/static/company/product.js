@@ -54,7 +54,7 @@ class UI {
             <td scope="row" class="rowCounter"></td>
             <td>${product.nameP}</td>
             <td>${product.brand}</td>
-            <td>${product.price}</td>
+            <td>${product.productPrice}</td>
         `;
 
 
@@ -75,6 +75,7 @@ class UI {
         document.querySelector('#weight').value = '';
         document.querySelector('#supplier').value = '';
         document.querySelector('#description').value = '';
+        document.querySelector('.filterInput').value = '';
     };
 
     //To redirect to the product details
@@ -114,10 +115,60 @@ class UI {
             
         });
 
+    };
+
+    static filterProducts(){
+        let filterValue = document.querySelector('.filterInput').value.toUpperCase();
+        
+        console.log(filterValue);
+
+        document.querySelector('#tableProduct').querySelectorAll('tr').forEach((tr)=>{
+            let productName = tr.querySelector('td').nextElementSibling.innerText.toUpperCase();
+            if (productName.indexOf(filterValue) > -1){
+                tr.style.display = '';
+            }else {
+                tr.style.display = "none";
+            }
+            
+        });
+    };
+
+    static productCheck(){
+        const name = document.querySelector('#nameP').value;
+        const value = document.querySelector('#brand').value;
+        const products = JSON.parse(localStorage.getItem("products"))
+        const message = document.querySelector('.productWarning')
+        const pMessage = message.querySelector('a')
+        for (let product of products){
+            if(product.nameP == name && product.brand == value){
+                message.style.display = "block";
+                pMessage.innerHTML = `${name}: ${value}`;
+                pMessage.href = `/company/products/${product.id}`;
+            };
+        }
+        
     }
 };
 
 class Store {
+    static fetchProducts(){
+        //Get csrf token
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request(
+            `/company/products/search`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        );
+
+        console.log(request)
+
+        fetch(request)
+        .then(response=> response.json())
+        .then((res)=>{
+            localStorage.setItem("products", JSON.stringify(res.products))
+            console.log(JSON.parse(localStorage.getItem("products")))
+        })
+
+    }
     static storeProduct(product){
         //Get csrf token
         const csrftoken = getCookie('csrftoken');
@@ -190,6 +241,11 @@ class Store {
 
 
 try {
+    //Event, Load Products
+    window.addEventListener('DOMContentLoaded', ()=>{
+        Store.fetchProducts();
+        UI.clearForm();
+    })
     //Event, addButton click
     document.querySelector('#addButton').addEventListener('click',()=>{UI.openForm()});
 
@@ -223,10 +279,10 @@ try {
             //Clear the form fields
             UI.clearForm();
 
-        }
+        };
 
         
-    })
+    });
 
     // Event, row(product) click
     document.querySelectorAll('tr').forEach((r)=>{
@@ -234,6 +290,18 @@ try {
             UI.prodcutDetails(r.id);
         })
     });
+
+
+    //Event, Filter List
+    document.querySelector('.filterInput').addEventListener('keyup', ()=>{
+        UI.filterProducts();
+    });
+
+
+    //Event, Check if Product Already Exits
+    document.querySelector('#brand').addEventListener('focusout',()=>{
+        UI.productCheck();
+    })
 
 } catch {
    //Event, Activate Edit Mode 

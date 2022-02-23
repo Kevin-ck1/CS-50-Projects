@@ -9,6 +9,7 @@ from polymorphic.models import PolymorphicModel
 # Create your models here.
 
 class Company(PolymorphicModel):
+    id = models.BigAutoField(primary_key=True)
     nameS = models.CharField(max_length=64)
 
     def __str__(self):
@@ -22,9 +23,10 @@ class Supplier(Company):
     location = models.CharField(max_length=64)
 
     def __str__(self):
-        return f"{self.nameS}: {self.contact}"
+        return f"{self.nameS}"
 
-class Product(PolymorphicModel):
+class Product(models.Model):
+    id = models.BigAutoField(primary_key=True)
     category = models.IntegerField()
     nameP = models.CharField(max_length=64)
     brand = models.CharField(max_length=64)
@@ -33,17 +35,21 @@ class Product(PolymorphicModel):
     description = models.TextField()
 
     def __str__(self):
-        return f"{self.brand}: {self.nameP}"
+        return f"{self.nameP}: {self.brand}"
 
-class Price(Product):
-    productPrice = models.IntegerField()
-    #supplier = models.ForeignKey(Supplier,related_name="products", on_delete=models.CASCADE, blank=True, null=True)
-    supplier = models.IntegerField()
+class Price(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    price = models.IntegerField()
+    product = models.ForeignKey(Product, related_name="productPrice",on_delete=models.CASCADE, blank=True, null=True)
+    supplier = models.ForeignKey(Supplier,related_name="products", on_delete=models.CASCADE, blank=True, null=True)
+    #supplier = models.IntegerField()
 
     def __str__(self):
-        return f"{self.productPrice}"
+        return f"{self.price}"       
+
 
 class Personnel(models.Model):
+    id = models.BigAutoField(primary_key=True)
     nameC = models.CharField(max_length=64)
     contact = models.IntegerField()
     email = models.CharField(max_length=64)

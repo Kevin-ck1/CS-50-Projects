@@ -11,27 +11,42 @@ def index(request):
     return HttpResponse("Hello, World!")
 
 def products(request):
-    products = Product.objects.all()
+    products = Price.objects.all()
     suppliers = Supplier.objects.all()
+    categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
     return render(request, "company/products.html",{
         #To display the products in reverse order, to place the recently added product on top
         "products": products[::-1],
-        "suppliers": suppliers
+        "suppliers": suppliers,
+        "categories": categories
     })
+
+def productSearch(request):
+    products = list(Product.objects.all().values())
+
+    response_data = {
+        "products": products
+    }
+    return JsonResponse(response_data, status=201)
 
 def productForm(request):
     if request.method == "POST":
+        #Collecting and Sorting Data
         rawdata = json.loads(request.body)
-        data = rawdata.get("newProduct")
-        newProduct = data
-        supplierId = int(data["supplier"])
-        if supplierId:
-            supplier = Supplier.objects.get(pk=supplierId)
-            newProduct["supplier"] = supplier
-        print(newProduct)
-        new_product = Price(**newProduct)
-        print(new_product)
+        newProduct = rawdata.get("newProduct")
+        
+        supplierId = int(newProduct.pop("supplier", None))
+        price = int(newProduct.pop("productPrice", None))
+
+        #Creating New Product
+        new_product = Product(**newProduct)
         new_product.save()
+
+        #Creating A price object
+        supplier = Supplier.objects.get(pk=supplierId)
+        price = Price(price = price, product = new_product , supplier=supplier)
+        price.save()
+
         response_data = {
             "message": "Product Stored Successfully.",
             "id": new_product.id
@@ -39,10 +54,14 @@ def productForm(request):
         return JsonResponse(response_data, status=201)
 
 def productDetail(request,id):
-    product = Product.objects.get(pk=id)
+    price = Price.objects.get(pk=id)
+    product = price.product
+    prices = product.productPrice.all()
+    
     if request.method == "GET":
         return render(request, "company/productdetails.html",{
-        "product": product
+            "product": product,
+            "prices":prices
     })
 
     elif request.method == "PUT":

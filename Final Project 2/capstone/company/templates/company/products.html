@@ -24,14 +24,19 @@
           <div class="form-group col-md-4">
             <label for="category">Category</label>
             <select id="category" class="form-control">
-              <option selected>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
+              {% for category in categories %}
+                <option value="{{ forloop.counter }}">{{category}}</option>
+              {%endfor%}
             </select>
           </div>
         </div>
-        
+        <div class="productWarning my-3">
+          <h5>
+            Product Already Exist, Check
+            <a class="searchProduct"></a>
+            to edit the product
+          </h5>
+        </div>
         <div class="row">
           <div class="form-group col-md-4">
             <label for="price">Price</label>
@@ -73,7 +78,11 @@
         </div>
       </form>
     </div>
-        
+      
+    <div class="filterProduct row form-group mx-1 mb-4 pt-2 col-md-6">
+      <input class="filterInput form-control border-primary" type="text" placeholder="Search Products">
+    </div>
+
     <div class="rounded mt-2 pt-2">
       <table class="table table-striped table-hover table-bordered border-primary pt-2">
           <thead>
@@ -88,8 +97,8 @@
               {%for product in products %}
               <tr id="{{product.id}}">
                   <td scope="row" class="rowCounter"></td>
-                  <td>{{product.nameP}}</td>
-                  <td>{{product.brand}}</td>
+                  <td>{{product.product}}</td>
+                  <td>{{product.supplier}}</td>
                   <td>{{product.price}}</td>
               </tr>
               {%endfor%}
