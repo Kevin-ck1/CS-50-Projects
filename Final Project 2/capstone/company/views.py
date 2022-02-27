@@ -57,11 +57,13 @@ def productDetail(request,id):
     price = Price.objects.get(pk=id)
     product = price.product
     prices = product.productPrice.all()
+    suppliers = Supplier.objects.all()
     
     if request.method == "GET":
         return render(request, "company/productdetails.html",{
             "product": product,
-            "prices":prices
+            "prices":prices,
+            "suppliers": suppliers
     })
 
     elif request.method == "PUT":
@@ -89,6 +91,30 @@ def productDetail(request,id):
             "message": "Product Deleted."
         }
         return JsonResponse(response_data, status=201)
+
+def productPrice(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        newPrice = data.get("newPrice")
+        product = Product.objects.get(pk=newPrice["product"])
+        supplier = Supplier.objects.get(pk=newPrice["supplier"])
+        price = Price(price = newPrice["price"], product = product , supplier=supplier)
+        price.save()
+        print(price)
+        print(price.id)
+
+        response_data = {
+            "message": "Price Added.",
+            "id": price.id
+        }
+        return JsonResponse(response_data, status=201)
+
+def fetchSuppliers(request):
+    suppliers = list(Supplier.objects.all().values())
+    response_data = {
+            "suppliers": suppliers
+        }
+    return JsonResponse(response_data, status=201)
 
 def suppliers(request):
     suppliers = Supplier.objects.all()

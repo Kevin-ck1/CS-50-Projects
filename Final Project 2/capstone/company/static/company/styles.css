@@ -24,6 +24,7 @@
     display: none;
 }
 
+
 /* To number the table rows */
 table {
     counter-reset: rowCount;

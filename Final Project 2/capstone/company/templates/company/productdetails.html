@@ -7,6 +7,7 @@
             <h2>
                 <span  class="pdetail">{{product.nameP}}</span>
                 <input id="nameP" class="inputUpdate" style="display: none;" type="text" value="{{product.nameP}}">
+                <span class="productId" hidden>{{product.id}}</span>
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
@@ -55,30 +56,73 @@
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Supplier</th>
-                <th scope="col">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for price in prices %}
-                <tr>  
-                    <th scope="row" class="rowCounter"></th>
-                    <td>{{price.supplier}}</td>
-                    <td>{{price.price}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Prices Table in Products Details-->
+     <div class="card mt-3" id="priceSection">
+        <div class="card-header">
+            <h5>Prices</h5>
+        </div>
+        <div class="table-responsive mt-4" id="prices">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width:3%" class="text-center">#</th>
+                    <th scope="col" style="width:30%" class="text-center">Supplier</th>
+                    <th scope="col" style="width:30%" class="text-center">Price</th>
+                    <th scope="col" class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="pricesTable">
+                    {% for price in prices %}
+                        <tr id="{{price.id}}">
+                            <th scope="row" class="rowCounter text-center"></th>
+                            <td class="text-center" >{{price.supplier}}</td>
+                            <td class="text-center supplierId" hidden >{{price.supplier.id}}</td>
+                            <td class="text-center supplierPrice">{{price.price}}</td>
+                            <td class="d-flex justify-content-center">
+                                <button id="editButton" class="pr-1 btn btn-lg text-dark" >
+                                    <i class="far fa-edit"></i>
+                                </button>
+                                <button id="deleteButton" class="pl-0 btn btn-lg text-dark">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr id="newPriceRow" style="display: none;">
+                        <th scope="row" class="rowCounter text-center"></th>
+                        <td class="text-center">
+                            <select name="" id="supplier"  class="form-control custom-select">
+                                <option value="0" selected>
+                                    <span class="text-secondary">Select Supplier</span>
+                                </option>
+                                {% for supplier in suppliers %}
+                                    <option value="{{supplier.id}}">{{supplier.nameS}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="text-center" ><input type="number" class="price"></td>
+                        <td class="d-flex justify-content-center">
+                            <button id="savePrice" class="pr-1 btn btn-lg text-dark" >
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button id="cancelButton" class="pl-0 btn btn-lg text-dark">
+                                <i class="fa fa-ban"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-row-reverse m-1">
+            <button class="btn btn-primary" id="addPrice">Add Supplier</button>
+        </div>
     </div>
 </div>
 {%endblock%}
 
 {% load static %}
 {% block scripttag%}
-<script src="{% static 'company/product.js' %}"></script>
+<!-- <script src="{% static 'company/product.js' %}"></script> -->
+<script src="{% static 'company/productDetails.js' %}"></script>
 {%endblock%}

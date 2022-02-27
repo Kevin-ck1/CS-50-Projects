@@ -15,7 +15,7 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ("nameS", "id")
 
 class PriceAdmin(admin.ModelAdmin):
-    list_display = ("price", "price", "supplier")
+    list_display = ("id", "price", "supplier")
     
 # Register your models here.
 

@@ -338,7 +338,7 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
 })
 
 
-//Event: Cancel Button
+//Event: Cancel Edit
 document.querySelector('#personnelTable').addEventListener('click', (e)=>{
     if(e.target.parentElement.id == "cancelEdit"){
         const row = e.target.parentElement.parentElement.parentElement;

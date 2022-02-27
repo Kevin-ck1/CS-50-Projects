@@ -13,7 +13,7 @@ class Product{
     }
 }
 //Function for getting crsf token
-function getCookie(name) {
+function getCookie(name) {  
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -26,6 +26,7 @@ function getCookie(name) {
             }
         }
     }
+
     return cookieValue;
 }
 
@@ -244,7 +245,7 @@ try {
     //Event, Load Products
     window.addEventListener('DOMContentLoaded', ()=>{
         Store.fetchProducts();
-        UI.clearForm();
+        //UI.clearForm();
     })
     //Event, addButton click
     document.querySelector('#addButton').addEventListener('click',()=>{UI.openForm()});
@@ -343,7 +344,9 @@ try {
         const productId = url.split("/").pop();
 
         Store.deleteProduct(productId);
-    })
+    });
+
+
 }
 
 
