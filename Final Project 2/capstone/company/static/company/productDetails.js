@@ -41,10 +41,37 @@ const newPriceRow = table.querySelector('#newPriceRow');
 
 //Display Class
 class UI{
+    //Generate the input field to add new supplier prices.
     static addRow(){
         newPriceRow.style.display = "";
+        UI.disableButtons();
     };
 
+    //To filter the items in the droplist
+    static dropDownValues(){
+        const rows = table.querySelectorAll('tr')
+        
+        //Collect suppliers that have already been listed
+        var suppliers = [];
+        for (let i = 0, length = rows.length; i < length-1; i++){
+            var supplier = rows[i].querySelector('td').innerText;
+            suppliers.push(supplier)
+        }
+
+        //Filter the drop down list to exclude suppliers that are already listed
+        var lastRow = rows.item(rows.length-1)
+        var options = lastRow.querySelectorAll('#supplierName')
+        options.forEach((option)=>{
+            var supplierOption = option.innerText;
+            console.log(supplierOption)
+            if(suppliers.includes(supplierOption)){
+                option.style.display = "none";
+            }
+        })
+        
+    }
+
+    //Add new supplier price
     static addPrice(){
         const supplierId = document.querySelector('#supplier').value;
         const price = document.querySelector('.price').value;
@@ -89,30 +116,31 @@ class UI{
         }
     };
 
+
     static renameRow(rIndex, id){
         const row = table.rows[rIndex-1]
-        console.log(row.innerHTML)
-        console.log(id)
         row.setAttribute('id', id)
     };
 
     static editInput(e){
-        // var row = '';
-        // var priceColumn = ''; 
-        // var currentPrice = '';
+        //get clicked row
+        //const row = e.target.parentElement.parentElement.parentElement.parentElement;
+        var row = e.target.closest("tr");
+        var priceColumn = row.querySelector('.supplierPrice');
+        var buttonName = e.target.parentElement.id;
 
-        if(e.target.parentElement.id == "editButton"){
-            //get clicked row
-            //const row = e.target.parentElement.parentElement.parentElement.parentElement;
-            const row = e.target.closest("tr");
-            const priceColumn = row.querySelector('.supplierPrice');
-            const currentPrice = priceColumn.innerText;
+        if(buttonName == "editButton"){
+            //Get the current price of the item
+            var currentPrice = priceColumn.innerText;
+            //Store the current price to the local storage
             localStorage.setItem("currentPrice", currentPrice)
+            //Create an input field for the change of the price
             priceColumn.innerHTML =
              `
                 <input type="text" class="editprice" value="${currentPrice}">
             `
             
+            //Changing the action buttons
             const editButton = row.querySelector('#editButton');
             
             editButton.innerHTML =
@@ -128,17 +156,18 @@ class UI{
             `
 
             deleteButton.setAttribute('id', "cancelEdit");
+            
+            //Disable buttons
+            UI.disableButtons();
 
-        } else if (e.target.parentElement.id == "cancelEdit"){
-            //get clicked row
-            const row = e.target.closest("tr");
-            //Get the price Column
-            const priceColumn = row.querySelector('.supplierPrice');
+        //To cancel a price edit: To close the input field    
+        } else if (buttonName == "cancelEdit"){
+            //Get the stored current price
             const currentPrice = localStorage.getItem("currentPrice")
             priceColumn.innerHTML = currentPrice;
             
+            //Changing back the action buttons
             const saveEdit = row.querySelector('#saveEdit');
-            
             saveEdit.innerHTML =
             `
                 <i class="far fa-edit"></i>
@@ -153,15 +182,19 @@ class UI{
 
             cancelEdit.setAttribute('id', "deleteButton");
     
-        } else if(e.target.parentElement.id == "saveEdit"){
-           //get clicked row
-            //const row = e.target.parentElement.parentElement.parentElement.parentElement;
-            const row = e.target.closest("tr");
-            const priceColumn = row.querySelector('.supplierPrice');
+            //To reenable the buttons
+            UI.enableButtons();
+        //To save changed price    
+        } else if(buttonName == "saveEdit"){
+            //To get the new price
             const editPrice = row.querySelector('.editprice').value;
-            
+            //Display the new price
             priceColumn.innerHTML = editPrice;
+
+            //Save the new price to the data base
+            Store.updatePrice(editPrice, row.id)
             
+            //Changing back the action buttons
             const saveEdit = row.querySelector('#saveEdit');
             
             saveEdit.innerHTML =
@@ -177,11 +210,47 @@ class UI{
             `
 
             cancelEdit.setAttribute('id', "deleteButton");
-        };
 
+             //To reenable the buttons
+             UI.enableButtons();
 
+        } else if (buttonName == "cancelButton"){
+            newPriceRow.style.display = "none";
+        } else if (buttonName == "deleteButton") {
+            const rowId = row.id
+            row.remove()
+            Store.deletePrice(rowId)
+
+             //To reenable the buttons
+             UI.enableButtons();
+        }
+    };
+
+    static disableButtons(){
+        document.querySelectorAll('#editButton').forEach((b)=>{
+            b.disabled = true;
+        })
+        document.querySelectorAll('#deleteButton').forEach((b)=>{
+            b.disabled = true;
+        })
+        const button = document.querySelector('#addPrice')
+        button.className = "btn btn-secondary"
+        button.disabled = true;
+    }
+
+    static enableButtons(){
+        document.querySelectorAll('#editButton').forEach((b)=>{
+            b.disabled = false;
+        })
+        document.querySelectorAll('#deleteButton').forEach((b)=>{
+            b.disabled = false;
+        })
+        const button = document.querySelector('#addPrice')
+        button.className = "btn btn-primary"
+        button.disabled = false;
     };
 };
+
 
 //Store Class
 class Store {
@@ -190,7 +259,6 @@ class Store {
         .then(response => response.json())
         .then((res)=>{
             localStorage.setItem("suppliers", JSON.stringify(res.suppliers))
-            console.log(JSON.parse(localStorage.getItem("suppliers")))
         })
     };
 
@@ -210,6 +278,40 @@ class Store {
             //Rename New Price Row
             UI.renameRow(rIndex, res.id)
         })
+    };
+
+    static updatePrice(price, id){
+        console.log(`${price}: ${id}`)
+        const request = requestPath(`productPrice`)
+        console.log(request)
+        fetch(request, {
+            method: "PUT",
+            mode:"same-origin",
+            body: JSON.stringify({
+                editPrice: price,
+                priceId: id
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+    };
+
+    static deletePrice(id){
+        const request = requestPath(`productPrice`)
+        console.log(request)
+        fetch(request, {
+            method: "DELETE",
+            mode:"same-origin",
+            body: JSON.stringify({
+                priceId: id
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
     }
 };
 
@@ -217,6 +319,7 @@ class Store {
 //Load
 window.addEventListener('DOMContentLoaded', ()=>{
     Store.fetchSuppliers();
+    UI.dropDownValues();
 });
 
 //Add New Price Row

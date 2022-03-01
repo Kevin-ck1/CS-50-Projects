@@ -108,6 +108,35 @@ def productPrice(request):
             "id": price.id
         }
         return JsonResponse(response_data, status=201)
+    elif request.method == "PUT":
+        #Getting updated price
+        data = json.loads(request.body)
+        editPrice = int(data.get("editPrice"))
+        priceId = int(data.get("priceId"))
+        
+        #Updating the price with the new value
+        price = Price.objects.get(pk=priceId)
+        price.price = editPrice
+        price.save()
+
+        response_data = {
+            "message": "Price Edited."
+        }
+        return JsonResponse(response_data, status=201)
+
+    else:
+        #Getting price to delete
+        data = json.loads(request.body)
+        priceId = int(data.get("priceId"))
+        
+        #Updating the price with the new value
+        price = Price.objects.get(pk=priceId)
+        price.delete()
+
+        response_data = {
+            "message": "Price Deleted."
+        }
+        return JsonResponse(response_data, status=201)
 
 def fetchSuppliers(request):
     suppliers = list(Supplier.objects.all().values())
