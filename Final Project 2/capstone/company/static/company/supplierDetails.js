@@ -38,6 +38,9 @@ function requestPath(url){
 
 //Variables
 const modal = document.querySelector('.modal1') //Edit form form variable
+const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"];
+const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"];
+
 
 //UI Class
 class UI{
@@ -166,11 +169,23 @@ class UI{
      //Zones: Display the String Value for zones
     static displayZone(){
         const zone = document.querySelector('.sZone').innerHTML;
-        const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
         if(parseInt(zone)){
             document.querySelector('.sZone').innerHTML = zones[zone - 1];
         };
     };
+    //Display of the category field
+    static displayCategory(){
+        const productTable = document.querySelector('#productsTable');
+        const rows = productTable.querySelectorAll('tr');
+        rows.forEach((row)=>{
+            const categoryColumn = row.querySelector('#category');
+            const categoryValue = categoryColumn.innerText;
+            if(parseInt(categoryValue)){
+                categoryColumn.innerHTML = categories[categoryValue - 1];
+            };
+        })
+        
+    }
 
     //Open Supplier Form
     static editSupplier(){
@@ -196,7 +211,63 @@ class UI{
         b.innerHTML = "Show Personnel";
 
         UI.disableButtons();
-    }
+    };
+
+    static priceEdits(e){
+        let clicked = e.target;
+        let row = clicked.closest('tr');
+        let clickedButton = clicked.parentElement;
+        let priceColumn = row.querySelector('#price');
+        switch(clickedButton.id){
+            case "editPriceButton":
+                
+                let priceValue = parseInt(priceColumn.innerText);
+
+                //Save the old price to the local storage
+                localStorage.setItem("oldPrice", priceValue)
+                
+                priceColumn.innerHTML = `<input type="text" id="priceInput" value="${priceValue}">`
+
+                clickedButton.innerHTML = `<i class="fa fa-check"></i>`;
+                clickedButton.setAttribute("id", "savePrice");
+                
+                const deleteButton = row.querySelector('#deleteProductButton');
+                deleteButton.innerHTML = `<i class="fa fa-ban"></i>`
+                deleteButton.setAttribute('id', "cancelEdit");
+
+            break;
+
+            case "savePrice":
+                let newPrice = row.querySelector('#priceInput').value;
+                priceColumn.innerHTML = newPrice;
+                clickedButton.innerHTML = `<i class="far fa-edit"></i>`;
+                clickedButton.setAttribute("id", "editPriceButton");
+                
+                let cancelEdit = row.querySelector('#cancelEdit');
+                cancelEdit.innerHTML = `<i class="far fa-trash-alt"></i>`
+                cancelEdit.setAttribute('id', "deleteProductButton");
+
+                Store.updatePrice(newPrice, row.id);
+
+                break;
+
+            case "cancelEdit":
+                let oldPrice = localStorage.getItem("oldPrice");
+                priceColumn.innerHTML = oldPrice;
+                clickedButton.innerHTML = `<i class="far fa-trash-alt"></i>`;
+                clickedButton.setAttribute("id", "deleteProductButton");
+                
+                let saveButton = row.querySelector('#savePrice');
+                saveButton.innerHTML = `<i class="far fa-edit"></i>`
+                saveButton.setAttribute('id', "editPriceButton");
+
+                break;
+
+            case "deleteProductButton":
+                Store.deletePrice(row, row.id);
+        }
+    };
+
 };
 
 //Storage Class
@@ -279,6 +350,44 @@ class Store{
         })
         
     };
+
+    static updatePrice(price, priceId){
+        const request = requestPath(`/company/products/productPrice`)
+        console.log(request)
+        fetch(request, {
+            method: "PUT",
+            mode:"same-origin",
+            body: JSON.stringify({
+                editPrice: price,
+                priceId: priceId
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+    };
+
+    static deletePrice(row, id){
+        const request = requestPath(`/company/products/productPrice`)
+        console.log(request)
+        fetch(request, {
+            method: "DELETE",
+            mode:"same-origin",
+            body: JSON.stringify({
+                priceId: id
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            if(parseInt(res.message)){
+                console.log("Price Deleted")
+                row.remove()
+            }else{
+                alert("Product Must Have at least One Price Element,Go To Products Page To Delete Price")
+            }
+        })
+    }
 }
 //Events
 //Generate New table Row
@@ -368,8 +477,11 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
 
 //On Loading the Page
 document.addEventListener('DOMContentLoaded', ()=>{
-    //Display the Zones in propere format
+    //Display the Zones in string format
     UI.displayZone();
+
+    //Display the categories in string format
+    UI.displayCategory();
 
     //Diable the add personnel Button
     UI.disableButtons();
@@ -405,6 +517,11 @@ document.querySelector('#personnelSection').addEventListener('click', (e)=>{
     } else if(e.target.className == "hidePersonnel"){
         UI.hidePersonnels();
     }
+});
+
+//Event: Edit Price
+document.querySelector('#productsTable').addEventListener('click', (e)=>{
+    UI.priceEdits(e);
 })
 
 

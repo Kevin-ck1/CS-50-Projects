@@ -5,6 +5,9 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from .models import Product, Supplier, Personnel, Company, Price
 import json
 
+#Common variables
+categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+
 # Create your views here.
 
 def index(request):
@@ -13,7 +16,7 @@ def index(request):
 def products(request):
     products = Price.objects.all()
     suppliers = Supplier.objects.all()
-    categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+    
     return render(request, "company/products.html",{
         #To display the products in reverse order, to place the recently added product on top
         "products": products[::-1],
@@ -21,11 +24,13 @@ def products(request):
         "categories": categories
     })
 
-def productSearch(request):
+def fetchItems(request):
     products = list(Product.objects.all().values())
+    suppliers = list(Supplier.objects.all().values())
 
     response_data = {
-        "products": products
+        "products": products,
+        "suppliers": suppliers
     }
     return JsonResponse(response_data, status=201)
 
@@ -54,43 +59,47 @@ def productForm(request):
         return JsonResponse(response_data, status=201)
 
 def productDetail(request,id):
-    price = Price.objects.get(pk=id)
-    product = price.product
-    prices = product.productPrice.all()
-    suppliers = Supplier.objects.all()
-    
-    if request.method == "GET":
-        return render(request, "company/productdetails.html",{
-            "product": product,
-            "prices":prices,
-            "suppliers": suppliers
-    })
-
-    elif request.method == "PUT":
-        data = json.loads(request.body)
-        editedProduct = data.get("editedProduct")
-        product.nameP = editedProduct["nameP"]
-        product.brand = editedProduct["brand"]
-        product.category = editedProduct["category"]
-        product.weight = editedProduct["size"]
-        product.size = editedProduct["price"]
-        product.description = editedProduct["weight"]
-        product.save()
-
-        response_data = {
-            "message": "Product Edited Successfully.",
-            "id": product.id
-        }
-        return JsonResponse(response_data, status=201)
-
-    else:
-        id = json.loads(request.body)
-        Product.objects.get(pk=id).delete()
+    products = Product.objects.all()
+    if products.filter(pk=id).exists():
+        product = Product.objects.get(pk=id)
+        prices = product.productPrice.all()
+        suppliers = Supplier.objects.all()
         
-        response_data = {
-            "message": "Product Deleted."
-        }
-        return JsonResponse(response_data, status=201)
+        if request.method == "GET":
+            return render(request, "company/productdetails.html",{
+                "product": product,
+                "prices":prices,
+                "suppliers": suppliers,
+                "categories": categories
+            })
+
+        elif request.method == "PUT":
+            data = json.loads(request.body)
+            editedProduct = data.get("editedProduct")
+            product.nameP = editedProduct["nameP"]
+            product.brand = editedProduct["brand"]
+            product.category = editedProduct["category"]
+            product.weight = editedProduct["weight"]
+            product.size = editedProduct["size"]
+            product.description = editedProduct["description"]
+            product.save()
+
+            response_data = {
+                "message": "Product Edited Successfully.",
+                "id": product.id
+            }
+            return JsonResponse(response_data, status=201)
+
+        else:
+            id = json.loads(request.body)
+            Product.objects.get(pk=id).delete()
+            
+            response_data = {
+                "message": "Product Deleted."
+            }
+            return JsonResponse(response_data, status=201)
+    else:
+        return HttpResponse("Product Does Not exist")
 
 def productPrice(request):
     if request.method == "POST":
@@ -125,18 +134,27 @@ def productPrice(request):
         return JsonResponse(response_data, status=201)
 
     else:
-        #Getting price to delete
+        #Getting data from json
         data = json.loads(request.body)
         priceId = int(data.get("priceId"))
         
-        #Updating the price with the new value
+        #Getting the price to delete
         price = Price.objects.get(pk=priceId)
-        price.delete()
+        product = price.product
+        prices = product.productPrice.all()
+        if prices.count()  > 1:
+            price.delete()
 
-        response_data = {
-            "message": "Price Deleted."
-        }
-        return JsonResponse(response_data, status=201)
+            response_data = {
+                "message": 1
+            }
+            return JsonResponse(response_data, status=201)
+        else:
+            response_data = {
+                "message": 0
+            }
+            return JsonResponse(response_data, status=201)
+
 
 def fetchSuppliers(request):
     suppliers = list(Supplier.objects.all().values())
@@ -170,7 +188,7 @@ def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
     personnel = supplier.personnel.all()
     zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
-    products = Product.objects.all()
+    products = Price.objects.all()
 
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -265,4 +283,5 @@ def personnel(request):
         return JsonResponse(response_data, status=201)
 
 
-
+def clients(request):
+    return render(request, "company/clients.html")

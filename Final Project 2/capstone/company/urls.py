@@ -6,7 +6,7 @@ app_name = "company"
 urlpatterns = [
     path('', views.index, name='index'),
     path('products', views.products, name='products'),
-    path('products/search', views.productSearch, name='productSearch'),
+    path('products/fetchItems', views.fetchItems, name='productSearch'),
     path('productform', views.productForm, name='productForm'),
     path('products/<int:id>', views.productDetail, name='productDetail'),
     path('products/productPrice', views.productPrice, name='productPrice'),
@@ -14,6 +14,6 @@ urlpatterns = [
     path('suppliers', views.suppliers, name='suppliers'),
     path('supplierform', views.supplierForm, name='supplierForm'),
     path('suppliers/<int:id>', views.supplierDetail, name='supplierDetail'),
-    path('suppliers/personnel', views.personnel, name="personnel")
-   
+    path('suppliers/personnel', views.personnel, name="personnel"),
+    path('clients', views.clients, name='clients'),
 ]

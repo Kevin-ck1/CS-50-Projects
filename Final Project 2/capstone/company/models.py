@@ -35,7 +35,13 @@ class Product(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return f"{self.nameP}: {self.brand}"
+        productDetails = {
+            "nameP":self.name, 
+            "brand":self.brand,
+            "category": self.category
+            }
+        #return f"{self.nameP}: {self.brand}"
+        return productDetails
 
 class Price(models.Model):
     id = models.BigAutoField(primary_key=True)

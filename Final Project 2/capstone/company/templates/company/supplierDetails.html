@@ -169,17 +169,27 @@
                   <tr>
                     <th scope="col" style="width:3%" class="text-center">#</th>
                     <th scope="col" style="width:30%" class="text-center">Product</th>
-                    <th scope="col" style="width:30%" class="text-center">Brand</th>
+                    <th scope="col" style="width:30%" class="text-center">Category</th>
                     <th scope="col" style="width:30%" class="text-center">Price</th>
+                    <th scope="col" style="width:30%" class="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody id="productsTable">
                     {% for product in products %}
-                        <tr id="{{person.id}}">
+                        <tr id="{{product.id}}">
                             <th scope="row" class="rowCounter text-center"></th>
-                            <td id="nameP" class="text-center" >{{product.nameP}}</td>
-                            <td id="brand" class="text-center">{{product.brand}}</td>
+                            <td id="nameP" class="" >{{product.product.nameP}} : {{product.product.brand}}</td>
+                            <td id="category" class="text-center">{{product.product.category}}</td>
                             <td id="price" class="text-center">{{product.price}}</td>
+                            <td class="d-flex justify-content-center">
+                                <button id="editPriceButton" class="pr-1 btn btn-lg text-dark" >
+                                    <i class="far fa-edit"></i>
+                                </button>
+                                
+                                <button id="deleteProductButton" class="pl-0 btn btn-lg text-dark">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

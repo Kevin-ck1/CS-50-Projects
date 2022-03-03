@@ -45,7 +45,6 @@
 
           <div class="form-group col-md-4">
             <label for="supplier">Supplier</label>
-            <!-- <input type="number" class="form-control" id="supplier" required> -->
             <select name="" id="supplier"  class="form-control custom-select">
               <option value="0" selected>
                 <span class="text-secondary">Select Supplier</span>
@@ -89,16 +88,18 @@
             <tr>
               <th scope="col">#</th>
               <th scope="col">Product</th>
-              <th scope="col">Brand</th>
+              <th scope="col">Supplier</th>
+              <th scope="col">Category</th>
               <th scope="col">Price</th>
             </tr>
           </thead>
           <tbody id="tableProduct">
               {%for product in products %}
-              <tr id="{{product.id}}">
+              <tr id="{{product.product.id}}">
                   <td scope="row" class="rowCounter"></td>
-                  <td>{{product.product}}</td>
+                  <td>{{product.product.nameP}} : {{product.product.brand}} </td>
                   <td>{{product.supplier}}</td>
+                  <td class="categoryColumn">{{product.product.category}}</td>
                   <td>{{product.price}}</td>
               </tr>
               {%endfor%}

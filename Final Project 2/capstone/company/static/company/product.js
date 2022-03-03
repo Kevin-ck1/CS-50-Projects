@@ -11,7 +11,7 @@ class Product{
         this.description = description;
         this.supplier = supplier;
     }
-}
+};
 //Function for getting crsf token
 function getCookie(name) {  
     let cookieValue = null;
@@ -29,9 +29,32 @@ function getCookie(name) {
 
     return cookieValue;
 }
+//Reload page on browser navigation
+window.addEventListener("pageshow", (event)=>{
+    const hist = event.persisted || window.performance.navigation.type == 2 
+    if(hist){
+        window.location.reload(true);
+    }
+});
+
+//Variables
+const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+
 
 //UI Class: UserInterface
 class UI {
+    //Renaming the categories
+    static displayCategory(){
+        const table = document.querySelector('#tableProduct')
+        const rows = table.querySelectorAll('tr')
+        rows.forEach((row)=>{
+            var categoryColumn = row.querySelector('.categoryColumn')
+            var catValue = categoryColumn.innerText;
+            if(parseInt(catValue)){
+                categoryColumn.innerText = categories[catValue-1]
+            }
+        })
+    }
 
     //To display the form
     static openForm(){
@@ -51,10 +74,20 @@ class UI {
     static addProduct(product){
         const table = document.querySelector('#tableProduct');
         const newRow = document.createElement('tr');
+        var suppliers = JSON.parse(localStorage.getItem("suppliers"));
+        var supplierName;
+        for(let supplier of suppliers){
+            if(supplier.id == product.supplier){
+                supplierName = supplier.nameS
+            }
+        }
+        const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+        var category = categories[product.category - 1]
         newRow.innerHTML = `
             <td scope="row" class="rowCounter"></td>
-            <td>${product.nameP}</td>
-            <td>${product.brand}</td>
+            <td>${product.nameP} : ${product.brand}</td>
+            <td>${supplierName}</td>
+            <td>${category}</td>
             <td>${product.productPrice}</td>
         `;
 
@@ -81,8 +114,18 @@ class UI {
 
     //To redirect to the product details
     static prodcutDetails(id){
-        window.location=`/company/products/${id}`;
-
+        var products = JSON.parse(localStorage.getItem("products"))
+        var ids = [];
+        for (let product of products){
+            ids.push(product.id)
+        }
+        console.log(ids)
+        console.log(typeof(id))
+        if(ids.includes(parseInt(id))){
+            window.location=`products/${id}`
+        }else{
+            alert("Product ID Does Not Exist")
+        }
     }
 
     //To rename the new product row
@@ -94,27 +137,6 @@ class UI {
         row.addEventListener('click',()=>{
             UI.prodcutDetails(id)
         })
-
-    }
-
-    //To close the update field
-    static finishUpdate(product){
-        console.log(product.nameP)
-        //window.location=`/company/products/${id}`;
-        document.querySelector('#nameP').previousElementSibling.innerHTML = product.nameP;
-        document.querySelector('#category').previousElementSibling.innerHTML = product.category;
-        document.querySelector('#brand').previousElementSibling.innerHTML = product.brand;
-        document.querySelector('#size').previousElementSibling.innerHTML = product.size;
-        document.querySelector('#weight').previousElementSibling.innerHTML = product.weight;
-        document.querySelector('#description').previousElementSibling.innerHTML = product.description;
-
-        document.querySelectorAll('.pdetail').forEach((i)=>{
-            i.style.display = '';
-        });
-        document.querySelectorAll('.inputUpdate').forEach((i)=>{
-            i.style.display = 'none';
-            
-        });
 
     };
 
@@ -152,11 +174,11 @@ class UI {
 };
 
 class Store {
-    static fetchProducts(){
+    static fetchItems(){
         //Get csrf token
         const csrftoken = getCookie('csrftoken');
         const request = new Request(
-            `/company/products/search`,
+            `/company/products/fetchItems`,
             {headers: {'X-CSRFToken': csrftoken}}
         );
 
@@ -165,11 +187,12 @@ class Store {
         fetch(request)
         .then(response=> response.json())
         .then((res)=>{
-            localStorage.setItem("products", JSON.stringify(res.products))
-            console.log(JSON.parse(localStorage.getItem("products")))
+            localStorage.setItem("products", JSON.stringify(res.products));
+            localStorage.setItem("suppliers", JSON.stringify(res.suppliers));
         })
 
-    }
+    };
+
     static storeProduct(product){
         //Get csrf token
         const csrftoken = getCookie('csrftoken');
@@ -193,161 +216,77 @@ class Store {
         })
     };
 
-    static updateProduct(id, product){
-        const csrftoken = getCookie('csrftoken');
-        const request = new Request (
-            `${id}`,
-            {headers: {'X-CSRFToken': csrftoken}}
-        )
+    
+}
 
-        fetch(request, {
-            method: "PUT",
-            mode: "same-origin",
-            body: JSON.stringify({
-                editedProduct: product
-            })
-        })
-        .then(response => response.json())
-        .then((res)=>{
-            console.log(res.message)
-        }).then(()=>{
-            
-        })
+//Events
+
+//Event, Load Products
+window.addEventListener('DOMContentLoaded', ()=>{
+    //Rename the category column
+    UI.displayCategory();
+    //Fetch products
+    Store.fetchItems();
+    //UI.clearForm();
+})
+//Event, addButton click
+document.querySelector('#addButton').addEventListener('click',()=>{UI.openForm()});
+
+//Event, close button click
+document.querySelector('.buttonClose').addEventListener('click', ()=>{UI.closeForm()})
+
+//Event, submiting form
+document.querySelector('#productForm').addEventListener('submit', (event)=>{
+    event.preventDefault();
+    const nameP = document.querySelector('#nameP').value;
+    const brand = document.querySelector('#brand').value;
+    const category = document.querySelector('#category').value;
+    const price = document.querySelector('#price').value;
+    const size = document.querySelector('#size').value;
+    const weight = document.querySelector('#weight').value;
+    const supplier = document.querySelector('#supplier').value;
+    const description = document.querySelector('#description').value;
+
+    //Validating the form
+    if(nameP=='' || brand == ''|| category == ''|| category==''|| price == ''|| size==''|| weight==''|| supplier==''|| description=='' ){
+        alert('Please Fill In all fields')
+    }else {
+        //Creating a new instance of the product
+        const newProduct = new Product(nameP, brand, category, price, size, weight, supplier, description);
+        //Add The new product to the display
+        UI.addProduct(newProduct);
+
+        //Add the new product to the database
+        Store.storeProduct(newProduct);
+
+        //Clear the form fields
+        UI.clearForm();
+
     };
 
     
+});
 
-    static deleteProduct(id){
-        
-        const csrftoken = getCookie('csrftoken');
-        const request = new Request (
-            `${id}`,
-            {headers: {'X-CSRFToken': csrftoken}}
-        )
-
-        fetch(request, {
-            method: "DELETE",
-            mode: "same-origin",
-            body:`${id}` 
-        })
-        .then(response => response.json())
-        .then((res) =>{
-            console.log(res.message)
-        })
-        .then(()=>{
-            window.location=`/company/products`
-        })
-    }
-}
-
-
-try {
-    //Event, Load Products
-    window.addEventListener('DOMContentLoaded', ()=>{
-        Store.fetchProducts();
-        //UI.clearForm();
+// Event, row(product) click
+document.querySelectorAll('tr').forEach((r)=>{
+    r.addEventListener('click', ()=>{
+        UI.prodcutDetails(r.id);
     })
-    //Event, addButton click
-    document.querySelector('#addButton').addEventListener('click',()=>{UI.openForm()});
-
-    //Event, close button click
-    document.querySelector('.buttonClose').addEventListener('click', ()=>{UI.closeForm()})
-
-    //Event, submiting form
-    document.querySelector('#productForm').addEventListener('submit', (event)=>{
-        event.preventDefault();
-        const nameP = document.querySelector('#nameP').value;
-        const brand = document.querySelector('#brand').value;
-        const category = document.querySelector('#category').value;
-        const price = document.querySelector('#price').value;
-        const size = document.querySelector('#size').value;
-        const weight = document.querySelector('#weight').value;
-        const supplier = document.querySelector('#supplier').value;
-        const description = document.querySelector('#description').value;
-
-        //Validating the form
-        if(nameP=='' || brand == ''|| category == ''|| category==''|| price == ''|| size==''|| weight==''|| supplier==''|| description=='' ){
-            alert('Please Fill In all fields')
-        }else {
-            //Creating a new instance of the product
-            const newProduct = new Product(nameP, brand, category, price, size, weight, supplier, description);
-            //Add The new product to the display
-            UI.addProduct(newProduct);
-
-            //Add the new product to the database
-            Store.storeProduct(newProduct);
-
-            //Clear the form fields
-            UI.clearForm();
-
-        };
-
-        
-    });
-
-    // Event, row(product) click
-    document.querySelectorAll('tr').forEach((r)=>{
-        r.addEventListener('click', ()=>{
-            UI.prodcutDetails(r.id);
-        })
-    });
+});
 
 
-    //Event, Filter List
-    document.querySelector('.filterInput').addEventListener('keyup', ()=>{
-        UI.filterProducts();
-    });
+//Event, Filter List
+document.querySelector('.filterInput').addEventListener('keyup', ()=>{
+    UI.filterProducts();
+});
 
 
-    //Event, Check if Product Already Exits
-    document.querySelector('#brand').addEventListener('focusout',()=>{
-        UI.productCheck();
-    })
-
-} catch {
-   //Event, Activate Edit Mode 
-    document.querySelector('#editProduct').addEventListener('click', ()=>{
-        document.querySelectorAll('.pdetail').forEach((detail)=>{
-            detail.style.display = 'none';
-        })
-        document.querySelectorAll('.inputUpdate').forEach((i)=>{
-            i.style.display = '';
-            
-        });
-    }); 
-
-    //Submit Form, to update product details
-    document.querySelector('#updateProduct').addEventListener('click', (e)=>{
-        e.preventDefault();
-        console.log('Update Submitted')
-        const nameP = document.querySelector('#nameP').value;
-        const brand = document.querySelector('#brand').value;
-        const category = document.querySelector('#category').value;
-        //const price = document.querySelector('#price').value;
-        const size = document.querySelector('#size').value;
-        const weight = document.querySelector('#weight').value;
-        //const supplier = document.querySelector('#supplier').value;
-        const description = document.querySelector('#description').value;
-
-        const url = window.location.href;
-        const productId = url.split("/").pop();
-        const newProduct = new Product(nameP, brand, category,  size, weight, description); 
-
-        Store.updateProduct(productId, newProduct);
-        UI.finishUpdate(newProduct);
-        
-    })
-
-    //Event, Deleting A product
-    document.querySelector('#deleteProduct').addEventListener('click', ()=>{
-        const url = window.location.href;
-        const productId = url.split("/").pop();
-
-        Store.deleteProduct(productId);
-    });
+//Event, Check if Product Already Exits
+document.querySelector('#brand').addEventListener('focusout',()=>{
+    UI.productCheck();
+})
 
 
-}
 
 
 
