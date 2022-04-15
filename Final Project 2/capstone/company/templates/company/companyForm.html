@@ -1,0 +1,85 @@
+{% extends "company/layout.html"%}
+
+{% block body %}
+
+<div class="companyFormDiv m-3">
+    <p class="mode" hidden>{{mode}}</p>
+    <form id="companyForm">
+        <div class="form-group row">
+            <label for="nameC" class="col-sm-2 col-form-label">{{mode}}'s Name</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="nameC" placeholder="{{mode}}'s Name">
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="address" class="col-sm-2 col-form-label">Address</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="address" placeholder="Address">
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+          <label for="email" class="col-sm-2 col-form-label">Email</label>
+          <div class="col-sm-5">
+            <input type="text" class="form-control" id="email" placeholder="Email@supplier.com">
+          </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="contact" class="col-sm-2 col-form-label">Contact</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="contact" placeholder="Contact">
+            </div>
+        </div>
+
+        {%if mode == "Supplier" %}
+          <div class="form-group row mt-3">
+              <label for="zone" class="col-sm-2 col-form-label">Zone</label>
+              <div class="col-sm-5">
+                <select name="" id="zone" class="form-control">
+                    <option value="1">Zone 1: CBD</option>
+                    <option value="2">Zone 2: Down Town</option>
+                    <option value="3">Zone 3: Industrial Area</option>
+                </select>
+              </div>
+              <input type="text" id="county" value="47" hidden>
+          </div>
+        {%else%}
+          <div class="form-group row mt-3">
+              <label for="county" class="col-sm-2 col-form-label">County</label>
+              <div class="col-sm-5">
+                <select name="" id="county" class="form-control">
+                  {%for county in counties %}
+                    <option value="{{forloop.counter}}">{{county}}</option>
+                  {%endfor%}
+                </select>
+              </div>
+              <input type="text" id="zone" value="hello", hidden>
+          </div>
+        {%endif%}  
+        <div class="form-group row mt-3">
+            <label for="location" class="col-sm-2 col-form-label">Location</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" id="location" placeholder="Location">
+            </div>
+        </div>
+       
+        {% if mode == "Supplier"  %} 
+          <div class="submit mt-3">
+              <button class="btn btn-primary col-sm-7 submitButton" type="submit" value="add">Add Supplier</button>
+          </div>  
+        {%else%}
+          <div class="submit mt-3">
+              <button class="btn btn-primary col-sm-7 submitButton" type="submit" value="add">Add Client</button>
+          </div>
+        {%endif%}
+    </form>
+</div>
+
+{%endblock%}
+
+{% load static %}
+{% block scripttag%}
+<script src="{% static 'company/company.js' %}"></script>
+{%endblock%}

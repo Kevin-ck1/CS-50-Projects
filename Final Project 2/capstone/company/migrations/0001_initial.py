@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='Company',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nameS', models.CharField(max_length=64)),
+                ('nameC', models.CharField(max_length=64)),
                 ('polymorphic_ctype', models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_%(app_label)s.%(class)s_set+', to='contenttypes.contenttype')),
             ],
             options={

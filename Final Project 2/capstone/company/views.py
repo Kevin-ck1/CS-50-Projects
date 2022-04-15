@@ -2,11 +2,21 @@ from django.shortcuts import render
 from . import templates, static
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Product, Supplier, Personnel, Company, Price
+from .models import Product, Supplier, Personnel, Company, Price, Client
 import json
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana', 
+'River', 'Lamu', 'Taita', 'Mak', 'Taveta', 'Garissa', 'Wajir', 
+'Mandera', 'Marsabit', 'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 
+'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang’a', 
+'Kiambu', 'The', 'Turkana', 'West', 'Pokot', 'Samburu', 'Trans-Nzoia', 
+'Uasin', 'Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru',
+ 'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
+ 'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
+ 'Nairobi']
+
 
 # Create your views here.
 
@@ -172,9 +182,11 @@ def suppliers(request):
 def supplierForm(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        newSupplier = data.get("newSupplier")
+        newSupplier = data.get("newCompany")
+        newSupplier.pop("county")
         new_supplier = Supplier(**newSupplier)
         new_supplier.save()
+        print(new_supplier)
         
         response_data = {
             "message": "Supplier Added.",
@@ -182,7 +194,9 @@ def supplierForm(request):
         }
         return JsonResponse(response_data, status=201)
     else:
-        return render(request, "company/supplierForm.html")
+        return render(request, "company/companyForm.html", {
+            "mode": "Supplier",
+        })
 
 def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
@@ -192,9 +206,9 @@ def supplierDetail(request, id):
 
     if request.method == "PUT":
         data = json.loads(request.body)
-        ES = data.get("updateSupplier")
+        ES = data.get("updateCompany")
 
-        supplier.nameS = ES["nameS"]
+        supplier.nameC = ES["nameC"]
         supplier.address = ES["address"]
         supplier.email = ES["email"]
         supplier.contact = ES["contact"]
@@ -208,29 +222,23 @@ def supplierDetail(request, id):
         return JsonResponse(response_data, status=201)
 
     elif request.method == "DELETE":
-        data = json.loads(request.body)
-        print(data)
-        Id = data.get("supplierId")
-        name = data.get("supplierName")
-        s = Supplier.objects.get(pk=Id)
-        if name == s.nameS:
-            s.delete()
+        supplier.delete()
 
-            response_data = {
-                "message": "Supplier Deleted."
+        response_data = {
+            "message": "Supplier Deleted."
                 
-            }
-            return JsonResponse(response_data, status=201)
+        }
+        return JsonResponse(response_data, status=201)
 
     else:
-        response_data = {
+        context = {
             "supplier": supplier,
             "personnel": personnel,
             "zones": zones,
             "products": products
         }
 
-        return render(request, "company/supplierDetails.html", response_data)
+        return render(request, "company/supplierDetails.html", context)
 
     
 
@@ -244,8 +252,8 @@ def personnel(request):
         email = person["email"]
         companyId = person["companyId"]
 
-        if person["type"] == "supplier":
-            company = Supplier.objects.get(pk=companyId)
+        company = Company.objects.get(pk=companyId)
+
         p = Personnel(nameC = name, contact=phone, email = email, company = company)
         p.save()
 
@@ -284,4 +292,66 @@ def personnel(request):
 
 
 def clients(request):
-    return render(request, "company/clients.html")
+    clients = Client.objects.all()
+    return render(request, "company/clients.html",{
+        "clients": clients
+    })
+
+
+def clientForm(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        newClient = data.get("newCompany")
+        newClient.pop("zone")
+        new_Client = Client(**newClient)
+        new_Client.save()
+        print(new_Client)
+        
+        response_data = {
+            "message": "ClientAdded.",
+            "id": new_Client.id
+        }
+        
+        return JsonResponse(response_data, status=201)
+    else:
+        return render(request, "company/companyForm.html", {
+            "mode": "Client",
+            "counties": counties
+        })
+
+def clientDetail(request, id):
+    client = Client.objects.get(pk=id)
+    personnel = client.personnel.all()
+
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        editDetails = data.get("updateCompany")
+        client.nameC = editDetails["nameC"]
+        client.address = editDetails["address"]
+        client.email = editDetails["email"]
+        client.contact = editDetails["contact"]
+        client.county = editDetails["county"]
+        client.location = editDetails["location"]
+        client.save()
+
+        response_data = {
+            "message": "Client Edited."
+        }
+        return JsonResponse(response_data, status=201)
+    
+    elif request.method == "DELETE":
+        client.delete()
+
+        response_data = {
+            "message": "Client Deleted."
+        }
+        return JsonResponse(response_data, status=201)
+
+    context = {
+        "client": client,
+        "personnel": personnel,
+        "counties": counties,
+        "products": products
+    }
+
+    return render(request, "company/clientDetails.html", context)

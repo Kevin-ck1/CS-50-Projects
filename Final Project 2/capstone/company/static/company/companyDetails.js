@@ -1,10 +1,9 @@
 class Personnel {
-    constructor(name, phone, email, companyId, type){
+    constructor(name, phone, email, companyId){
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.companyId = companyId;
-        this.type = type
     }
 }
 
@@ -40,7 +39,15 @@ function requestPath(url){
 const modal = document.querySelector('.modal1') //Edit form form variable
 const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"];
 const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"];
-
+const counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana', 
+'River', 'Lamu', 'Taita', 'Mak', 'Taveta', 'Garissa', 'Wajir', 
+'Mandera', 'Marsabit', 'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 
+'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang’a', 
+'Kiambu', 'The', 'Turkana', 'West', 'Pokot', 'Samburu', 'Trans-Nzoia', 
+'Uasin', 'Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru',
+ 'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
+ 'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
+ 'Nairobi']
 
 //UI Class
 class UI{
@@ -168,11 +175,22 @@ class UI{
 
      //Zones: Display the String Value for zones
     static displayZone(){
-        const zone = document.querySelector('.sZone').innerHTML;
+        const zone = document.querySelector('.cZone').innerHTML;
         if(parseInt(zone)){
-            document.querySelector('.sZone').innerHTML = zones[zone - 1];
+            document.querySelector('.cZone').innerHTML = zones[zone - 1];
         };
     };
+
+    //Counties: Display the String Value for Counties
+    static displayCounty(){
+        const county = document.querySelector('.cCounty').innerHTML;
+        if(parseInt(county)){
+            document.querySelector('.cCounty').innerHTML = counties[county - 1];
+        };
+    };
+
+
+
     //Display of the category field
     static displayCategory(){
         const productTable = document.querySelector('#productsTable');
@@ -273,7 +291,7 @@ class UI{
 //Storage Class
 class Store{
     static storePerson(person,rIndex){
-        const request = requestPath(`personnel`);
+        const request = requestPath(`/company/personnel`);
         console.log(request)
         fetch(request, {
             method: "POST",
@@ -291,7 +309,7 @@ class Store{
     };
 
     static updatePerson(person, rIndex, id){
-        const request = requestPath(`personnel`);
+        const request = requestPath(`/company/personnel`);
         console.log(request)
         fetch(request, {
             method: "PUT",
@@ -325,30 +343,21 @@ class Store{
         })
     };
 
-    static deleteSupplier(){
+    static deleteCompany(){
         const url = window.location.href;
-        const supplierId = document.querySelector('.sId').innerHTML;
-        const supplierName = document.querySelector('.sName').innerHTML;
         const request = requestPath(``);
-
-        console.log(request)
 
         fetch(request, {
             method: "DELETE",
-            mode: "same-origin",
-            body: JSON.stringify({
-                supplierId: supplierId,
-                supplierName: supplierName
+            mode:"same-origin",
             })
-        })
         .then(response => response.json())
         .then((res)=>{
             console.log(res.message)
         })
         .then(()=>{
-            window.location=`/company/suppliers`
-        })
-        
+            window.location=url.substring(0, url.lastIndexOf('/'));
+        })  
     };
 
     static updatePrice(price, priceId){
@@ -407,13 +416,12 @@ document.querySelector('#personnelTable').addEventListener('click', (e)=>{
         const email = document.querySelector('.email').value;
         const url = window.location.href;
         const companyId = url.split("/").pop();
-        const type = "supplier";
 
         if(name == "" || phone == "" || email == ""){
             alert('Please Fill In All The Fields')
         }else {
             //Creating a new instance of a person
-            const person = new Personnel(name, phone, email, companyId, type);
+            const person = new Personnel(name, phone, email, companyId);
             if(e.target.parentElement.id == "savePerson" || e.target.id == "savePerson"){
                 //Add the person to the display
             UI.savePerson(person);
@@ -480,6 +488,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     //Display the Zones in string format
     UI.displayZone();
 
+    //Display the Counties in string format
+    UI.displayCounty();
+
     //Display the categories in string format
     UI.displayCategory();
 
@@ -487,9 +498,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     UI.disableButtons();
 });
 
-//Deleting A Supplier
-document.querySelector('#deletesupplier').addEventListener('click', ()=>{
-    Store.deleteSupplier();
+//Deleting A Supplier/Client
+document.querySelector('#deleteCompany').addEventListener('click', ()=>{
+    Store.deleteCompany();
 });
 
 //Editing A Supplier
@@ -523,6 +534,8 @@ document.querySelector('#personnelSection').addEventListener('click', (e)=>{
 document.querySelector('#productsTable').addEventListener('click', (e)=>{
     UI.priceEdits(e);
 })
+
+
 
 
 

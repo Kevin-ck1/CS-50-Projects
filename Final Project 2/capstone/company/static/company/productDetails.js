@@ -115,7 +115,7 @@ class UI{
 
             for (let supplier of suppliers){
                 if(supplier.id == supplierId){
-                    supplierName = supplier.nameS
+                    supplierName = supplier.nameC
                 }
             }
 

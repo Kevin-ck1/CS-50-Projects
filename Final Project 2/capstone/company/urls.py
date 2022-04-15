@@ -14,6 +14,8 @@ urlpatterns = [
     path('suppliers', views.suppliers, name='suppliers'),
     path('supplierform', views.supplierForm, name='supplierForm'),
     path('suppliers/<int:id>', views.supplierDetail, name='supplierDetail'),
-    path('suppliers/personnel', views.personnel, name="personnel"),
+    path('personnel', views.personnel, name="personnel"),
     path('clients', views.clients, name='clients'),
+    path('clientform', views.clientForm, name='clientForm'),
+    path('clients/<int:id>', views.clientDetail, name='clientDetail'),
 ]

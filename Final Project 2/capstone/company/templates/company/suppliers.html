@@ -21,11 +21,11 @@
               <th scope="col">Location</th>
             </tr>
           </thead>
-          <tbody id="supplierTable">
+          <tbody id="companyTable">
               {%for supplier in suppliers %}
-              <tr id="{{supplier.id}}">
+              <tr id="{{supplier.id}}" class="suppliers">
                   <td scope="row" class="rowCounter"></td>
-                  <td>{{supplier.nameS}}</td>
+                  <td>{{supplier.nameC}}</td>
                   <td>{{supplier.contact}}</td>
                   <td>{{supplier.location}}</td>
               </tr>
@@ -39,5 +39,5 @@
 
 {% load static %}
 {% block scripttag%}
-<script src="{% static 'company/supplier.js' %}"></script>
+<script src="{% static 'company/company.js' %}"></script>
 {%endblock%}

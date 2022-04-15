@@ -7,7 +7,7 @@
         <h1>Clients</h1>
         
         <h4 class="align-self-center" >
-          <a href="{% url 'company:supplierForm' %}">+ Supplier </a> 
+          <a href="{% url 'company:clientForm' %}">+ Client </a> 
         </h4>
     </div>
         
@@ -21,11 +21,11 @@
               <th scope="col">Location</th>
             </tr>
           </thead>
-          <tbody id="clientsTable">
+          <tbody id="companyTable">
               {%for client in clients %}
-              <tr id="{{client.id}}">
+              <tr id="{{client.id}}" class="client">
                   <td scope="row" class="rowCounter"></td>
-                  <td>{{client.nameS}}</td>
+                  <td>{{client.nameC}}</td>
                   <td>{{client.contact}}</td>
                   <td>{{client.location}}</td>
               </tr>
@@ -39,5 +39,5 @@
 
 {% load static %}
 {% block scripttag%}
-<script src="{% static 'company/clients.js' %}"></script>
+<script src="{% static 'company/company.js' %}"></script>
 {%endblock%}

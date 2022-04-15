@@ -78,7 +78,7 @@ class UI {
         var supplierName;
         for(let supplier of suppliers){
             if(supplier.id == product.supplier){
-                supplierName = supplier.nameS
+                supplierName = supplier.nameC
             }
         }
         const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]

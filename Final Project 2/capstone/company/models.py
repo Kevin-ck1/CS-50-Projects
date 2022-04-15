@@ -10,20 +10,28 @@ from polymorphic.models import PolymorphicModel
 
 class Company(PolymorphicModel):
     id = models.BigAutoField(primary_key=True)
-    nameS = models.CharField(max_length=64)
-
-    def __str__(self):
-        return f"{self.nameS}"
-
-class Supplier(Company):
+    nameC = models.CharField(max_length=64)
     address = models.IntegerField()
     email = models.CharField(max_length=64, default=0)
     contact = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.nameC}"
+
+class Supplier(Company):
     zone = models.IntegerField()
     location = models.CharField(max_length=64)
 
     def __str__(self):
-        return f"{self.nameS}"
+        return f"{self.nameC}"
+
+class Client(Company):
+    county = models.IntegerField()
+    location = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.nameC}"
+    
 
 class Product(models.Model):
     id = models.BigAutoField(primary_key=True)

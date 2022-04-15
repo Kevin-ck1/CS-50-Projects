@@ -6,12 +6,12 @@
     <div class="d-flex justify-content-between border-bottom mt-4 pb-3">
         <div id="name">
             <h2>
-                <span  class="cName">{{supplier.nameC}}</span>
-                <span  class="cId" hidden>{{supplier.id}}</span>
+                <span  class="cName">{{client.nameC}}</span>
+                <span  class="cId" hidden>{{client.id}}</span>
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
-            <button class="btn btn-outline-primary btn-sm mx-2" id="editsupplier">Edit Supplier</button>
+            <button class="btn btn-outline-primary btn-sm mx-2" id="editsupplier">Edit Client</button>
             <button class="btn btn-outline-danger btn-sm" id="deleteCompany">Delete</button>
         </div>
     </div>
@@ -21,68 +21,67 @@
                 
                 <div class="mb-4 d-flex justify-content-between">
                     <div></div>
-                    <h5 class="text-center">Edit Supplier Details</h5>
+                    <h5 class="text-center">Edit Client Details</h5>
                     <span class="closeButton">X</span>
                 </div>
                 <hr>
                 <div>
-                    <p class="mode" hidden>Supplier</p>
+                    <p class="mode" hidden>Client</p>
                     <form id="companyForm">
                         <div class="form-group row ">
-                            <label for="nameC" class="col-sm-2 col-form-label">Supplier's Name</label>
+                            <label for="nameC" class="col-sm-2 col-form-label">Client's Name</label>
                             <div class="col">
-                              <input type="text" class="form-control" id="nameC" value="{{supplier.nameC}}">
+                              <input type="text" class="form-control" id="nameC" value="{{client.nameC}}">
                             </div>
                         </div>
                 
                         <div class="form-group row mt-3">
                             <label for="address" class="col-sm-2 col-form-label">Address</label>
                             <div class="col">
-                              <input type="text" class="form-control" id="address" value="{{supplier.address}}">
+                              <input type="text" class="form-control" id="address" value="{{client.address}}">
                             </div>
                         </div>
                 
                         <div class="form-group row mt-3">
                           <label for="email" class="col-sm-2 col-form-label">Email</label>
                           <div class="col">
-                            <input type="text" class="form-control" id="email" value="{{supplier.email}}">
+                            <input type="text" class="form-control" id="email" value="{{client.email}}">
                           </div>
                         </div>
                 
                         <div class="form-group row mt-3">
                             <label for="contact" class="col-sm-2 col-form-label">Contact</label>
                             <div class="col">
-                              <input type="text" class="form-control" id="contact" value="{{supplier.contact}}">
+                              <input type="text" class="form-control" id="contact" value="{{client.contact}}">
                             </div>
                         </div>
                 
                         <div class="form-group row mt-3">
-                            <label for="zone" class="col-sm-2 col-form-label">Zone</label>
+                            <label for="county" class="col-sm-2 col-form-label">County</label>
                             <div class="col">
-                              <select name="" id="zone">
-                                  {% for zone in zones %}
-                                    {%if supplier.zone == forloop.counter  %}
-                                        <option value="{{ supplier.zone }}" selected>{{zone}}</option>
+                              <select name="" id="county">
+                                  {% for county in counties %}
+                                    {%if client.county == forloop.counter  %}
+                                        <option value="{{ client.county }}" selected>{{county}}</option>
                                     {%else%}
-                                        <option value="{{ forloop.counter }}">{{zone}}</option>
+                                        <option value="{{ forloop.counter }}">{{county}}</option>
                                     {%endif%}
                                   {%endfor%}
-                                  
                               </select>
                             </div>
                         </div>
                         <div>
-                            <input type="text" id="county" value="47" hidden>
+                            <input type="text" id="zone" value="hello", hidden>
                         </div>
                         <div class="form-group row mt-3">
                             <label for="location" class="col-sm-2 col-form-label">Location</label>
                             <div class="col">
-                              <input type="text" class="form-control" id="location" value="{{supplier.location}}">
+                              <input type="text" class="form-control" id="location" value="{{client.location}}">
                             </div>
                         </div>
                        
                         <div class="submit mt-3 d-flex flex-row-reverse">
-                            <button class="btn btn-primary submitButton" type="submit">Save Changes</button>
+                            <button class="btn btn-primary submitButton" type="submit" value="edit">Save Changes</button>
                         </div>   
                 
                     </form>
@@ -95,26 +94,26 @@
         <div class="border-bottom col-12 row pb-2">
             <h5 class="col-md-4">
                 Address
-                <span class="text-info cAddress">{{supplier.address}}</span>
+                <span class="text-info cAddress">{{client.address}}</span>
             </h5>
             <h5 class="col-md-4">
                 Email: 
-                <span class="text-info cEmail">{{supplier.email}}</span>
+                <span class="text-info cEmail">{{client.email}}</span>
             </h5>
             <h5 class="col-md-4">
                 Contact: 
-                <span class="text-info cContact">{{supplier.contact}}</span>
+                <span class="text-info cContact">{{client.contact}}</span>
         </div>
 
         <div class="col-12 pt-1 row">
             <h5 class="col-md-4">
-                Zone: 
-                <span class="text-info cZone">{{supplier.zone}}</span> 
+                County: 
+                <span class="text-info cCounty">{{client.county}}</span> 
             </h5>
-            <h5 class="cCounty" hidden>47</h5>
+            <h5 class="cZone" hidden>Hello</h5>
             <h5 class="col-md-6">
                 Location: 
-                <span class="text-info cLocation">{{supplier.location}}</span> 
+                <span class="text-info cLocation">{{client.location}}</span> 
             </h5>
         </div>  
         
@@ -162,9 +161,9 @@
         </div>
     </div>
 
-    <div class="card mt-3" id="productSection">
+    <div class="card mt-3" id="jobSection">
         <div class="card-header">
-            <h5>Supplier's Products</h5>
+            <h5>Client's Jobs</h5>
         </div>
         <div class="table-responsive my-4" id="products">
             <table class="table table-striped table-bordered table-hover">
