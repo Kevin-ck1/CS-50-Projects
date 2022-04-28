@@ -286,6 +286,16 @@ class UI{
         }
     };
 
+    static jobsEdit(e){
+        let clicked = e.target;
+        let row = clicked.closest('tr');
+        let clickedButton = clicked.parentElement;
+        switch(clickedButton.id){
+            case "":
+                console.log("Will come later to this")
+        }
+    }
+
 };
 
 //Storage Class
@@ -491,8 +501,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     //Display the Counties in string format
     UI.displayCounty();
 
-    //Display the categories in string format
-    UI.displayCategory();
+    try {
+        //Display the categories in string format
+        UI.displayCategory();
+    } catch (error) {
+        console.log("Hear me, and rejoice. You have had the privilege...")
+    }
 
     //Diable the add personnel Button
     UI.disableButtons();
@@ -530,13 +544,17 @@ document.querySelector('#personnelSection').addEventListener('click', (e)=>{
     }
 });
 
-//Event: Edit Price
-document.querySelector('#productsTable').addEventListener('click', (e)=>{
-    UI.priceEdits(e);
-})
-
-
-
+try {
+  //Event: Manipulate Product Prices
+    document.querySelector('#productsTable').addEventListener('click', (e)=>{
+        UI.priceEdits(e);
+    })  
+} catch (error) {
+   //Event: Manipulate Jobs
+    document.querySelector('#jobsTable').addEventListener('click', (e)=>{
+        UI.jobsEdit(e);
+    }) 
+}
 
 
 

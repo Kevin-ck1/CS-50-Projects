@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Supplier, Personnel, Company, Price, Client
+from .models import Product, Supplier, Personnel, Company, Price, Client, Job
 
 #Customizing the admin display page
 class ProductAdmin(admin.ModelAdmin):
@@ -19,6 +19,9 @@ class PriceAdmin(admin.ModelAdmin):
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ("id", "nameC", "contact")
+
+class JobAdmin(admin.ModelAdmin):
+    list_display = ("code", "id", "value", "status")
     
 # Register your models here.
 
@@ -28,3 +31,4 @@ admin.site.register(Personnel,PersonnelAdmin)
 admin.site.register(Company,CompanyAdmin)
 admin.site.register(Price,PriceAdmin)
 admin.site.register(Client,ClientAdmin)
+admin.site.register(Job,JobAdmin)

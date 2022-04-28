@@ -2,7 +2,7 @@ from django.shortcuts import render
 from . import templates, static
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Product, Supplier, Personnel, Company, Price, Client
+from .models import Product, Supplier, Personnel, Company, Price, Client, Job
 import json
 
 #Common variables
@@ -16,7 +16,7 @@ counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana',
  'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
  'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
  'Nairobi']
-
+status = ["RFQ", "LPO", "Supplied", "Paid"] 
 
 # Create your views here.
 
@@ -37,10 +37,12 @@ def products(request):
 def fetchItems(request):
     products = list(Product.objects.all().values())
     suppliers = list(Supplier.objects.all().values())
+    jobs = list(Job.objects.all().values())
 
     response_data = {
         "products": products,
-        "suppliers": suppliers
+        "suppliers": suppliers,
+        "jobs": jobs,
     }
     return JsonResponse(response_data, status=201)
 
@@ -305,7 +307,6 @@ def clientForm(request):
         newClient.pop("zone")
         new_Client = Client(**newClient)
         new_Client.save()
-        print(new_Client)
         
         response_data = {
             "message": "ClientAdded.",
@@ -322,6 +323,9 @@ def clientForm(request):
 def clientDetail(request, id):
     client = Client.objects.get(pk=id)
     personnel = client.personnel.all()
+    jobs = [{"code":"job1", "value":10000, "status":"RFQ"},
+    {"code":"job2", "value":"25000", "status":"LPO"}
+    ]
 
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -351,7 +355,51 @@ def clientDetail(request, id):
         "client": client,
         "personnel": personnel,
         "counties": counties,
-        "products": products
+        "jobs": jobs
     }
 
     return render(request, "company/clientDetails.html", context)
+
+def jobs(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        j = data.get("newJob")
+        client = Client.objects.get(pk = j["client"] )
+        newJob = Job(code = j["code"], client = client)
+        newJob.save()
+
+        return JsonResponse({"message": "Job Added"}, status=201)
+    
+
+    jobs = Job.objects.all()
+    products = Price.objects.all()
+    suppliers = Supplier.objects.all()
+    clients = Client.objects.all()
+
+    context = {
+        "jobs": jobs[::-1],
+        "products": products[::-1],
+        "suppliers": suppliers,
+        "clients": clients,
+    }
+
+    return render(request, "company/jobs.html", context)
+
+def jobDetail(request, id):
+    job = Job.objects.get(pk=id)
+    products = Product.objects.all()
+    #products = job.product.all()
+
+
+    if request.method == "DELETE":
+        job.delete()
+
+        return JsonResponse({"message": "Job Deleted"}, status = 201)
+
+    context = {
+        "job": job, 
+        "status": status,
+        "products": "",
+    }
+
+    return render(request, "company/jobDetails.html", context)

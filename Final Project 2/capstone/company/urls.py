@@ -5,8 +5,8 @@ app_name = "company"
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('fetchItems', views.fetchItems, name='fetchItems'),
     path('products', views.products, name='products'),
-    path('products/fetchItems', views.fetchItems, name='productSearch'),
     path('productform', views.productForm, name='productForm'),
     path('products/<int:id>', views.productDetail, name='productDetail'),
     path('products/productPrice', views.productPrice, name='productPrice'),
@@ -18,4 +18,6 @@ urlpatterns = [
     path('clients', views.clients, name='clients'),
     path('clientform', views.clientForm, name='clientForm'),
     path('clients/<int:id>', views.clientDetail, name='clientDetail'),
+    path('jobs', views.jobs, name='jobs'),
+    path('jobs/<int:id>', views.jobDetail, name='jobDetail'),
 ]

@@ -165,24 +165,24 @@
         <div class="card-header">
             <h5>Client's Jobs</h5>
         </div>
-        <div class="table-responsive my-4" id="products">
+        <div class="table-responsive my-4" id="jobs">
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                   <tr>
                     <th scope="col" style="width:3%" class="text-center">#</th>
-                    <th scope="col" style="width:30%" class="text-center">Product</th>
-                    <th scope="col" style="width:30%" class="text-center">Category</th>
-                    <th scope="col" style="width:30%" class="text-center">Price</th>
+                    <th scope="col" style="width:30%" class="text-center">Jobs</th>
+                    <th scope="col" style="width:30%" class="text-center">Value</th>
+                    <th scope="col" style="width:30%" class="text-center">Status</th>
                     <th scope="col" style="width:30%" class="text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody id="productsTable">
-                    {% for product in products %}
-                        <tr id="{{product.id}}">
+                <tbody id="jobsTable">
+                    {% for job in jobs %}
+                        <tr id="{{job.id}}">
                             <th scope="row" class="rowCounter text-center"></th>
-                            <td id="nameP" class="" >{{product.product.nameP}} : {{product.product.brand}}</td>
-                            <td id="category" class="text-center">{{product.product.category}}</td>
-                            <td id="price" class="text-center">{{product.price}}</td>
+                            <td id="code" class="" > {{job.code}}</td>
+                            <td id="value" class="text-center"> {{job.value}} </td>
+                            <td id="status" class="text-center">{{job.status}}</td>
                             <td class="d-flex justify-content-center">
                                 <button id="editPriceButton" class="pr-1 btn btn-lg text-dark" >
                                     <i class="far fa-edit"></i>

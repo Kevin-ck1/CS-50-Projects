@@ -167,10 +167,32 @@ class UI {
                 message.style.display = "block";
                 pMessage.innerHTML = `${name}: ${value}`;
                 pMessage.href = `/company/products/${product.id}`;
-            };
+                UI.disableButtons();
+                break;
+
+            }else{
+                message.style.display = "none";
+                pMessage.innerHTML = ``;
+                pMessage.href = ``;
+                UI.enableButtons();
+            }
         }
         
-    }
+    };
+
+    static enableButtons(){
+        let button = document.querySelector('#submitButton')
+        button.disabled = false;
+        button.className = "btn btn-primary";
+    };
+
+    static disableButtons(){
+        let button = document.querySelector('#submitButton')
+        button.disabled = true;
+        button.className = "btn btn-secondary";
+    };
+
+
 };
 
 class Store {
@@ -178,7 +200,7 @@ class Store {
         //Get csrf token
         const csrftoken = getCookie('csrftoken');
         const request = new Request(
-            `/company/products/fetchItems`,
+            `/company/fetchItems`,
             {headers: {'X-CSRFToken': csrftoken}}
         );
 
@@ -228,6 +250,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
     //Fetch products
     Store.fetchItems();
     //UI.clearForm();
+
+    //Clear the form fields
+    UI.clearForm();
 })
 //Event, addButton click
 document.querySelector('#addButton').addEventListener('click',()=>{UI.openForm()});
@@ -280,12 +305,13 @@ document.querySelector('.filterInput').addEventListener('keyup', ()=>{
     UI.filterProducts();
 });
 
-
 //Event, Check if Product Already Exits
-document.querySelector('#brand').addEventListener('focusout',()=>{
+document.querySelector('#brand').addEventListener('keyup',()=>{
     UI.productCheck();
-})
-
+});
+document.querySelector('#nameP').addEventListener('keyup', ()=>{
+    UI.productCheck();
+});
 
 
 

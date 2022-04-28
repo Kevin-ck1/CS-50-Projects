@@ -7,7 +7,6 @@ from polymorphic.models import PolymorphicModel
 
 
 # Create your models here.
-
 class Company(PolymorphicModel):
     id = models.BigAutoField(primary_key=True)
     nameC = models.CharField(max_length=64)
@@ -25,13 +24,14 @@ class Supplier(Company):
     def __str__(self):
         return f"{self.nameC}"
 
+
 class Client(Company):
     county = models.IntegerField()
     location = models.CharField(max_length=64)
+    
 
     def __str__(self):
         return f"{self.nameC}"
-    
 
 class Product(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -44,12 +44,13 @@ class Product(models.Model):
 
     def __str__(self):
         productDetails = {
-            "nameP":self.name, 
+            "nameP":self.nameP, 
             "brand":self.brand,
             "category": self.category
             }
-        #return f"{self.nameP}: {self.brand}"
-        return productDetails
+        #return str(productDetails)
+        return f"{self.nameP}: {self.brand}"
+        
 
 class Price(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -71,6 +72,18 @@ class Personnel(models.Model):
 
     def __str__(self):
         return f"{self.nameC}: {self.contact}"
+
+class Job(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    code = models.CharField(max_length=64)
+    client = models.ForeignKey(Client, related_name="client", blank=True, on_delete=models.CASCADE)
+    product = models.ManyToManyField(Product, blank=True, related_name="jobProducts")
+    value = models.IntegerField(null=True)
+    status = models.CharField(max_length=64, default = "RFQ")
+
+    def __str__(self):
+        return f"{self.code}"
+    
 
 
        
