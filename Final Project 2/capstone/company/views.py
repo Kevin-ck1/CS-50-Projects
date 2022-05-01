@@ -2,8 +2,9 @@ from django.shortcuts import render
 from . import templates, static
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from .models import Product, Supplier, Personnel, Company, Price, Client, Job
+from .models import Product, Supplier, Personnel, Company, Price, Client, Job, Supply
 import json
+from django.db.models import Avg, Max, Min, Sum
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
@@ -38,12 +39,15 @@ def fetchItems(request):
     products = list(Product.objects.all().values())
     suppliers = list(Supplier.objects.all().values())
     jobs = list(Job.objects.all().values())
+    prices = list(Price.objects.all().values())
 
     response_data = {
         "products": products,
         "suppliers": suppliers,
         "jobs": jobs,
+        "prices": prices
     }
+
     return JsonResponse(response_data, status=201)
 
 def productForm(request):
@@ -387,8 +391,10 @@ def jobs(request):
 
 def jobDetail(request, id):
     job = Job.objects.get(pk=id)
-    products = Product.objects.all()
+    
+    #products = Product.objects.all()
     #products = job.product.all()
+    #products = Price.objects.all()
 
 
     if request.method == "DELETE":
@@ -399,7 +405,43 @@ def jobDetail(request, id):
     context = {
         "job": job, 
         "status": status,
-        "products": "",
+        "supplies": "",
     }
 
     return render(request, "company/jobDetails.html", context)
+
+def supplies(request, id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        newSupply = data.get("newSupply")
+        print(newSupply)
+
+        product = Product.objects.get(pk = newSupply["product"])
+        #Getting the min and max prices
+        prices = Price.objects.filter(product = product)
+        #minPrice = prices.aggregate(Min('price'))["price__min"]
+        #maxPrice = prices.aggregate(Max('price'))["price__min"]
+        # minBuying = prices.get(price = minPrice)
+        # maxBuying = prices.get(price = maxPrice)
+        minBuying = prices.get(price = newSupply['minPrice'])
+        maxBuying = prices.get(price = newSupply['maxPrice'])
+
+        #Fetching the job instace
+        job = Job.objects.get(pk = newSupply["job"] )
+
+        new_supply = Supply(
+            id = newSupply["product"],
+            qty = newSupply["qty"],
+            price = newSupply["price"],
+            minBuying = minBuying,
+            maxBuying = maxBuying,
+            product = product,
+            job = job,
+        )
+        #new_supply.save()
+        print(new_supply)
+
+        response_data = {
+            "message": "Supply Added."
+        }
+        return JsonResponse(response_data, status=201)    

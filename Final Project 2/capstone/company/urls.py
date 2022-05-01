@@ -20,4 +20,5 @@ urlpatterns = [
     path('clients/<int:id>', views.clientDetail, name='clientDetail'),
     path('jobs', views.jobs, name='jobs'),
     path('jobs/<int:id>', views.jobDetail, name='jobDetail'),
+    path('supplies/<int:id>', views.supplies, name='supplies'),
 ]

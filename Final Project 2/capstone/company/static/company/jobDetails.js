@@ -10,6 +10,18 @@ class Product{
     }
 };
 
+class Supply{
+    constructor(qty, price, total, product, job, maxPrice, minPrice){
+        this.qty = qty;
+        this.price = price;
+        this.total = total;
+        this.product = product;
+        this.job = job;
+        this.maxPrice = maxPrice;
+        this.minPrice = minPrice;
+    }
+}
+
 //Function for getting crsf token
 function getCookie(name) {
     let cookieValue = null;
@@ -139,16 +151,36 @@ class UI {
         UI.clearFilter()
 
         //Clear the searchlist
-        list.innerHTML = '';
+        document.querySelectorAll('#searchList').forEach((list)=>{
+            list.innerHTML = '';
+        })
+
         const productTable = document.querySelector('#productTable')
         const newRow = document.createElement('tr')
+        //Getting the price of the selected product
+        let prices = JSON.parse(localStorage.getItem("prices"));
+        //Get the various prices of the prouct
+        let productPrices = prices.filter(x => x.product_id == product.id);
+
+        let maxPrice = Math.max.apply(Math, productPrices.map(x => x.price));
+        let minPrice = Math.min.apply(Math, productPrices.map(x => x.price));
+        let qty = 1;
+        //Calulating the selling price for the product
+        let price = (Math.ceil(maxPrice*1.36/5))*5 //Round Up to the nearest 5
+        let total = price * qty
+
+        //Fetching the id for the job
+        let jobId = parseInt(document.querySelector('.jobId').innerText);
+        //Creating a supply object
+        const supply = new Supply(qty, price, total, product.id, jobId, maxPrice, minPrice);
+
         newRow.innerHTML = `
             <th scope="row" class="rowCounter text-center"></th>
             <td id="name" class="text-center" >${product.nameP} : ${product.brand} </td>
             <td id="category" class="text-center">${product.category}</td>
-            <td id="qty" class="text-center">${product.category}</td>
-            <td id="price" class="text-center">${product.category}</td>
-            <td id="total" class="text-center">${product.category}</td>
+            <td id="qty" class="text-center">${qty}</td>
+            <td id="price" class="text-center">${price}</td>
+            <td id="total" class="text-center">${total}</td>
             <td class="d-flex justify-content-center">
                 <button id="editButton" class="pr-1 btn btn-lg text-dark" >
                     <i class="far fa-edit"></i>
@@ -171,6 +203,15 @@ class UI {
 
         //Refresh the search list
         UI.searchList();
+
+        //Store the Product
+        Store.storeProducts(supply);
+
+        if (list.parentElement.localName == "td"){
+            newRow.querySelector('#editButton').querySelector('i').click()
+        }else{
+            console.log("Search Bar Clicked")
+        }
 
     };
 
@@ -206,10 +247,10 @@ class UI {
         switch(clickedButton.id){
             case "editButton":
                 //Placing the qty cell  into edit mode
-                qtyCell.innerHTML = `<input type="text" class="qty form-control">`;
+                qtyCell.innerHTML = `<input type="text" class="qty form-control" value="${qtyCell.innerText}">`;
 
                 //Placing the priceCell under edit
-                priceCell.innerHTML = `<input type="text" class="qty form-control">`;
+                priceCell.innerHTML = `<input type="text" class="qty form-control" value="${priceCell.innerText}">`;
 
                 //Changing the action buttons
                 editButton.innerHTML =` <i class="fa fa-check"></i>`
@@ -224,7 +265,7 @@ class UI {
 
             case "saveEdit":
                 //Getting the vaalues from the input fields
-                
+
             break;
 
             case "saveProduct":
@@ -253,6 +294,7 @@ class Store{
             localStorage.setItem("products", JSON.stringify(res.products));
             localStorage.setItem("suppliers", JSON.stringify(res.suppliers));
             localStorage.setItem("jobs", JSON.stringify(res.jobs));
+            localStorage.setItem("prices", JSON.stringify(res.prices));
         })
         .then(()=>{
             //Place Items into the Search list
@@ -270,9 +312,24 @@ class Store{
         .then((res)=>{
             console.log(res.message)
         }).then(()=>{
-            window.location=`/company/jos`
+            window.location=`/company/jobs`
         })
     };
+
+    static storeProducts(supply){
+        const request = requestPath(`/company/supplies/${supply.product}`)
+        console.log(request)
+        fetch(request, {
+            method: "POST",
+            mode:"same-origin",
+            body: JSON.stringify({
+                newSupply: supply
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+        })
+    }
 };
 
 //On Load
@@ -302,5 +359,9 @@ document.querySelector('#deleteJob').addEventListener('click', ()=>{
 
 //Event: Edit/Cancel/Delete Product
 document.querySelector('#productTable').addEventListener('click', (e)=>{
-    UI.productEdits(e);
-})
+    if(e.target.parentElement){
+        if(e.target.parentElement.cellIndex !== 1){
+            UI.productEdits(e);
+        };
+    };
+});

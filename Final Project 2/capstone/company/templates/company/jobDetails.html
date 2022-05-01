@@ -7,7 +7,7 @@
             <h2>
                 <span  class="jDetail">{{job.code}}</span>
                 <input id="code" class="inputUpdate form-control form-control-lg" style="display: none;" type="text" value="{{product.nameP}}">
-                <span class="codeId" hidden>{{code.id}}</span>
+                <span class="jobId" hidden>{{job.id}}</span>
             </h2>
         </div>
         <div class="d-flex align-items-center justify-content-between">
@@ -103,9 +103,9 @@
                             <ul class="list-group list-group-flush" id="searchList"></ul>
                         </td>
                         <td class="text-center"><input type="text" class="category form-control"></td>
-                        <td class="text-center"><input type="text" class="qty form-control"></td>
-                        <td class="text-center"><input type="text" class="price form-control"></td>
-                        <td class="text-center"><input type="text" class="total form-control"></td>
+                        <td id="qty" class="text-center"><input type="text" class="qty form-control"></td>
+                        <td id="price" class="text-center"><input type="text" class="price form-control"></td>
+                        <td id="total" class="text-center"><input type="text" class="total form-control"></td>
                         <td class="d-flex justify-content-center">
                             <button id="saveProduct" class="pr-1 btn btn-lg text-dark" >
                                 <i class="fa fa-check"></i>

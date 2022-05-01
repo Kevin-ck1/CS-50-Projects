@@ -60,8 +60,8 @@ class Price(models.Model):
     #supplier = models.IntegerField()
 
     def __str__(self):
-        return f"{self.price}"       
-
+        return f"{self.price}"  
+ 
 
 class Personnel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -77,13 +77,24 @@ class Job(models.Model):
     id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64)
     client = models.ForeignKey(Client, related_name="client", blank=True, on_delete=models.CASCADE)
-    product = models.ManyToManyField(Product, blank=True, related_name="jobProducts")
+    #product = models.ManyToManyField(Product, blank=True, related_name="jobProducts")
     value = models.IntegerField(null=True)
     status = models.CharField(max_length=64, default = "RFQ")
 
     def __str__(self):
         return f"{self.code}"
     
+class Supply(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    qty = models.IntegerField()
+    price = models.IntegerField()
+    minBuying =  models.ForeignKey(Price, related_name="bestBuying", on_delete=models.SET_NULL, blank=True, null=True)
+    maxBuying =  models.ForeignKey(Price, related_name="worstBuying",on_delete=models.SET_NULL, blank=True, null=True)
+    total = models.IntegerField() 
+    product = models.ForeignKey(Product, related_name="jobProduct",on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, related_name="jobItem",on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.id}" 
 
        
