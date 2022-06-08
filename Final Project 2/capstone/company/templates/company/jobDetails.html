@@ -18,7 +18,7 @@
 
     <div id="productDetails" class="row mt-3 border-bottom">
         <div class="border-bottom col-12 row pb-2">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h5>
                     Client:  
                     <span class="text-info jDetail">{{job.client}}</span>
@@ -26,15 +26,17 @@
                 </h5>
                 <h5>
                     Value: 
-                    <span class="text-info jDetail">{{job.value}}</span> 
-                    <input id="brand" class="inputUpdate form-control" style="display: none;" type="text" value="{{product.brand}}"> 
+                    {%if job.value%} 
+                        <span class="text-info jDetail jValue">{{job.value}}</span>
+                    {%else%}
+                        <span class="text-info jDetail jValue">0</span>
+                    {%endif%}
                 </h5>
             </div>
             <div class="col-md-6">
                 <h2 class="form-group row">
                     <!-- Status:  -->
                     <label for="status" class="col-md-2 col-form-label">Status</label>
-                    <!-- <span class="text-info jDetail">{{job.status}}</span> -->
                     <div class="col-sm-4 row align-items-center">
                         <select id="status" class="inputUpdate form-control">
                             {% for status in status %}
@@ -48,6 +50,12 @@
                     </div>
                 </h2>
             </div> 
+            <div class="col-md-2 row">
+                <a href="{% url 'company:getItems' 'print_rfq_csv' job.id %}">Print RFQ(CSV)</a>
+                <a href="{% url 'company:getItems' 'print_rfq_excel' job.id %}">Print RFQ(xslx)</a>
+                <a href="{% url 'company:getItems' 'invoice_request' job.id %}">Request Invoice</a>
+                
+            </div>
         </div>
     </div>
 
@@ -77,15 +85,15 @@
                     <th scope="col" class="text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody id="productTable">
-                    {% for product in products %}
-                        <tr id="{{product.id}}">
+                <tbody id="suppliesTable">
+                    {% for supply in supplies %}
+                        <tr id="{{supply.id}}">
                             <th scope="row" class="rowCounter text-center"></th>
-                            <td id="name" class="text-center" >{{product.nameP}} : {{product.brand}} </td>
-                            <td id="category" class="text-center">{{product.category}}</td>
-                            <td id="qty" class="text-center">{{product.category}}</td>
-                            <td id="price" class="text-center">{{product.category}}</td>
-                            <td id="total" class="text-center">{{product.category}}</td>
+                            <td id="name" class="text-center" >{{supply.product.nameP}} : {{supply.product.brand}} </td>
+                            <td id="category" class="text-center">{{supply.product.category}}</td>
+                            <td id="qty" class="text-center">{{supply.qty}}</td>
+                            <td id="price" class="text-center">{{supply.price}}</td>
+                            <td id="total" class="text-center">{{supply.total}}</td>
                             <td class="d-flex justify-content-center">
                                 <button id="editButton" class="pr-1 btn btn-lg text-dark" >
                                     <i class="far fa-edit"></i>
@@ -102,10 +110,10 @@
                             <input type="text" class="productName form-control filterInput">
                             <ul class="list-group list-group-flush" id="searchList"></ul>
                         </td>
-                        <td class="text-center"><input type="text" class="category form-control"></td>
-                        <td id="qty" class="text-center"><input type="text" class="qty form-control"></td>
-                        <td id="price" class="text-center"><input type="text" class="price form-control"></td>
-                        <td id="total" class="text-center"><input type="text" class="total form-control"></td>
+                        <td class="text-center"><input type="text" class="category form-control" disabled></td>
+                        <td id="qty" class="text-center"><input type="text" class="qty form-control" disabled></td>
+                        <td id="price" class="text-center"><input type="text" class="price form-control" disabled></td>
+                        <td id="total" class="text-center"><input type="text" class="total form-control" disabled></td>
                         <td class="d-flex justify-content-center">
                             <button id="saveProduct" class="pr-1 btn btn-lg text-dark" >
                                 <i class="fa fa-check"></i>

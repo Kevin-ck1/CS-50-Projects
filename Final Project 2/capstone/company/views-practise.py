@@ -6,11 +6,10 @@ from .models import Product, Supplier, Personnel, Company, Price, Client, Job, S
 import json
 from django.db.models import Avg, Max, Min, Sum
 from itertools import chain
-from django.db.models import Subquery, OuterRef, FloatField, CharField, IntegerField
+from django.db.models import Subquery, OuterRef, FloatField, CharField
 from django.db.models.functions import Cast
 import pandas as pd
-import csv, io, xlsxwriter, xlwt, math
-from reportlab.pdfgen import canvas
+import csv, io, xlsxwriter, xlwt
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
@@ -131,10 +130,8 @@ def productPrice(request):
         supplier = Supplier.objects.get(pk=newPrice["supplier"])
         price = Price(price = newPrice["price"], product = product , supplier=supplier)
         price.save()
-
-        #Updating the corresponding supply items if any
-        updateSupplies(price)
-        
+        print(price)
+        print(price.id)
 
         response_data = {
             "message": "Price Added.",
@@ -152,9 +149,6 @@ def productPrice(request):
         price.price = editPrice
         price.save()
 
-        #Updating the corresponding supply items if any
-        updateSupplies(price)
-
         response_data = {
             "message": "Price Edited."
         }
@@ -170,9 +164,6 @@ def productPrice(request):
         product = price.product
         prices = product.productPrice.all()
         if prices.count()  > 1:
-            #Updating the corresponding supply items if any
-            updateSupplies(price)
-            #Deleting the price
             price.delete()
 
             response_data = {
@@ -185,23 +176,6 @@ def productPrice(request):
             }
             return JsonResponse(response_data, status=201)
 
-def updateSupplies(price):
-    product = price.product
-    supplies = product.jobProduct.all()
-    if supplies.exists():
-        for s in supplies:
-            job = s.job
-            if job.status == "RFQ":
-                prices = Price.objects.filter(product = product)
-                minPrice = prices.aggregate(Min('price'))["price__min"]
-                maxPrice = prices.aggregate(Max('price'))["price__max"]
-                s.minBuying = prices.get(price = minPrice)
-                s.maxBuying = prices.get(price = maxPrice)  
-                s.price = (math.ceil(maxPrice*1.36/5))*5 
-                s.total = s.price * s.qty
-                s.save()
-                #Updating the job value
-                updateJobValue(job)
 
 def fetchSuppliers(request):
     suppliers = list(Supplier.objects.all().values())
@@ -359,6 +333,9 @@ def clientDetail(request, id):
     client = Client.objects.get(pk=id)
     personnel = client.personnel.all()
     jobs = client.client.all()
+    # jobs = [{"code":"job1", "value":10000, "status":"RFQ"},
+    # {"code":"job2", "value":"25000", "status":"LPO"}
+    # ]
 
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -421,6 +398,11 @@ def jobs(request):
 def jobDetail(request, id):
     job = Job.objects.get(pk=id)
     supplies = job.jobItem.all()
+    
+    #products = Product.objects.all()
+    #products = job.product.all()
+    #products = Price.objects.all()
+
 
     if request.method == "DELETE":
         job.delete()
@@ -516,42 +498,52 @@ def updateJobValue(job):
     jobValue = supplies.aggregate(Sum('total'))['total__sum']
     job.value = jobValue
     job.save()
+    print("Testing value save")
+    print(job)
+    print(job.value)
+    print("End of value save")
 
 def getItems(request, type, id):
     job = Job.objects.get(pk=id)
     products = Product.objects.all()
     supplies = job.jobItem.all()
-    if type == "print_rfq_csv":
-       # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename = {job.code}.csv'
-        writer = csv.writer(response)
-        writer.writerow(["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"])
-        total_buying = 0
-        total_selling = 0
-        for s in supplies:
-            writer.writerow([s.product.nameP, s.product.brand, s.qty, s.minBuying.price, s.price,(s.minBuying.price*s.qty), s.total])
-            total_buying += (s.minBuying.price*s.qty)
-            total_selling += s.total
-        writer.writerow(["","","","","Grand Total", total_buying, total_selling, "Difference",(total_selling-total_buying)])
-        return response 
-    elif type == "print_rfq_excel1":
-        #Join Code
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=FloatField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=CharField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
-        print(list(combined.values()))
+    #Join Code
+    subquery = products.filter(id=OuterRef('product_id'))
+    combined = supplies.annotate(
+        category = Cast(Subquery(subquery.values('category')[:1]), output_field=FloatField()),
+        nameP = Cast(Subquery(subquery_p.values('nameP')[:1]), output_field=CharField()),
+        brand = Cast(Subquery(subquery_p.values('brand')[:1]), output_field=CharField()),
+        buying = Cast(Subquery(subquery_buying.values('price')[:1]), output_field=CharField()),
+        supplier = Cast(Subquery(subquery_buying.values('supplier')[:1]), output_field=CharField()),
+    )
 
+    print(combined.values())
+
+    df = pd.DataFrame(list(combined.values()))
+    print(df.head())
+    #df.to_excel('Supplies.xlsx')
+    print(list(supplies.values()))
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    if type == "print_csv":
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename = products.csv'
+
+        rows = list(combined.values())
+        writer = csv.writer(response)
+        writer.writerow(["qty", "price", "total"])
+        
+        for row in rows:
+            #writer.writerow([s.qty, s.price, s.total])
+            writer.writerow([row['qty'], row['price'], row["product_id"]])
+        return response
+    
+    elif type == "print_excel":
         response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename = supplies.xls'
+        response['Content-Disposition'] = 'attachment; filename = products.xls'
         wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet('Supplies')
+        ws = wb.add_sheet('Products')
         
         # Sheet header, first row
         row_num = 0
@@ -559,131 +551,54 @@ def getItems(request, type, id):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         #Naming the Column Heads for products
-        columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
+        columns = ['nameP', 'brand', 'category', ]
 
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
-            #ws.set_column(col_num, col_num, len(columns[col_num]))
-            
 
         # Sheet body, remaining rows
         font_style = xlwt.XFStyle() #Removing the bold from the font
 
-        rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
+        rows = Product.objects.all().values_list('nameP', 'brand', 'category')
         print(rows)
         for row in rows:
+            print(f"Test 2{type (row)}")
+            print(row)
             row_num += 1
             for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num], font_style)  
-
+                ws.write(row_num, col_num, row[col_num], font_style)
 
         wb.save(response)
         return response
 
-    elif type == "print_rfq_excel":
-        #Join Code
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=IntegerField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=IntegerField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
+    #Printing Excel using pd
+        # excel_file = io.BytesIO()
+        # xlwriter = pd.ExcelWriter(excel_file, engine='xlsxwriter')
+        # df.to_excel(xlwriter, 'sheetname')
+        # xlwriter.save()
+        # #xlwriter.close()
+        # excel_file.seek(0)
 
-        print(list(combined.values()))
-
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = f'attachment; filename = {job.code}-RFQ.xlsx'
+        # response = HttpResponse(excel_file.read(), content_type='application/ms-excel')
+        # # set the file name in the Content-Disposition header
+        # response['Content-Disposition'] = 'attachment; filename=myfile.xls'
+        # return response    
+    elif type == "print_rfq":
+       # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename = supplies.csv'
+        writer = csv.writer(response)
+        writer.writerow(["qty", "price", "total"])
         
-        #Creating the Spreadsheat, in memorry with io
-        output = io.BytesIO()
-        wb = xlsxwriter.Workbook(output)
-        ws = wb.add_worksheet()
+        for s in supplies:
+            writer.writerow([s.qty, s.price, s.total])
+        return response 
 
+        #To excel using pandas
+        writer = pd.ExcelWriter('test_file.xlsx') 
+        df.to_excel(writer, sheet_name='my_analysis', index=False, na_rep='NaN')
 
-        # Sheet header, first row
-        row_num = 0
+        # Manually adjust the width of the last column
+        writer.sheets['my_analysis'].set_column(3, 3, 45)
 
-        # Add a bold format to use to highlight cells.
-        bold = wb.add_format({'bold': True})
-
-        #Naming the Column Heads for products
-        columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
-
-        for col_num in range(len(columns)):
-            ws.write(row_num, col_num, columns[col_num], bold)
-            ws.set_column(col_num, col_num,12)
-
-        rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
-        
-        for row in rows:
-            row_num += 1
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num])    
-
-        wb.close()
-        response.write(output.getvalue())
-
-        return response
-
-    elif type == "invoice_request":
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=IntegerField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=IntegerField()),
-            supplier = Cast(Subquery(subquery2.values('supplier')[:1]), output_field=IntegerField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
-
-        print(list(combined.values()))
-
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = f'attachment; filename = Invoice_request.xlsx'
-
-        suppliers_list = combined.values_list('supplier', flat=True).distinct() #This gives a value to get an object remove flat=True
-        #suppliers_list = combined.values_list('supplier').distinct()
-        print(suppliers_list)
-        for i in suppliers_list:
-            print(i)
-            items = combined.filter(supplier = (i))  
-            output = create_xlsx(items)
-            
-            response.write(output.getvalue())
-
-            return response
-
-def create_xlsx(combined):
-    #Creating the Spreadsheat, in memorry with io
-    output = io.BytesIO()
-    wb = xlsxwriter.Workbook(output)
-    ws = wb.add_worksheet()
-
-
-    # Sheet header, first row
-    row_num = 0
-
-    # Add a bold format to use to highlight cells.
-    bold = wb.add_format({'bold': True})
-
-    #Naming the Column Heads for products
-    columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
-
-    for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], bold)
-        ws.set_column(col_num, col_num,12)
-
-    rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
-        
-    for row in rows:
-        row_num += 1
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, row[col_num])    
-
-    wb.close()
-
-    return output
+        writer.save()

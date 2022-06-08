@@ -68,7 +68,11 @@
                   <td scope="row" class="rowCounter"></td>
                   <td>{{job.code}} </td>
                   <td>{{job.client}}</td>
-                  <td>{{job.value}}</td>
+                  {%if job.value%} 
+                    <td>{{job.value}}</td>
+                  {%else%}
+                    <td>0</td>
+                  {%endif%}
                   <td>{{job.status}}</td>
               </tr>
               {%endfor%}

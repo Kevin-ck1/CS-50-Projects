@@ -95,6 +95,6 @@ class Supply(models.Model):
     job = models.ForeignKey(Job, related_name="jobItem",on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.id}" 
+        return f"{self.id}: {self.job}" 
 
        

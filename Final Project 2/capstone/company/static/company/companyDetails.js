@@ -201,9 +201,8 @@ class UI{
             if(parseInt(categoryValue)){
                 categoryColumn.innerHTML = categories[categoryValue - 1];
             };
-        })
-        
-    }
+        }) 
+    };
 
     //Open Supplier Form
     static editSupplier(){

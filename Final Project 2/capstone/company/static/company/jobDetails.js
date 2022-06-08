@@ -22,6 +22,9 @@ class Supply{
     }
 }
 
+//Global Variables
+const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+
 //Function for getting crsf token
 function getCookie(name) {
     let cookieValue = null;
@@ -60,6 +63,19 @@ if (perfEntries[0].type === "back_forward") {
 //Display class
 
 class UI {
+    //Display of the category field
+    static displayCategory(){
+        const productTable = document.querySelector('#suppliesTable');
+        const rows = productTable.querySelectorAll('tr');
+        for(let i = 0; i<rows.length-1; i++){
+            const categoryColumn = rows[i].querySelector('#category');
+            const categoryValue = categoryColumn.innerText;
+            if(parseInt(categoryValue)){
+                categoryColumn.innerHTML = categories[categoryValue - 1];
+            };   
+        } 
+    };
+
     //Add Product Input Row - Using Button
     static addInputRow(){
         document.querySelector('#hiddenRow').style.display = "";
@@ -97,7 +113,7 @@ class UI {
 
         //Collecting products that already listed in the job
         //First obtaining the product rows
-        var rows = document.querySelector('#productTable').rows;
+        var rows = document.querySelector('#suppliesTable').rows;
         //Creating an empty array so as to push the existing product ids into it
         const currentProducts = []
         //Adding the ids by iterating
@@ -105,7 +121,7 @@ class UI {
             var productId = parseInt(rows[i].id)
             currentProducts.push(productId)
         };
-
+        
         //Removing the current products from the all products list
         let displayProducts = []
         products.forEach((product)=>{
@@ -114,6 +130,7 @@ class UI {
             }
             
         });
+
         document.querySelectorAll('#searchList').forEach((list)=>{
             displayProducts.forEach((product)=>{
                 let li = document.createElement("li")
@@ -155,7 +172,7 @@ class UI {
             list.innerHTML = '';
         })
 
-        const productTable = document.querySelector('#productTable')
+        const suppliesTable = document.querySelector('#suppliesTable')
         const newRow = document.createElement('tr')
         //Getting the price of the selected product
         let prices = JSON.parse(localStorage.getItem("prices"));
@@ -177,7 +194,7 @@ class UI {
         newRow.innerHTML = `
             <th scope="row" class="rowCounter text-center"></th>
             <td id="name" class="text-center" >${product.nameP} : ${product.brand} </td>
-            <td id="category" class="text-center">${product.category}</td>
+            <td id="category" class="text-center">${categories[(product.category)-1]}</td>
             <td id="qty" class="text-center">${qty}</td>
             <td id="price" class="text-center">${price}</td>
             <td id="total" class="text-center">${total}</td>
@@ -193,7 +210,7 @@ class UI {
 
         newRow.setAttribute("id", product.id)
         //Placing the new row into the table
-        productTable.insertBefore(newRow, productTable.firstElementChild);
+        suppliesTable.insertBefore(newRow, suppliesTable.lastElementChild);
 
         //Hide the input row field
         document.querySelector('#hiddenRow').style.display = "none";
@@ -205,14 +222,16 @@ class UI {
         UI.searchList();
 
         //Store the Product
-        Store.storeProducts(supply);
+        Store.storeSupply(supply);
 
         if (list.parentElement.localName == "td"){
             newRow.querySelector('#editButton').querySelector('i').click()
         }else{
             console.log("Search Bar Clicked")
-        }
+        };
 
+        //Update the Total Value after a save
+        UI.calculateValue();
     };
 
 
@@ -223,6 +242,7 @@ class UI {
             input.value = '';
         });
     };
+
 
     static productEdits(e){
         let clicked = e.target;
@@ -235,6 +255,8 @@ class UI {
         //Setting the buttons as variables
         const editButton = row.querySelector('#editButton');
         const deleteButton = row.querySelector('#deleteButton');
+        const saveEdit = row.querySelector('#saveEdit');
+        const cancelEdit = row.querySelector('#cancelEdit');
 
         //console.log(row.cells[2])
         //Obtaining array of the products
@@ -242,15 +264,23 @@ class UI {
         //To get the product id of the row to edit
         let productId = row.id;
         //To get the product in the row to edit
-        let product = products.find( x => x.id == productId)
-        console.log(product)
+        let product = products.find( x => x.id == productId);
+
+        //console.log(product)
+        console.log(clickedButton.id)
         switch(clickedButton.id){
             case "editButton":
+                //Getting the original values for the prices
+                let qty = parseInt(qtyCell.innerText);
+                let price = parseInt(priceCell.innerText);
+                localStorage.setItem("oValues", JSON.stringify({"qty": qty, "price":price}))
+                console.log(JSON.stringify({"qty": qty, "price":price}))
+
                 //Placing the qty cell  into edit mode
                 qtyCell.innerHTML = `<input type="text" class="qty form-control" value="${qtyCell.innerText}">`;
 
                 //Placing the priceCell under edit
-                priceCell.innerHTML = `<input type="text" class="qty form-control" value="${priceCell.innerText}">`;
+                priceCell.innerHTML = `<input type="text" class="price form-control" value="${priceCell.innerText}">`;
 
                 //Changing the action buttons
                 editButton.innerHTML =` <i class="fa fa-check"></i>`
@@ -261,18 +291,127 @@ class UI {
                 //Disable buttons
                 UI.disableButtons();
 
+                //Calculating Total
+                qtyCell.querySelector('.qty').addEventListener('keyup', ()=>{
+                    UI.calculateTotal(qtyCell, priceCell, totalCell);
+                });
+
+                priceCell.querySelector('.price').addEventListener('keyup', ()=>{
+                    UI.calculateTotal(qtyCell, priceCell, totalCell);
+                });
+                
+
             break;
 
             case "saveEdit":
-                //Getting the vaalues from the input fields
+                let editValues = this.calculateTotal(qtyCell, priceCell, totalCell)
+                console.log(editValues)
+                qtyCell.innerHTML = editValues.qty;
+                priceCell.innerHTML = editValues.price;
+                totalCell.innerText = editValues.total;
+
+                //Changing the action buttons
+                saveEdit.innerHTML =` <i class="far fa-edit"></i>`
+                saveEdit.setAttribute('id', "editButton");
+                cancelEdit.innerHTML =`<i class="far fa-trash-alt"></i>`
+                cancelEdit.setAttribute('id', "deleteButton");
+                
+                //Enable buttons
+                UI.enableButtons();
+
+                //Update the product in the data base
+                Store.saveEdits(editValues);
+
+                //Update the Total Value after a save
+                UI.calculateValue();
 
             break;
 
-            case "saveProduct":
-                console.log("Save Button Not Working Yet")
+            case "cancelEdit":
+                let oQty = JSON.parse(localStorage.getItem("oValues")).qty;
+                let oPrice = JSON.parse(localStorage.getItem("oValues")).price;
+
+                //Removing the cells from edit mode
+                qtyCell.innerHTML = oQty;
+                priceCell.innerHTML = oPrice;
+                totalCell.innerHTML = oQty*oPrice
+
+                //Changing the action buttons
+                saveEdit.innerHTML =` <i class="far fa-edit"></i>`
+                saveEdit.setAttribute('id', "editButton");
+                cancelEdit.innerHTML =`<i class="far fa-trash-alt"></i>`
+                cancelEdit.setAttribute('id', "deleteButton");
+                
+                //Enable buttons
+                UI.enableButtons();
+            break;
+
+            case "deleteButton":
+                //Remove the product from the display
+                row.remove();
+
+                //Remove the product from the database
+                Store.deleteSupply(productId);
+
+                //Clear the searchlist
+                document.querySelectorAll('#searchList').forEach((list)=>{
+                    list.innerHTML = '';
+                });
+
+                //Refresh the search list
+                UI.searchList();
+
+                //Update the Total Value after a delete
+                UI.calculateValue();
+
+            break;
+
+            case "cancelButton":
+                document.querySelector('#hiddenRow').style.display = "none";
+                UI.enableButtons();
+
+                //Clear the searchlist
+                document.querySelectorAll('#searchList').forEach((list)=>{
+                    list.innerHTML = '';
+                });
+
+                //Refresh the search list
+                UI.searchList();
+
+                //Clear the filter
+                UI.clearFilter();
             break;
         }
-    }
+    };
+
+    static calculateTotal(qtyCell, priceCell, totalCell){
+        console.log("calculating value test")
+        //Getting the values from the input fields
+        let qty = parseInt(qtyCell.querySelector('.qty').value) || 0;
+        let price = parseInt(priceCell.querySelector('.price').value)|| 1;
+        let total = qty*price;
+        let id = parseInt(qtyCell.parentElement.id);
+        totalCell.innerText = total
+        return {qty, price, total, id}
+    };
+
+    static test(){
+        console.log("This is a test")
+    };
+
+    static calculateValue(){
+        //Get value cell
+        let valueCell = document.querySelector(".jValue");
+        let currentValue = parseInt(valueCell.innerText);
+        //Obtain all the values in the total and placing them in an array
+        let value= 0;
+        let rows = document.querySelector('#suppliesTable').querySelectorAll('tr')
+        for(let i=0; i<rows.length-1; i++){
+            value += parseInt(rows[i].cells[5].innerText);
+        };
+
+        valueCell.innerText = value;
+    };
 };
 
 //Store Class
@@ -316,7 +455,23 @@ class Store{
         })
     };
 
-    static storeProducts(supply){
+    //To update the status of a job
+    static updateStatus(status){
+        const request = requestPath(``)
+        fetch(request,{
+            method: "PUT",
+            body: JSON.stringify({
+                status: status
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+    };
+
+    //To store a supply to the database
+    static storeSupply(supply){
         const request = requestPath(`/company/supplies/${supply.product}`)
         console.log(request)
         fetch(request, {
@@ -328,8 +483,44 @@ class Store{
         })
         .then(response => response.json())
         .then((res)=>{
+            console.log(res.message)
+            console.log(res.jobValue)
         })
-    }
+    };
+
+    //To edit a supply
+    static saveEdits(edit){
+        const request = requestPath(`/company/supplies/${edit.id}`)
+        console.log(request)
+        fetch(request, {
+            method: "PUT",
+            mode:"same-origin",
+            body: JSON.stringify({
+                editedSupply: edit
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+            console.log(res.jobValue)
+        })
+    };
+
+    //Deleting a supply item
+    static deleteSupply(id){
+        const request = requestPath(`/company/supplies/${id}`)
+        fetch(request,{
+            method: "DELETE",
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+            console.log(res.jobValue)
+        })
+    };
+
+
+
 };
 
 //On Load
@@ -338,6 +529,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
     Store.fetchItems();
     //Clear the filter field
     UI.clearFilter();
+
+    //Change the category display format
+    UI.displayCategory();
+
 });
 
 //Event: Add Product Row -- Method no longer in use
@@ -345,7 +540,7 @@ document.querySelector('#addProduct').addEventListener('click', ()=>{
     UI.addInputRow();
 });
 
-//Event: Product search throw the filter Field
+//Event: Product search through the filter Field
 document.querySelectorAll('.filterInput').forEach((input)=>{
     input.addEventListener('keyup', ()=>{
         UI.filterProducts(input);
@@ -358,10 +553,20 @@ document.querySelector('#deleteJob').addEventListener('click', ()=>{
 });
 
 //Event: Edit/Cancel/Delete Product
-document.querySelector('#productTable').addEventListener('click', (e)=>{
+document.querySelector('#suppliesTable').addEventListener('click', (e)=>{
     if(e.target.parentElement){
         if(e.target.parentElement.cellIndex !== 1){
             UI.productEdits(e);
         };
     };
 });
+
+
+//Event: Change Status
+document.querySelector('#status').querySelectorAll('option').forEach((option)=>{
+    option.addEventListener('click', ()=>{
+        console.log(option.value)
+        Store.updateStatus(option.value)
+    })
+});
+
