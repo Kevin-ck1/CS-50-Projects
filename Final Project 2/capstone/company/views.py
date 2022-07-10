@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from . import templates, static
+from . import templates, static, util
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, FileResponse
+from django.shortcuts import redirect
 from .models import Product, Supplier, Personnel, Company, Price, Client, Job, Supply
 import json
 from django.db.models import Avg, Max, Min, Sum
@@ -11,6 +12,13 @@ from django.db.models.functions import Cast
 import pandas as pd
 import csv, io, xlsxwriter, xlwt, math
 from reportlab.pdfgen import canvas
+from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from capstone.settings import EMAIL_HOST_USER
+from django.contrib import messages
+from datetime import date, datetime
+from wkhtmltopdf.views import PDFTemplateResponse 
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
@@ -294,7 +302,7 @@ def personnel(request):
         p = Personnel(nameC = name, contact=phone, email = email, company = company)
         p.save()
 
-        response_data ={
+        response_data = {
             "message": "Personnel Successfully Added",
             "id": p.id
         }
@@ -432,11 +440,17 @@ def jobDetail(request, id):
         job.save()
         return JsonResponse({"message": "Status Updated"}, status = 201)
 
+    # if "message" not in request.session:
+    #     request.session['message'] = ''
+    # message = request.session['message']
+
     context = {
         "job": job, 
         "status": status,
         "supplies": supplies,
+        #"message": message
     }
+
 
     return render(request, "company/jobDetails.html", context)
 
@@ -521,6 +535,26 @@ def getItems(request, type, id):
     job = Job.objects.get(pk=id)
     products = Product.objects.all()
     supplies = job.jobItem.all()
+
+    #Variables to render to the html page
+    context = {
+        "job": job, 
+        "status": status,
+        "supplies": supplies,
+    }
+
+    #Joining the subqueries
+    subquery1 = products.filter(id=OuterRef('product_id'))
+    subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
+    combined = supplies.annotate(
+        category = Cast(Subquery(subquery1.values('category')[:1]), output_field=IntegerField()),
+        nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
+        brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
+        buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=IntegerField()),
+        supplier = Cast(Subquery(subquery2.values('supplier')[:1]), output_field=IntegerField()),
+        bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
+    )
+
     if type == "print_rfq_csv":
        # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type='text/csv')
@@ -535,155 +569,79 @@ def getItems(request, type, id):
             total_selling += s.total
         writer.writerow(["","","","","Grand Total", total_buying, total_selling, "Difference",(total_selling-total_buying)])
         return response 
-    elif type == "print_rfq_excel1":
-        #Join Code
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=FloatField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=CharField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
-        print(list(combined.values()))
 
+    elif type == "check_analysis":
         response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename = supplies.xls'
-        wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet('Supplies')
-        
-        # Sheet header, first row
-        row_num = 0
-        #Setting the fonts for Headings
-        font_style = xlwt.XFStyle()
-        font_style.font.bold = True
-        #Naming the Column Heads for products
-        columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
+        response['Content-Disposition'] = f'attachment; filename = {job.code}.xlsx'
 
-        for col_num in range(len(columns)):
-            ws.write(row_num, col_num, columns[col_num], font_style)
-            #ws.set_column(col_num, col_num, len(columns[col_num]))
-            
-
-        # Sheet body, remaining rows
-        font_style = xlwt.XFStyle() #Removing the bold from the font
-
+        columns_heads = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
         rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
-        print(rows)
-        for row in rows:
-            row_num += 1
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num], font_style)  
 
-
-        wb.save(response)
-        return response
-
-    elif type == "print_rfq_excel":
-        #Join Code
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=IntegerField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=IntegerField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
-
-        print(list(combined.values()))
-
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = f'attachment; filename = {job.code}-RFQ.xlsx'
+        output = util.create_xlsx(combined, columns_heads, rows)
         
-        #Creating the Spreadsheat, in memorry with io
-        output = io.BytesIO()
-        wb = xlsxwriter.Workbook(output)
-        ws = wb.add_worksheet()
-
-
-        # Sheet header, first row
-        row_num = 0
-
-        # Add a bold format to use to highlight cells.
-        bold = wb.add_format({'bold': True})
-
-        #Naming the Column Heads for products
-        columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
-
-        for col_num in range(len(columns)):
-            ws.write(row_num, col_num, columns[col_num], bold)
-            ws.set_column(col_num, col_num,12)
-
-        rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
-        
-        for row in rows:
-            row_num += 1
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num])    
-
-        wb.close()
         response.write(output.getvalue())
 
         return response
 
     elif type == "invoice_request":
-        subquery1 = products.filter(id=OuterRef('product_id'))
-        subquery2 = Price.objects.all().filter(id=OuterRef('minBuying_id'))
-        combined = supplies.annotate(
-            category = Cast(Subquery(subquery1.values('category')[:1]), output_field=IntegerField()),
-            nameP = Cast(Subquery(subquery1.values('nameP')[:1]), output_field=CharField()),
-            brand = Cast(Subquery(subquery1.values('brand')[:1]), output_field=CharField()),
-            buying = Cast(Subquery(subquery2.values('price')[:1]), output_field=IntegerField()),
-            supplier = Cast(Subquery(subquery2.values('supplier')[:1]), output_field=IntegerField()),
-            bt = (Cast('qty',output_field=IntegerField()) * Cast('buying',output_field=IntegerField())),
-        )
-
-        print(list(combined.values()))
-
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = f'attachment; filename = Invoice_request.xlsx'
-
+        
         suppliers_list = combined.values_list('supplier', flat=True).distinct() #This gives a value to get an object remove flat=True
-        #suppliers_list = combined.values_list('supplier').distinct()
+        
         print(suppliers_list)
         for i in suppliers_list:
             print(i)
+            supplier = Supplier.objects.filter(id=i)
             items = combined.filter(supplier = (i))  
-            output = create_xlsx(items)
-            
-            response.write(output.getvalue())
+            columns_heads = ["Product","brand","qty", "Total","Price"]
+            rows = combined.values_list('nameP', 'brand', 'qty')
 
-            return response
+            output = util.create_xlsx(items, columns_heads, rows)
 
-def create_xlsx(combined):
-    #Creating the Spreadsheat, in memorry with io
-    output = io.BytesIO()
-    wb = xlsxwriter.Workbook(output)
-    ws = wb.add_worksheet()
+            #Sending mail
+            subject, from_email, to = 'Django Test', EMAIL_HOST_USER, supplier.values_list('email', flat=True)[0]
+            text_content = 'Could you kindly furnish us with an invoice of the attached items.'
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach('supplies.xlsx',output.getvalue(), 'application/vnd.ms-excel')
+            msg.send()
 
+        messages.success(request, 'Email Sent.')
+        #request.session['message'] = "Invoice Request Sent"
 
-    # Sheet header, first row
-    row_num = 0
+        #return render (request, "company/jobDetails.html", context)
+        #return HttpResponseRedirect(reverse("company:jobDetail", args=(id,)))
+        #return HttpResponseRedirect(reverse("company:jobDetail", kwargs={'id':id}))
+        return redirect(reverse("company:jobDetail", kwargs={'id':id}))
 
-    # Add a bold format to use to highlight cells.
-    bold = wb.add_format({'bold': True})
+    elif type == "print_rfq_pdf":
+        template_path = "company/print.html"
+        x = datetime.now()
+        context["date"] = x.strftime(" %d/%m/%Y %H:%M:%S ")
+        # template = get_template(template_path)
+        # html = template.render(context)
 
-    #Naming the Column Heads for products
-    columns = ["Product","brand","qty", "Buying","Selling", "Buying total", "Selling Total"]
+        # result = io.BytesIO()
+        # #Creating the pdf
+        # output = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result, encoding='UTF-8')
 
-    for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], bold)
-        ws.set_column(col_num, col_num,12)
+        # if not output.err:
+        #     pdf = HttpResponse(result.getvalue(), content_type='application/pdf')
+        #     #pdf['Content-Disposition'] = f'attachent; filename = "{job.code}.pdf"'
+        #     return pdf  
+        # return None   
+        # 
+        # cmd = [
+        #   settings.WKHTMLTOPDF_CMD,
+        #   '--page-size', 'A4', '--encoding', 'utf-8',
+        #   '--footer-center', '[page] / [topage]',
+        #   '--enable-local-file-access']       
 
-    rows = combined.values_list('nameP', 'brand', 'qty', 'buying', 'price', 'bt', 'total')
-        
-    for row in rows:
-        row_num += 1
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, row[col_num])    
+        response = PDFTemplateResponse (
+            request=request,
+            template=template_path,
+            filename ="Test.pdf",
+            context=context,
+            show_content_in_browser=False,
+            cmd_options={'margin-top': 50,}
+        )
 
-    wb.close()
-
-    return output
+        return response

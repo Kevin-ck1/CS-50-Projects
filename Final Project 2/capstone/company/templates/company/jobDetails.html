@@ -50,13 +50,36 @@
                     </div>
                 </h2>
             </div> 
-            <div class="col-md-2 row">
+            <div class="col-md-2 row" id="print">
                 <a href="{% url 'company:getItems' 'print_rfq_csv' job.id %}">Print RFQ(CSV)</a>
-                <a href="{% url 'company:getItems' 'print_rfq_excel' job.id %}">Print RFQ(xslx)</a>
+                <a href="{% url 'company:getItems' 'check_analysis' job.id %}">Check Analysis(Excel)</a>
+                <a href="{% url 'company:getItems' 'print_rfq_pdf' job.id %}">Print RFQ(pdf)</a>
                 <a href="{% url 'company:getItems' 'invoice_request' job.id %}">Request Invoice</a>
-                
             </div>
         </div>
+
+        <!-- To display messages from backend -->
+
+        <!-- {% if messages %}
+            {% for message in messages %}
+            <div class="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %} -->
+
+        <!-- Displaying the messages in bootstrap -->
+            <!-- {% if messages %}
+                {% for message in messages %}
+                    <div class="container-fluid p-0">
+                    <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="True">&times;</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                    </div>
+                {% endfor %}
+            {% endif %} -->
+
     </div>
 
     <div class="card mt-3" id="productsSection">
@@ -132,10 +155,19 @@
         </div>
 
     </div>
-    
+
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+                alert('{{ message }}');
+            </script>
+        {% endfor %}
+    {% endif %}
+
 {%endblock%}
 
 {% load static %}
+
 {% block scripttag%}
 <script src="{% static 'company/jobDetails.js' %}"></script>
 {%endblock%}

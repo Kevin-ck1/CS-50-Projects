@@ -15,5 +15,12 @@ We will have to install pandas first
 To print excel
 `pip install xlsxwriter`
 
-To print pdf
+To print pdf -- DB to pdf
 `python -m pip install reportlab`
+
+To print pdf -- html to pdf
+`pip install --pre xhtml2pdf `
+
+To print pdf -- html to pdf
+`pip install django-wkhtmltopdf`
+

@@ -10,6 +10,7 @@ from django.db.models import Subquery, OuterRef, FloatField, CharField
 from django.db.models.functions import Cast
 import pandas as pd
 import csv, io, xlsxwriter, xlwt
+from capstone.settings import EMAIL_HOST_USER
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
