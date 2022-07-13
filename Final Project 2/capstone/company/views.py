@@ -19,6 +19,12 @@ from capstone.settings import EMAIL_HOST_USER
 from django.contrib import messages
 from datetime import date, datetime
 from wkhtmltopdf.views import PDFTemplateResponse 
+import os
+
+#os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
+from weasyprint import HTML, CSS
+from django.template.loader import get_template, render_to_string
+from django.core.files.storage import FileSystemStorage
 
 #Common variables
 categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
@@ -613,7 +619,7 @@ def getItems(request, type, id):
         return redirect(reverse("company:jobDetail", kwargs={'id':id}))
 
     elif type == "print_rfq_pdf":
-        template_path = "company/print.html"
+        template_path = "company/jobDetails.html"
         x = datetime.now()
         context["date"] = x.strftime(" %d/%m/%Y %H:%M:%S ")
         # template = get_template(template_path)
@@ -635,13 +641,23 @@ def getItems(request, type, id):
         #   '--footer-center', '[page] / [topage]',
         #   '--enable-local-file-access']       
 
-        response = PDFTemplateResponse (
-            request=request,
-            template=template_path,
-            filename ="Test.pdf",
-            context=context,
-            show_content_in_browser=False,
-            cmd_options={'margin-top': 50,}
-        )
+        # response = PDFTemplateResponse (
+        #     request=request,
+        #     template=template_path,
+        #     filename ="Test.pdf",
+        #     context=context,
+        #     show_content_in_browser=False,
+        #     cmd_options={'margin-top': 50,}
+        # )
 
+        html_template = get_template(template_path)
+        html_string = render_to_string(template_path, context)
+        pdf_file = HTML(string=html_string).write_pdf() 
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="RFQ.pdf"'
         return response
+
+        #Saving to a virtual file
+        # result = io.BytesIO()
+        # pdf_file = HTML(string=html_string).write_pdf(result)
+        # # result.seek()

@@ -29,7 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
     #  }
 
 # To work with pdf
-WKHTMLTOPDF_CMD = r'C:\Users\Kevin\AppData\Local\Programs\Python\Python39\Lib\site-packages\wkhtmltopdf'
+#WKHTMLTOPDF_CMD = r'C:\Users\Kevin\AppData\Local\Programs\Python\Python39\Lib\site-packages\wkhtmltopdf'
+WKHTMLTOPDF_CMD = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 WKHTMLTOPDF_CMD_OPTIONS = {
     'quiet': True,
 }
