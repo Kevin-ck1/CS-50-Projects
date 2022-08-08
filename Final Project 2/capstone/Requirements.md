@@ -26,3 +26,7 @@ To print pdf -- html to pdf
 To print pdf -- html to pdf
 `pip install django-wkhtmltopdf`
 
+For Merging pdf files
+
+```pip install PyPDF2```
+

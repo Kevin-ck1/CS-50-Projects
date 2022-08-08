@@ -80,9 +80,18 @@ class Job(models.Model):
     #product = models.ManyToManyField(Product, blank=True, related_name="jobProducts")
     value = models.IntegerField(null=True)
     status = models.CharField(max_length=64, default = "RFQ")
+    LPONo = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
         return f"{self.code}"
+
+class Notes(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    job = models.ForeignKey(Job, related_name="linkedJob", blank=True, on_delete=models.CASCADE)
+    deliveryNo = models.CharField(max_length=64, blank=True)
+    invoiceNo = models.CharField(max_length=64, blank=True)
+    receiptNo = models.CharField(max_length=64, blank=True) 
+    
     
 class Supply(models.Model):
     id = models.BigAutoField(primary_key=True)

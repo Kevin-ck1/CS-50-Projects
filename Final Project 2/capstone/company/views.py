@@ -13,11 +13,9 @@ import pandas as pd
 import csv, io, xlsxwriter, xlwt, math
 from reportlab.pdfgen import canvas
 from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
-from django.template.loader import get_template
 from xhtml2pdf import pisa
 from capstone.settings import EMAIL_HOST_USER
 from django.contrib import messages
-from datetime import date, datetime
 from wkhtmltopdf.views import PDFTemplateResponse 
 import os
 
@@ -619,9 +617,11 @@ def getItems(request, type, id):
         return redirect(reverse("company:jobDetail", kwargs={'id':id}))
 
     elif type == "print_rfq_pdf":
-        template_path = "company/jobDetails.html"
-        x = datetime.now()
-        context["date"] = x.strftime(" %d/%m/%Y %H:%M:%S ")
+
+        a = [{"title":"RFQ", "body":"Quotation for RFQ"}]
+        response = util.create_pdf(context, a)
+        return response
+        
         # template = get_template(template_path)
         # html = template.render(context)
 
@@ -650,14 +650,48 @@ def getItems(request, type, id):
         #     cmd_options={'margin-top': 50,}
         # )
 
-        html_template = get_template(template_path)
-        html_string = render_to_string(template_path, context)
-        pdf_file = HTML(string=html_string).write_pdf() 
-        response = HttpResponse(pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = 'filename="RFQ.pdf"'
-        return response
+        # html_template = get_template(template_path)
+        # html_string = render_to_string(template_path, context)
+        # pdf_file = HTML(string=html_string).write_pdf(
+        #     stylesheets = [CSS("company/static/company/styles.css"),
+        #         CSS("company/static/company/styles_print.css")
+        #     ]
+        # ) 
+        # response = HttpResponse(pdf_file, content_type='application/pdf')
+        # response['Content-Disposition'] = f'attachent; filename = "{job.code}.pdf"'
+        # return response
 
         #Saving to a virtual file
         # result = io.BytesIO()
         # pdf_file = HTML(string=html_string).write_pdf(result)
         # # result.seek()
+
+        # from puppeteer_pdf import render_pdf_from_template
+
+        # pdf = render_pdf_from_template(
+        #     input_template= template_path,
+        #     header_template='',
+        #     footer_template='',
+        #     context=context,
+        #     cmd_options={
+        #         'format': 'A4',
+        #         'scale': '1',
+        #         'marginTop': '0',
+        #         'marginLeft': '0',
+        #         'marginRight': '0',
+        #         'marginBottom': '0',
+        #         'printBackground': True,
+        #         'preferCSSPageSize': True,
+        #         #'output': output_temp_file,
+        #         'pageRanges': 1
+        #     }
+        # )
+
+        # response = HttpResponse(pdf, content_type='application/pdf')
+        # response['Content-Disposition'] = f'attachent; filename = "{job.code}.pdf"'
+        # return response
+
+    elif type == "print_DI":
+        a = [{"title":"Invoice", "body":"Invoice"}, {"title":"Delivery", "body":"Delivery Note"}]
+        response = util.create_pdf(context, a)
+        return response

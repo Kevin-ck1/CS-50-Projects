@@ -412,6 +412,28 @@ class UI {
 
         valueCell.innerText = value;
     };
+
+    static updateStatus(status){
+        
+        const links = document.querySelector('.status_type').querySelectorAll('a')
+        links.forEach((link)=>{
+            if (link.className == status){
+                link.style.display = "";
+            }else{
+                link.style.display = "none";
+            }
+        })
+        const elem = document.querySelector('table').querySelectorAll('.status_hide')
+        console.log(elem)
+        elem.forEach((e)=>{
+            if(status == "Supplied" || status == "Paid"){
+                e.style.display = "none"
+                console.log("Iteration not working")
+            } else{
+                e.style.display = ""
+            }
+        })
+    }
 };
 
 //Store Class
@@ -533,6 +555,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
     //Change the category display format
     UI.displayCategory();
 
+    //Update links
+    UI.updateStatus(document.querySelector('#status').value);
+
 });
 
 //Event: Add Product Row -- Method no longer in use
@@ -566,6 +591,7 @@ document.querySelector('#suppliesTable').addEventListener('click', (e)=>{
 document.querySelector('#status').querySelectorAll('option').forEach((option)=>{
     option.addEventListener('click', ()=>{
         console.log(option.value)
+        UI.updateStatus(option.value)
         Store.updateStatus(option.value)
     })
 });

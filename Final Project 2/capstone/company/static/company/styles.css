@@ -1,12 +1,7 @@
 @media print {
-    #print {
-        display: none;
-    }
-
-    body{
-        background-color: #17a2b8;
-    }
+    
 }
+
 .buttonClose {
     color: red;
 }
