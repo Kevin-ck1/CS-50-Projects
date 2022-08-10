@@ -21,10 +21,6 @@ tr:nth-child(even) {
     justify-content: space-between;
 }
 
-.company_details{
-    /* width: 5%; */
-}
-
 .card {
     display: flex;
     flex-direction: column;

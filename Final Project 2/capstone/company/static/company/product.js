@@ -101,15 +101,18 @@ class UI {
     }
 
     static clearForm(){
-        document.querySelector('#nameP').value = '';
-        document.querySelector('#brand').value = '';
-        document.querySelector('#category').value = '';
-        document.querySelector('#price').value = '';
-        document.querySelector('#size').value = '';
-        document.querySelector('#weight').value = '';
-        document.querySelector('#supplier').value = '';
-        document.querySelector('#description').value = '';
-        document.querySelector('.filterInput').value = '';
+        document.querySelector('#productForm').reset();
+        //Before submiting check if the above code works, if not uncomment the below code
+        
+        // document.querySelector('#nameP').value = '';
+        // document.querySelector('#brand').value = '';
+        // document.querySelector('#category').value = '';
+        // document.querySelector('#price').value = '';
+        // document.querySelector('#size').value = '';
+        // document.querySelector('#weight').value = '';
+        // document.querySelector('#supplier').value = '';
+        // document.querySelector('#description').value = '';
+        // document.querySelector('.filterInput').value = '';
     };
 
     //To redirect to the product details
@@ -312,7 +315,6 @@ document.querySelector('#brand').addEventListener('keyup',()=>{
 document.querySelector('#nameP').addEventListener('keyup', ()=>{
     UI.productCheck();
 });
-
 
 
 

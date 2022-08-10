@@ -280,7 +280,13 @@ class UI {
                 qtyCell.innerHTML = `<input type="text" class="qty form-control" value="${qtyCell.innerText}">`;
 
                 //Placing the priceCell under edit
-                priceCell.innerHTML = `<input type="text" class="price form-control" value="${priceCell.innerText}">`;
+                var status = document.querySelector('#status').value;
+                if(status == "RFQ"){
+                    priceCell.innerHTML = `<input type="text" class="price form-control" value="${priceCell.innerText}">`;
+                } else{
+                    priceCell.innerHTML = `<input type="text" class="price form-control" value="${priceCell.innerText}" disabled>`;
+                }
+                
 
                 //Changing the action buttons
                 editButton.innerHTML =` <i class="fa fa-check"></i>`
@@ -415,24 +421,110 @@ class UI {
 
     static updateStatus(status){
         
+        //Selecting the links to change visibility in conjuction with the selected status
         const links = document.querySelector('.status_type').querySelectorAll('a')
-        links.forEach((link)=>{
-            if (link.className == status){
-                link.style.display = "";
+
+        //Selecting  the input field(Product/LPO) to change in accordance with the status
+        const elements = document.querySelector('.input_status_change').children
+        var a = Array.prototype.slice.call(links)
+        var b = Array.prototype.slice.call(elements)
+        var c = a.concat(b);
+
+        c.forEach((i)=>{
+            if (i.className.includes(status)){
+                i.style.display = "";
             }else{
-                link.style.display = "none";
+                i.style.display = "none";
             }
         })
+
+        //Changing the Action column visibility in the table depending on the selected status
         const elem = document.querySelector('table').querySelectorAll('.status_hide')
-        console.log(elem)
         elem.forEach((e)=>{
             if(status == "Supplied" || status == "Paid"){
                 e.style.display = "none"
-                console.log("Iteration not working")
             } else{
                 e.style.display = ""
             }
-        })
+        });
+
+    };
+
+    static displayLPO(LPO){
+        document.querySelector('.LPO_section').innerHTML = 
+        `
+            <div class="mt-2 mx-2"> 
+                <h5 class="text-primary"> LPO No: ${LPO} </h5>
+            </div>
+            
+            <div class="mt-2 mx-2">
+                <a class="text-danger">Click to change LPO No.</a>
+            </div>
+        `
+    };
+
+    static LPO_inputfield(e){
+        var clicked = e.target
+        if (clicked.className == "text-danger"){
+            var lpo = clicked.parentElement.previousElementSibling.firstElementChild.innerText.replace(/\D/g,'')
+            document.querySelector('.LPO_body').innerHTML =  `
+                <div class="LPO_section">
+                    <div class="mt-2 mx-2">
+                        <p class="text-info">Feed in the LPO No. Below</p> 
+                    </div>
+                    <div class="d-flex justify-content-between  m-2">
+                        <div class="col-sm-6">
+                            <form id="LPO_iput" action="">
+                                <input id="" class=" LPO_iput col-12 form-control" type="text" value = "${lpo}" required>
+                                <input type="submit" value="" hidden>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `
+        } else if (clicked.className.includes("LPO_iput")){
+            clicked.parentElement.addEventListener('submit', ()=>{
+                UI.displayLPO(clicked.value)
+                Store.saveLPO(clicked.value)
+                UI.display_download_links()
+                UI.censorLinks()
+            })
+        }
+        
+    };
+
+    static resetLPO(){
+        try{
+            var form = document.querySelector('.LPO_section').querySelector('#LPO_iput')
+            form.reset()
+        }catch{}
+    };
+
+    static censorLinks(){
+        var product_row = document.querySelector('tbody').querySelectorAll('tr')
+        var product_no = product_row.length;
+        var options = document.querySelector('#status').querySelectorAll('option')
+        if (product_no == 1){
+            options.forEach((opt)=>{
+                opt.disabled = true;
+            })
+
+        } else{
+            options.forEach((opt)=>{
+                opt.disabled = false;
+            })
+        }
+
+        if (document.querySelector('div.LPO_section div h5')){
+            UI.display_download_links()
+        }
+    };
+
+    static display_download_links(){
+        var lpo_link = document.querySelector('.status_type').querySelector('.LPO')
+        lpo_link.style.pointerEvents = "auto";
+        lpo_link.style.color = "#0d6efd";
+        lpo_link.style.textDecoration = "underline";
     }
 };
 
@@ -541,6 +633,22 @@ class Store{
         })
     };
 
+    //Save LPO to database
+    static saveLPO(LPO){
+        localStorage.setItem("lpo", LPO);
+        const request = requestPath(``)
+        fetch(request,{
+            method: "POST",
+            body: JSON.stringify({
+                LPO: LPO
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+    }
+
 
 
 };
@@ -557,6 +665,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
     //Update links
     UI.updateStatus(document.querySelector('#status').value);
+
+    //Reset the value of the LPO input field
+    UI.resetLPO()
+
+    //Grey out links/ block some options in drop down
+    UI.censorLinks()
 
 });
 
@@ -595,4 +709,9 @@ document.querySelector('#status').querySelectorAll('option').forEach((option)=>{
         Store.updateStatus(option.value)
     })
 });
+
+//Event: Open LPO input field
+document.querySelector('.LPO_body').addEventListener('click', (e)=>{
+    UI.LPO_inputfield(e)
+})
 

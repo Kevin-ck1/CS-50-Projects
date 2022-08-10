@@ -3,7 +3,7 @@ from . import templates, static, util
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import redirect
-from .models import Product, Supplier, Personnel, Company, Price, Client, Job, Supply
+from .models import *
 import json
 from django.db.models import Avg, Max, Min, Sum
 from itertools import chain
@@ -18,6 +18,7 @@ from capstone.settings import EMAIL_HOST_USER
 from django.contrib import messages
 from wkhtmltopdf.views import PDFTemplateResponse 
 import os
+from datetime import date, datetime
 
 #os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 from weasyprint import HTML, CSS
@@ -447,6 +448,34 @@ def jobDetail(request, id):
     # if "message" not in request.session:
     #     request.session['message'] = ''
     # message = request.session['message']
+
+    elif request.method == "POST":
+        #Saving the lpo to the job
+        data = json.loads(request.body)
+        lpo = data.get("LPO")
+        print(lpo)
+        job.lpo = lpo
+        job.save()
+        print((job.lpo))
+
+        #Generating the notes 
+        notes = Notes.objects.all()
+        x = datetime.now()
+        y = x.strftime("/%m/%Y")
+        
+        if notes:
+            if not notes.get(job = job):
+                last = notes.last()
+                sub1 = last.deliveryNo[3:-2]
+                if y == sub1:
+                    sub2 = int(last.deliveryNo[-1]) + 1
+                else:
+                    sub2 = 1
+                util.create_notes(job, y, sub2)
+        else:
+            util.create_notes(job, y, 1)
+
+        return JsonResponse({"message": "LPO Saved"}, status = 201)
 
     context = {
         "job": job, 

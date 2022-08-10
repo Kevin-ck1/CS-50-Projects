@@ -57,7 +57,7 @@
                 <div class="status_type row">
                     <a class="RFQ" href="{% url 'company:getItems' 'invoice_request' job.id %}">Request Invoice</a>
                     <a class="RFQ" href="{% url 'company:getItems' 'print_rfq_pdf' job.id %}">Print RFQ(pdf)</a>
-                    <a class="LPO" href="{% url 'company:getItems' 'print_DI' job.id %}">Print Delivery & Invoice</a>
+                    <a class="LPO" href="{% url 'company:getItems' 'print_DI' job.id %}" style="pointer-events: none; color: black; text-decoration: line-through;">Print Delivery & Invoice</a>
                     <a class="Paid" href="{% url 'company:getItems' 'print_receipt' job.id %}">Print Receipt</a>
                 </div>
             </div>
@@ -91,8 +91,9 @@
         <div class="card-header d-flex justify-content-between">
             <h5>Job Products</h5>
         </div>
-        {% if job.status == "RFQ" %}
-            <div>
+        
+        <div class="input_status_change">
+            <div class="RFQ">
                 <div class="mt-2 mx-2">
                     <p class="text-info">Click Searched Item to Place the Item into the Product List</p> 
                 </div>
@@ -103,22 +104,41 @@
                     </div>
                 </div>
             </div>
-        {% elif job.status == LPO %}
-            <div>
-                <div class="mt-2 mx-2">
-                    <p class="text-info">Feed in the LPO No. Below</p> 
-                </div>
-                <div class="d-flex justify-content-between  m-2">
-                    <div class="col-sm-6">
-                        <input class="filterInput col-12 form-control" type="text" placeholder="LPO No.">
+        
+            <div class="LPO">
+                <div class="LPO_body">
+                {% if job.lpo %}
+                    <div class="LPO_section">
+                        <div class="mt-2 mx-2"> 
+                            <h5 class="text-primary"> LPO No: {{job.lpo}}</h5>
+                        </div>
+                        
+                        <div class="mt-2 mx-2">
+                            <a class="text-danger" >Click to change LPO No.</a>
+                        </div>
                     </div>
+                {%else%}
+                    <div class="LPO_section">
+                        <div class="mt-2 mx-2">
+                            <p class="text-info">Feed in the LPO No. Below</p> 
+                        </div>
+                        <div class="d-flex justify-content-between  m-2">
+                            <div class="col-sm-6">
+                                <form id="LPO_iput" action="">
+                                    <input id="" class=" LPO_iput col-12 form-control" type="text" placeholder="LPO No." required>
+                                    <input type="submit" value="" hidden>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {%endif%}
                 </div>
             </div>
-        {%else%}
-            <div class="mt-2 mx-2"> 
-                <h5 class="text-primary"> LPO No: {{job.LPONo}}</h5>
+        
+            <div class="Supplied Paid mt-2 mx-2"> 
+                <h5 class="text-primary"> LPO No: {{job.lpo}}</h5>
             </div>
-        {%endif%}
+        </div>
 
         <div class="table-responsive my-4" id="products">
             <table class="table table-striped table-bordered table-hover">
@@ -140,15 +160,17 @@
                             <td id="name" class="text-center" >{{supply.product.nameP}} : {{supply.product.brand}} </td>
                             <td id="category" class="text-center">{{supply.product.category}}</td>
                             <td id="qty" class="text-center">{{supply.qty}}</td>
-                            <td id="price" class="text-center">{{supply.price}}</td>
+                            <td id="price" class="price text-center">{{supply.price}}</td>
                             <td id="total" class="text-center">{{supply.total}}</td>
-                            <td class="d-flex justify-content-center status_hide">
-                                <button id="editButton" class="pr-1 btn btn-lg text-dark" >
-                                    <i class="far fa-edit"></i>
-                                </button>
-                                <button id="deleteButton" class="pl-0 btn btn-lg text-dark">
-                                    <i class="far fa-trash-alt"></i>
-                                </button>
+                            <td class="status_hide">
+                                <div class="d-flex justify-content-center">
+                                    <button id="editButton" class="pr-1 btn btn-lg text-dark" >
+                                        <i class="far fa-edit"></i>
+                                    </button>
+                                    <button id="deleteButton" class="pl-0 btn btn-lg text-dark">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}

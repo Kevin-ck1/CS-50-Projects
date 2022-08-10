@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, FileRe
 from weasyprint import HTML, CSS
 from django.template.loader import get_template, render_to_string
 from PyPDF2 import PdfFileMerger
+from .models import *
 
 def create_xlsx(combined, columns_heads, rows):
     #Creating the Spreadsheat, in memorry with io
@@ -68,3 +69,12 @@ def create_pdf(context, a):
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename = "Delivery:{job.code}.pdf"'
     return response
+
+def create_notes(job,y,sub):
+    n = Notes(
+            job = job, 
+            deliveryNo = f"Del{y}-{sub}",
+            invoiceNo = f"Inv{y}-{sub}", 
+            receiptNo = f"Rec{y}-{sub}"
+        ) 
+    n.save()
