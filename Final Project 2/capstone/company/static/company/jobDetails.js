@@ -114,13 +114,16 @@ class UI {
         //Collecting products that already listed in the job
         //First obtaining the product rows
         var rows = document.querySelector('#suppliesTable').rows;
+        console.log(rows)
         //Creating an empty array so as to push the existing product ids into it
         const currentProducts = []
         //Adding the ids by iterating
         for(let i=0, length = rows.length; i < length - 1; i++){
-            var productId = parseInt(rows[i].id)
+            var productId = parseInt(rows[i].className)
             currentProducts.push(productId)
         };
+
+        console.log(currentProducts)
         
         //Removing the current products from the all products list
         let displayProducts = []
@@ -232,6 +235,9 @@ class UI {
 
         //Update the Total Value after a save
         UI.calculateValue();
+
+        //Refresh link censorship
+        UI.censorLinks()
     };
 
 
@@ -424,12 +430,16 @@ class UI {
         //Selecting the links to change visibility in conjuction with the selected status
         const links = document.querySelector('.status_type').querySelectorAll('a')
 
-        //Selecting  the input field(Product/LPO) to change in accordance with the status
-        const elements = document.querySelector('.input_status_change').children
+        //Selecting  the change LPO link to change in accordance with the status
+        //const elements = document.querySelector('.input_status_change .LPO .LPO')
+        const elements = document.querySelector('.input_status_change').children;
+
+        //Joinong the two queries
         var a = Array.prototype.slice.call(links)
         var b = Array.prototype.slice.call(elements)
         var c = a.concat(b);
 
+        //Changing the visibility of the selected items
         c.forEach((i)=>{
             if (i.className.includes(status)){
                 i.style.display = "";
@@ -438,29 +448,46 @@ class UI {
             }
         })
 
-        //Changing the Action column visibility in the table depending on the selected status
-        const elem = document.querySelector('table').querySelectorAll('.status_hide')
-        elem.forEach((e)=>{
-            if(status == "Supplied" || status == "Paid"){
-                e.style.display = "none"
-            } else{
-                e.style.display = ""
-            }
-        });
+        //Disable the action column for the Supplied & Paid column
+        var l = false
+        UI.toggle_actionColumn(l)
+
+        //Displaying the LPO and Cheque where necessarry
+
 
     };
 
     static displayLPO(LPO){
-        document.querySelector('.LPO_section').innerHTML = 
-        `
+
+        
+
+        document.querySelector('.LPO_section').innerHTML = `
             <div class="mt-2 mx-2"> 
-                <h5 class="text-primary"> LPO No: ${LPO} </h5>
+                <h5 class="text-primary"> LPO No: ${LPO}</h5>
             </div>
             
-            <div class="mt-2 mx-2">
-                <a class="text-danger">Click to change LPO No.</a>
+            <div class="LPO">
+                <div class="mt-2 mx-2">
+                    <a class="text-danger" >Click to change LPO No.</a>
+                </div>
             </div>
         `
+        var a = document.createElement('div');
+        a.className = "RFQ Supplied Paid mt-2 mx-2";
+        a.innerHTML = `<h5 class="text-primary"> LPO No: ${LPO} </h5>`
+
+        var b = document.querySelector('.input_status_change')
+        b.appendChild(a)
+        //b.insertBefore(a, b.firstChild)
+        console.log(b.innerHTML)
+
+        var visibility = document.querySelectorAll('.LPO')[1]
+        const display = window.getComputedStyle(visibility).display;
+        
+        if( display == "none"){
+            
+        }
+
     };
 
     static LPO_inputfield(e){
@@ -486,14 +513,57 @@ class UI {
             clicked.parentElement.addEventListener('submit', ()=>{
                 UI.displayLPO(clicked.value)
                 Store.saveLPO(clicked.value)
-                UI.display_download_links()
                 UI.censorLinks()
             })
         }
         
     };
 
-    static resetLPO(){
+    static supply_inputfield(e){
+        var clicked = e.target
+        if (clicked.className == "text-danger"){
+            var cheque = clicked.parentElement.previousElementSibling.firstElementChild.innerText.replace(/\D/g,'')
+            document.querySelector('.Supply_body').innerHTML =  `
+                <div classs="supplied_section">
+                        <div class="mt-2 mx-2">
+                            <p class="text-info">Feed in the Cheque No. Below</p> 
+                        </div>
+                        <div class="d-flex justify-content-between  m-2">
+                            <div class="col-sm-6">
+                                <form id="s_iput" action="">
+                                    <input id="" class=" s_iput col-12 form-control" type="text" value="${cheque} required>
+                                    <input type="submit" value="" hidden>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+            `
+        } else if (clicked.className.includes("s_iput")){
+            clicked.parentElement.addEventListener('submit', ()=>{
+                //UI.displayLPO(clicked.value)
+                document.querySelector('.Supply_body').innerHTML =  `
+                    <div class="supplied_section">
+
+                            <div class="mt-2 mx-2"> 
+                                <h5 class="text-primary"> Cheque No: ${clicked.value} </h5>
+                            </div>
+                        
+                            <div class="Supplied">
+                                <div class="mt-2 mx-2">
+                                    <a class="text-danger" >Click to change Cheque No.</a>
+                                </div>
+                            </div>
+
+                        </div>
+                `
+                Store.saveCheque(clicked.value)
+                UI.censorLinks()
+            })
+        }
+        
+    };
+
+    static resetLPO_inputField(){
         try{
             var form = document.querySelector('.LPO_section').querySelector('#LPO_iput')
             form.reset()
@@ -501,30 +571,92 @@ class UI {
     };
 
     static censorLinks(){
-        var product_row = document.querySelector('tbody').querySelectorAll('tr')
+        var product_row = document.querySelectorAll('tbody tr') // Atleast one row is present
         var product_no = product_row.length;
-        var options = document.querySelector('#status').querySelectorAll('option')
-        if (product_no == 1){
+        var options = document.querySelectorAll('#status option') 
+        var links = document.querySelectorAll(".print a")
+
+        console.log(options[2])
+
+        //Disabling the option
+        options.forEach((opt)=>{
+            opt.disabled = true;
+        })
+
+        //Disabling the links
+        for(let i = 0; i < links.length; i++){
+            UI.disable_links(links[i])
+        }
+
+        if (product_no > 1){
+           //Enabling RFQ & LPO option 
+           for(let i = 0; i < options.length-2; i++){
+                //console.log(links[i])
+                options[i].disabled = false;
+            } 
+            //Enabling first 4 links 
+            for(let i = 0; i < links.length-2; i++){
+                //console.log(links[i])
+                UI.enable_links(links[i])
+            }
+        } else{
+            //Disabling the option
             options.forEach((opt)=>{
                 opt.disabled = true;
             })
 
-        } else{
-            options.forEach((opt)=>{
-                opt.disabled = false;
-            })
+            //Disabling the links
+            for(let i = 0; i < links.length; i++){
+                UI.disable_links(links[i])
+            }
         }
+
 
         if (document.querySelector('div.LPO_section div h5')){
-            UI.display_download_links()
-        }
+            for(let i = links.length-2; i < links.length; i++){
+                UI.enable_links(links[i])
+            }
+            //Enabling the supplied option
+            options[2].disabled = false;
+
+
+            //Disabling the action colum for the RFQ status
+            var l = true
+            UI.toggle_actionColumn(l)
+
+            //Diabling the Product input field and add button
+            const inputField = document.querySelector('.input_status_change .RFQ').style.display = "none";
+            const btn = document.querySelector('#addProduct').style.display = "none";
+
+        };
+
+        //Enabling the last option(Paid)
+
     };
 
-    static display_download_links(){
-        var lpo_link = document.querySelector('.status_type').querySelector('.LPO')
-        lpo_link.style.pointerEvents = "auto";
-        lpo_link.style.color = "#0d6efd";
-        lpo_link.style.textDecoration = "underline";
+    static disable_links(link){
+        link.style.pointerEvents = "none";
+        link.style.color = "black";
+        link.style.textDecoration = "line-through"; 
+    } 
+
+    static enable_links(link){
+        link.style.pointerEvents = "auto";
+        link.style.color = "#0d6efd";
+        link.style.textDecoration = "underline";
+    };
+
+    static toggle_actionColumn(l){
+         //Changing the Action column visibility in the table depending on the selected status
+         const col = document.querySelector('table').querySelectorAll('.status_hide')
+         var status = document.querySelector('#status').value
+         col.forEach((e)=>{
+             if((status == "RFQ" && l) || status == "Supplied" || status == "Paid"){
+                 e.style.display = "none"
+             } else{
+                 e.style.display = ""
+             }
+         });
     }
 };
 
@@ -637,19 +769,35 @@ class Store{
     static saveLPO(LPO){
         localStorage.setItem("lpo", LPO);
         const request = requestPath(``)
+        var data = {"type":"lpo", "value":LPO}
         fetch(request,{
             method: "POST",
             body: JSON.stringify({
-                LPO: LPO
+                data: data
             })
         })
         .then(response => response.json())
         .then((res)=>{
             console.log(res.message)
         })
-    }
+    };
 
-
+    //Save Cheque to database
+    static saveCheque(cheque){
+        localStorage.setItem("cheque", cheque);
+        const request = requestPath(``)
+        var data = {"type":"cheque", "value":cheque}
+        fetch(request,{
+            method: "POST",
+            body: JSON.stringify({
+                data: data
+            })
+        })
+        .then(response => response.json())
+        .then((res)=>{
+            console.log(res.message)
+        })
+    };
 
 };
 
@@ -667,7 +815,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     UI.updateStatus(document.querySelector('#status').value);
 
     //Reset the value of the LPO input field
-    UI.resetLPO()
+    UI.resetLPO_inputField()
 
     //Grey out links/ block some options in drop down
     UI.censorLinks()
@@ -707,11 +855,18 @@ document.querySelector('#status').querySelectorAll('option').forEach((option)=>{
         console.log(option.value)
         UI.updateStatus(option.value)
         Store.updateStatus(option.value)
+        //Refresh link censorship
+        UI.censorLinks()
     })
 });
 
 //Event: Open LPO input field
 document.querySelector('.LPO_body').addEventListener('click', (e)=>{
     UI.LPO_inputfield(e)
+})
+
+//Event: Manipulating Supply input field
+document.querySelector('.Supply_body').addEventListener('click', (e)=>{
+    UI.supply_inputfield(e)
 })
 

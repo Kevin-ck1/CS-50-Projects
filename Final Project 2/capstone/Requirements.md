@@ -1,7 +1,7 @@
 Models
 
 Polymophic relationships used hence,
-`pip insrtall django-polymorphic`
+`pip install django-polymorphic`
 
 
 Add polymorphic to installed_apps
@@ -29,4 +29,7 @@ To print pdf -- html to pdf
 For Merging pdf files
 
 ```pip install PyPDF2```
+
+To print pdf -- html to pdf 
+`pip install -U django-weasyprint`
 

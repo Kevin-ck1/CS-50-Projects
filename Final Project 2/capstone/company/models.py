@@ -81,6 +81,7 @@ class Job(models.Model):
     value = models.IntegerField(null=True)
     status = models.CharField(max_length=64, default = "RFQ")
     lpo = models.CharField(max_length=64, blank=True)
+    cheque = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
         return f"{self.code}"

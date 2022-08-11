@@ -451,12 +451,14 @@ def jobDetail(request, id):
 
     elif request.method == "POST":
         #Saving the lpo to the job
-        data = json.loads(request.body)
-        lpo = data.get("LPO")
-        print(lpo)
-        job.lpo = lpo
-        job.save()
-        print((job.lpo))
+        data = json.loads(request.body).get("data")
+        value = data["value"]
+
+        if data["type"] == "lpo":
+            job.lpo = value
+        else:
+            job.cheque = value
+        #job.save()
 
         #Generating the notes 
         notes = Notes.objects.all()
@@ -507,7 +509,6 @@ def supplies(request, id):
         job = Job.objects.get(pk = newSupply["job"] )
 
         new_supply = Supply(
-            id = newSupply["product"],
             qty = newSupply["qty"],
             price = newSupply["price"],
             minBuying = minBuying,
@@ -531,7 +532,7 @@ def supplies(request, id):
     elif request.method == "PUT":
         data = json.loads(request.body)
         editedSupply = data.get("editedSupply")
-        s = Supply.objects.get(pk=editedSupply["id"])
+        s = Supply.objects.get(id=editedSupply["id"])
         s.qty = editedSupply['qty']
         s.price = editedSupply['price']
         s.total = editedSupply['total']
@@ -546,7 +547,7 @@ def supplies(request, id):
         return JsonResponse(response_data, status=201)
 
     else:
-        s = Supply.objects.get(pk=id)
+        s = Supply.objects.get(id=id)
         s.delete()
 
         #Update the job value after delete
@@ -561,7 +562,7 @@ def supplies(request, id):
 def updateJobValue(job):
     supplies = job.jobItem.all()
     jobValue = supplies.aggregate(Sum('total'))['total__sum']
-    job.value = jobValue
+    job.value = jobValue if jobValue is not None else 0
     job.save()
 
 def getItems(request, type, id):

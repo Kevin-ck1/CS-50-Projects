@@ -3,7 +3,7 @@ from datetime import date, datetime
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, FileResponse
 from weasyprint import HTML, CSS
 from django.template.loader import get_template, render_to_string
-from PyPDF2 import PdfFileMerger
+#from PyPDF2 import PdfFileMerger
 from .models import *
 
 def create_xlsx(combined, columns_heads, rows):

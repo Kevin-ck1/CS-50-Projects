@@ -57,7 +57,7 @@
                 <div class="status_type row">
                     <a class="RFQ" href="{% url 'company:getItems' 'invoice_request' job.id %}">Request Invoice</a>
                     <a class="RFQ" href="{% url 'company:getItems' 'print_rfq_pdf' job.id %}">Print RFQ(pdf)</a>
-                    <a class="LPO" href="{% url 'company:getItems' 'print_DI' job.id %}" style="pointer-events: none; color: black; text-decoration: line-through;">Print Delivery & Invoice</a>
+                    <a class="LPO" href="{% url 'company:getItems' 'print_DI' job.id %}" >Print Delivery & Invoice</a>
                     <a class="Paid" href="{% url 'company:getItems' 'print_receipt' job.id %}">Print Receipt</a>
                 </div>
             </div>
@@ -93,6 +93,8 @@
         </div>
         
         <div class="input_status_change">
+
+            <!-- Product input field -->
             <div class="RFQ">
                 <div class="mt-2 mx-2">
                     <p class="text-info">Click Searched Item to Place the Item into the Product List</p> 
@@ -105,17 +107,23 @@
                 </div>
             </div>
         
+
+            <!-- Feedding the LPO # and displaying the LPO in the LPO status -->
             <div class="LPO">
                 <div class="LPO_body">
                 {% if job.lpo %}
                     <div class="LPO_section">
+
                         <div class="mt-2 mx-2"> 
                             <h5 class="text-primary"> LPO No: {{job.lpo}}</h5>
                         </div>
                         
-                        <div class="mt-2 mx-2">
-                            <a class="text-danger" >Click to change LPO No.</a>
+                        <div class="LPO">
+                            <div class="mt-2 mx-2">
+                                <a class="text-danger" >Click to change LPO No.</a>
+                            </div>
                         </div>
+
                     </div>
                 {%else%}
                     <div class="LPO_section">
@@ -134,10 +142,55 @@
                 {%endif%}
                 </div>
             </div>
-        
-            <div class="Supplied Paid mt-2 mx-2"> 
-                <h5 class="text-primary"> LPO No: {{job.lpo}}</h5>
+
+            <!-- Displaying the LPO and Cheque no in the respective modes -->
+            {%if job.lpo %}
+                <div class="RFQ Supplied Paid mt-2 mx-2"> 
+                    <h5 class="text-primary"> LPO No: {{job.lpo}}</h5>
+                </div>
+
+                {%if job.cheque %}
+                    <div class="RFQ LPO Paid mt-2 mx-2"> 
+                        <h5 class="text-primary"> Cheque No: {{job.cheque}}</h5>
+                    </div>
+                {%endif%}
+            {%endif%}
+
+            <!-- Feeding in the cheque No -->
+            <div class="Supplied">
+                <div class="Supply_body">
+                {% if job.cheque %}
+                    <div class="supplied_section">
+
+                        <div class="mt-2 mx-2"> 
+                            <h5 class="text-primary"> Cheque No: {{job.cheque}}</h5>
+                        </div>
+                       
+                        <div class="Supplied">
+                            <div class="mt-2 mx-2">
+                                <a class="text-danger" >Click to change Cheque No.</a>
+                            </div>
+                        </div>
+
+                    </div>
+                {%else%}
+                    <div classs="supplied_section">
+                        <div class="mt-2 mx-2">
+                            <p class="text-info">Feed in the Cheque No. Below</p> 
+                        </div>
+                        <div class="d-flex justify-content-between  m-2">
+                            <div class="col-sm-6">
+                                <form id="s_iput" action="">
+                                    <input id="" class=" s_iput col-12 form-control" type="text" placeholder="Cheque No." required>
+                                    <input type="submit" value="" hidden>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {%endif%}
+                </div>
             </div>
+
         </div>
 
         <div class="table-responsive my-4" id="products">
@@ -155,7 +208,7 @@
                 </thead>
                 <tbody id="suppliesTable">
                     {% for supply in supplies %}
-                        <tr id="{{supply.id}}">
+                        <tr id="{{supply.id}}" class="{{supply.product.id}}">
                             <th scope="row" class="rowCounter text-center"></th>
                             <td id="name" class="text-center" >{{supply.product.nameP}} : {{supply.product.brand}} </td>
                             <td id="category" class="text-center">{{supply.product.category}}</td>
