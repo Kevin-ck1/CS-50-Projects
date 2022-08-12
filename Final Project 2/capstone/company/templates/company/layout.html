@@ -42,9 +42,9 @@
                     <a class="nav-link" href="{% url 'company:jobs' %}">Jobs</a>
                   </li>
                 </ul>
-                <span class="navbar-text">
-                  Navbar text with an inline element
-                </span>
+                <div class="navbar-text">
+                  <a href="http://">Login</a>
+                </div>
               </div>
             </div>
           </nav>
@@ -53,6 +53,8 @@
       {%block body%}
       {%endblock%}
     </div>
+
+    
 
     {% block scripttag%}
     {%endblock%}

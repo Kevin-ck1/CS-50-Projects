@@ -458,9 +458,6 @@ class UI {
     };
 
     static displayLPO(LPO){
-
-        
-
         document.querySelector('.LPO_section').innerHTML = `
             <div class="mt-2 mx-2"> 
                 <h5 class="text-primary"> LPO No: ${LPO}</h5>
@@ -478,14 +475,14 @@ class UI {
 
         var b = document.querySelector('.input_status_change')
         b.appendChild(a)
-        //b.insertBefore(a, b.firstChild)
-        console.log(b.innerHTML)
 
         var visibility = document.querySelectorAll('.LPO')[1]
         const display = window.getComputedStyle(visibility).display;
-        
+
         if( display == "none"){
-            
+            a.style.display = ""
+        }else{
+            a.style.display = "none"
         }
 
     };
@@ -514,6 +511,8 @@ class UI {
                 UI.displayLPO(clicked.value)
                 Store.saveLPO(clicked.value)
                 UI.censorLinks()
+                //Reset the value of the LPO input field
+                UI.resetLPO_inputField()
             })
         }
         
@@ -557,15 +556,49 @@ class UI {
                         </div>
                 `
                 Store.saveCheque(clicked.value)
-                UI.censorLinks()
-            })
+                //UI.censorLinks()
+                UI.displayCheque(clicked.value)
+
+                //Enabling the paid option
+                var option = document.querySelectorAll('#status option')[3]
+                option.disabled = false;
+
+                //Reset the value of the cheque input field
+                UI.resetCheque_inputField()
+
+            });
+        };
+    };
+    static displayCheque(cheque){
+        var a = document.createElement('div');
+        a.className = "RFQ LPO Paid mt-2 mx-2";
+        a.innerHTML = `<h5 class="text-primary"> Cheque No: ${cheque} </h5>`
+
+        var b = document.querySelector('.input_status_change')
+        b.appendChild(a)
+
+        var visibility = document.querySelectorAll('.Supplied')[1]
+        console.log(visibility)
+        const display = window.getComputedStyle(visibility).display;
+
+        if( display == "none"){
+            a.style.display = ""
+        }else{
+            a.style.display = "none"
         }
-        
+
     };
 
     static resetLPO_inputField(){
         try{
             var form = document.querySelector('.LPO_section').querySelector('#LPO_iput')
+            form.reset()
+        }catch{}
+    };
+
+    static resetCheque_inputField(){
+        try{
+            var form = document.querySelector('.supplied_section').querySelector('#s_iput')
             form.reset()
         }catch{}
     };
@@ -627,10 +660,13 @@ class UI {
             //Diabling the Product input field and add button
             const inputField = document.querySelector('.input_status_change .RFQ').style.display = "none";
             const btn = document.querySelector('#addProduct').style.display = "none";
-
         };
 
-        //Enabling the last option(Paid)
+        if (document.querySelector('.supplied_section div h5')){
+            //Enabling the paid option
+            var option = document.querySelectorAll('#status option')[3]
+            option.disabled = false;
+        };
 
     };
 
@@ -816,6 +852,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
     //Reset the value of the LPO input field
     UI.resetLPO_inputField()
+
+    //Reset the value of the cheque input field
+    UI.resetCheque_inputField()
 
     //Grey out links/ block some options in drop down
     UI.censorLinks()

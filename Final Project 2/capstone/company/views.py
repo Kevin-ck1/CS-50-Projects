@@ -19,6 +19,7 @@ from django.contrib import messages
 from wkhtmltopdf.views import PDFTemplateResponse 
 import os
 from datetime import date, datetime
+from django.core.paginator import Paginator
 
 #os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 from weasyprint import HTML, CSS
@@ -38,10 +39,14 @@ counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana',
  'Nairobi']
 status = ["RFQ", "LPO", "Supplied", "Paid"] 
 
+
 # Create your views here.
 
 def index(request):
     return HttpResponse("Hello, World!")
+
+def login_view(request):
+    return render(request, "company/login.html")
 
 def products(request):
     products = Price.objects.all()
@@ -225,8 +230,15 @@ def fetchSuppliers(request):
 
 def suppliers(request):
     suppliers = Supplier.objects.all()
+
+    #Paginating the suppliers
+    paginator = Paginator(suppliers, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "company/suppliers.html",{
-        "suppliers" : suppliers
+        # "suppliers" : suppliers
+        "suppliers" : page_obj
     })
 
 def supplierForm(request):
@@ -343,8 +355,13 @@ def personnel(request):
 
 def clients(request):
     clients = Client.objects.all()
+    #Paginating the clients
+    paginator = Paginator(clients, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "company/clients.html",{
-        "clients": clients
+        "clients": page_obj
     })
 
 
@@ -441,8 +458,11 @@ def jobDetail(request, id):
         return JsonResponse({"message": "Job Deleted"}, status = 201)
     elif request.method == "PUT":
         data = json.loads(request.body)
-        job.status = data.get("status")
-        job.save()
+        updated_status = data.get("status")
+        current_status = job.status
+        if status.index(str(updated_status)) > status.index(str(current_status)):
+            job.status = updated_status
+            job.save()
         return JsonResponse({"message": "Status Updated"}, status = 201)
 
     # if "message" not in request.session:
@@ -450,34 +470,35 @@ def jobDetail(request, id):
     # message = request.session['message']
 
     elif request.method == "POST":
-        #Saving the lpo to the job
         data = json.loads(request.body).get("data")
         value = data["value"]
 
-        if data["type"] == "lpo":
-            job.lpo = value
-        else:
+        if data["type"] == "cheque":
             job.cheque = value
-        #job.save()
-
-        #Generating the notes 
-        notes = Notes.objects.all()
-        x = datetime.now()
-        y = x.strftime("/%m/%Y")
-        
-        if notes:
-            if not notes.get(job = job):
-                last = notes.last()
-                sub1 = last.deliveryNo[3:-2]
-                if y == sub1:
-                    sub2 = int(last.deliveryNo[-1]) + 1
-                else:
-                    sub2 = 1
-                util.create_notes(job, y, sub2)
+            job.save()
         else:
-            util.create_notes(job, y, 1)
+            job.lpo = value
+            
+            job.save()
 
-        return JsonResponse({"message": "LPO Saved"}, status = 201)
+            #Generating the notes 
+            notes = Notes.objects.all()
+            x = datetime.now()
+            y = x.strftime("/%m/%Y")
+
+            if notes:
+                if not notes.filter(job = job).exists() :
+                    last = notes.last()
+                    sub1 = last.deliveryNo[3:-2]
+                    if y == sub1:
+                        sub2 = int(last.deliveryNo[-1]) + 1
+                    else:
+                        sub2 = 1
+                    util.create_notes(job, y, sub2)
+            else:
+                util.create_notes(job, y, 1)
+
+        return JsonResponse({"message": "Data Saved"}, status = 201)
 
     context = {
         "job": job, 
@@ -485,7 +506,6 @@ def jobDetail(request, id):
         "supplies": supplies,
         #"message": message
     }
-
 
     return render(request, "company/jobDetails.html", context)
 
@@ -573,7 +593,7 @@ def getItems(request, type, id):
     #Variables to render to the html page
     context = {
         "job": job, 
-        "status": status,
+        #"status": status,
         "supplies": supplies,
     }
 

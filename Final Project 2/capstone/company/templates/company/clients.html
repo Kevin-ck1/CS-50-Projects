@@ -35,6 +35,11 @@
     </div>    
 </div>
 
+<div class="footer">
+  {%with name1=clients name2="Clients" %}
+    {% include "company/paginator.html" %}
+  {%endwith%}
+</div> 
 {%endblock%}
 
 {% load static %}

@@ -1,0 +1,37 @@
+       {% if name1 %}
+        <div class="d-flex justify-content-center">
+            <div>
+                <div class="pagination ">
+                <span class="step-links">
+                    {% if name1.has_previous %}
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page=1">First</a>
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ name1.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="current">
+                        {% for num in name1.paginator.page_range %}
+                            {% if name1.number == num %}
+                                <a class="btn btn-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
+                            {% elif num > name1.number|add:'-3' and num < name1.number|add:'3' %}
+                                <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+            
+                    {% if name1.has_next %}
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ name1.next_page_number }}">next</a>
+                        <a class="btn btn-outline-info mt-4" href="{{ request.path }}?page={{ name1.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+                </div>
+            
+                <div id="pageNo" class="d-flex justify-content-center">
+                    <span class="current">
+                        Page {{ name1.number }} of {{ name1.paginator.num_pages }}.
+                    </span>
+                </div>
+            </div>
+        </div>
+       {%else%}
+        <div><h3>No {{name2}} Available</h3></div>
+       {%endif%}

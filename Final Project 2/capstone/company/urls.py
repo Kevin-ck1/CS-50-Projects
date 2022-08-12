@@ -5,6 +5,7 @@ app_name = "company"
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path("login", views.login_view, name="login"),
     path('fetchItems', views.fetchItems, name='fetchItems'),
     path('products', views.products, name='products'),
     path('productform', views.productForm, name='productForm'),

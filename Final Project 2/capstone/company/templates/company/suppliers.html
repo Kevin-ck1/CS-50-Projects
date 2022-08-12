@@ -32,9 +32,14 @@
               {%endfor%}
           </tbody>
         </table>
-    </div>    
+    </div>  
+    
 </div>
-
+<div class="footer">
+  {%with name1=suppliers name2="Suppliers" %}
+    {% include "company/paginator.html" %}
+  {%endwith%}
+</div> 
 {%endblock%}
 
 {% load static %}

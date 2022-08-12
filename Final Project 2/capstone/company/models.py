@@ -92,7 +92,9 @@ class Notes(models.Model):
     deliveryNo = models.CharField(max_length=64, blank=True)
     invoiceNo = models.CharField(max_length=64, blank=True)
     receiptNo = models.CharField(max_length=64, blank=True) 
-    
+
+    def __str__(self):
+        return f"{self.id}: {self.job}: {self.deliveryNo}: {self.invoiceNo} "
     
 class Supply(models.Model):
     id = models.BigAutoField(primary_key=True)
