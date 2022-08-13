@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -7,6 +8,10 @@ from polymorphic.models import PolymorphicModel
 
 
 # Create your models here.
+class User(AbstractUser):
+    pass
+
+
 class Company(PolymorphicModel):
     id = models.BigAutoField(primary_key=True)
     nameC = models.CharField(max_length=64)

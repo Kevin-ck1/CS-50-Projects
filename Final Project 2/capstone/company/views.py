@@ -20,6 +20,8 @@ from wkhtmltopdf.views import PDFTemplateResponse
 import os
 from datetime import date, datetime
 from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 #os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 from weasyprint import HTML, CSS
@@ -43,10 +45,56 @@ status = ["RFQ", "LPO", "Supplied", "Paid"]
 # Create your views here.
 
 def index(request):
-    return HttpResponse("Hello, World!")
+    return render(request, "company/home.html")
 
 def login_view(request):
+    if request.method == "POST":
+        #Authonticate the reseceived information
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("company:index"))
+        else:
+            return render(request, "company/login.html", {
+                "message": "Invalid username and/or password."
+            })
+
     return render(request, "company/login.html")
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("company:login"))
+
+def register(request):
+    if request.method == "POST":
+        print(request)
+        username = request.POST["username"]
+        email = request.POST["email"]
+
+        # Ensure password matches confirmation
+        password = request.POST["password"]
+        confirmation = request.POST["confirmation"]
+        if password != confirmation:
+            return render(request, "company/register.html", {
+                "message": "Passwords Don't match."
+            })
+
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.save()
+        except IntegrityError:
+            return render(request, "company/register.html", {
+                "message": "Username already taken."
+            })
+        login(request, user)
+        return HttpResponseRedirect(reverse("company:index"))
+
+    return render(request, "company/register.html")
 
 def products(request):
     products = Price.objects.all()
@@ -264,7 +312,7 @@ def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
     personnel = supplier.personnel.all()
     zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
-    products = Price.objects.all()
+    products = Price.objects.filter(supplier=supplier)
 
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -430,10 +478,14 @@ def jobs(request):
         client = Client.objects.get(pk = j["client"] )
         newJob = Job(code = j["code"], client = client)
         newJob.save()
-
-        return JsonResponse({"message": "Job Added"}, status=201)
+        response_data = {
+            "message": "Job Added.",
+            "id": newJob.id
+        }
+        print(response_data)
+        
+        return JsonResponse(response_data, status=201)
     
-
     jobs = Job.objects.all()
     products = Price.objects.all()
     suppliers = Supplier.objects.all()
@@ -448,6 +500,7 @@ def jobs(request):
 
     return render(request, "company/jobs.html", context)
 
+@login_required(login_url="login")
 def jobDetail(request, id):
     job = Job.objects.get(pk=id)
     supplies = job.jobItem.all()

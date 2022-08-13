@@ -148,6 +148,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+AUTH_USER_MODEL = "company.User"
+
 # Email Settings - local host
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'

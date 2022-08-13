@@ -95,6 +95,7 @@ class Store_Company {
         })
         .then(response => response.json())
         .then((res)=>{
+            console.log(res)
             console.log(res.message)
             if(mode == "Supplier"){
                 window.location=`/company/suppliers/${res.id}`

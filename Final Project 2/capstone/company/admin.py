@@ -28,6 +28,9 @@ class SupplyAdmin(admin.ModelAdmin):
 
 class NotesAdmin(admin.ModelAdmin):
     list_display = ("id", "job", "deliveryNo", "invoiceNo", "receiptNo")
+
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("id", "username", "password")
     
 # Register your models here.
 
@@ -40,3 +43,4 @@ admin.site.register(Client,ClientAdmin)
 admin.site.register(Job,JobAdmin)
 admin.site.register(Supply,SupplyAdmin)
 admin.site.register(Notes,NotesAdmin)
+admin.site.register(User,UserAdmin)

@@ -174,7 +174,8 @@ class Store {
         .then(response => response.json())
         .then((res)=>{
             console.log(res.message)
-            //UI.jobDetails();
+            console.log(res.id)
+            window.location=`jobs/${res.id}`
         })
     };
 

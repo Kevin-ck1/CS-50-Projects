@@ -23,7 +23,7 @@
 
             <!-- Pills content -->
             <div class="tab-content">
-                <div class="tab-pane fade show active" id="pills-login" role="tabpanel">
+                <div class="tab-pane fade" id="pills-login" role="tabpanel">
                     <form action="{% url 'company:login' %}" method="post">
                         {% csrf_token %}
                         <p class="text-center mb-3">Sign in with:</p>
@@ -67,8 +67,8 @@
                     </form>
                 </div>
 
-                <div class="tab-pane fade" id="pills-register" role="tabpanel">
-                    <form action="{% url 'company:register' %}" method="post">
+                <div class="tab-pane fade show active" id="pills-register" role="tabpanel">
+                    <form action="{% url 'company:logout' %}" method="post">
                         {% csrf_token %}
                         <div class="text-center mb-3">
                             <p>Sign up with:</p>
@@ -122,23 +122,23 @@
     reg_links.forEach((a)=>{
         a.addEventListener('click', ()=>{
             //Displaying the Reg Div
-            b[0].classList.remove("show", "active")
-            b[1].classList.add("show", "active")
+            b[1].classList.remove("show", "active")
+            b[0].classList.add("show", "active")
 
             //Changing the Buttons
-            nav_links[0].classList.remove("active")
-            nav_links[1].classList.add("active")
+            nav_links[1].classList.remove("active")
+            nav_links[0].classList.add("active")
         })
     })
 
     //Openning the Login form from the reg form
     var login_link = document.querySelector('#tab-login').addEventListener('click', ()=>{
-            b[0].classList.add("show", "active")
-            b[1].classList.remove("show", "active")
+            b[1].classList.add("show", "active")
+            b[0].classList.remove("show", "active")
 
             //Changing the Buttons
-            nav_links[1].classList.remove("active")
-            nav_links[0].classList.add("active")
+            nav_links[0].classList.remove("active")
+            nav_links[1].classList.add("active")
     })
 </script>
 {%endblock%}
