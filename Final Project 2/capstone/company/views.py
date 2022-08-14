@@ -29,17 +29,12 @@ from django.template.loader import get_template, render_to_string
 from django.core.files.storage import FileSystemStorage
 
 #Common variables
-categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
-counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana', 
-'River', 'Lamu', 'Taita', 'Mak', 'Taveta', 'Garissa', 'Wajir', 
-'Mandera', 'Marsabit', 'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 
-'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang’a', 
-'Kiambu', 'The', 'Turkana', 'West', 'Pokot', 'Samburu', 'Trans-Nzoia', 
-'Uasin', 'Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru',
- 'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
- 'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
- 'Nairobi']
-status = ["RFQ", "LPO", "Supplied", "Paid"] 
+counties = util.get_data()["Counties"]
+categories = util.get_data()["Categories"]
+status = util.get_data()["Status"]
+zones = util.get_data()["Zones"]
+counties_dict = util.get_county()
+
 
 
 # Create your views here.
@@ -112,12 +107,16 @@ def fetchItems(request):
     suppliers = list(Supplier.objects.all().values())
     jobs = list(Job.objects.all().values())
     prices = list(Price.objects.all().values())
+    counties = json.dumps(counties_dict)
+    data = json.dumps(util.get_data())
 
     response_data = {
         "products": products,
         "suppliers": suppliers,
         "jobs": jobs,
-        "prices": prices
+        "prices": prices,
+        "counties": counties,
+        "data": data
     }
 
     return JsonResponse(response_data, status=201)
@@ -262,8 +261,9 @@ def updateSupplies(price):
                 minPrice = prices.aggregate(Min('price'))["price__min"]
                 maxPrice = prices.aggregate(Max('price'))["price__max"]
                 s.minBuying = prices.get(price = minPrice)
-                s.maxBuying = prices.get(price = maxPrice)  
-                s.price = (math.ceil(maxPrice*1.36/5))*5 
+                s.maxBuying = prices.get(price = maxPrice)
+                p_factor = util.supply_factor(product, s, job) 
+                s.price = (math.ceil(maxPrice*p_factor/5))*5 
                 s.total = s.price * s.qty
                 s.save()
                 #Updating the job value
@@ -311,7 +311,7 @@ def supplierForm(request):
 def supplierDetail(request, id):
     supplier = Supplier.objects.get(pk=id)
     personnel = supplier.personnel.all()
-    zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
+    #zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
     products = Price.objects.filter(supplier=supplier)
 
     if request.method == "PUT":
@@ -642,12 +642,14 @@ def getItems(request, type, id):
     job = Job.objects.get(pk=id)
     products = Product.objects.all()
     supplies = job.jobItem.all()
+    notes = Notes.objects.get(job=job)
 
     #Variables to render to the html page
     context = {
         "job": job, 
         #"status": status,
         "supplies": supplies,
+        "notes": notes,
     }
 
     #Joining the subqueries
@@ -796,5 +798,9 @@ def getItems(request, type, id):
 
     elif type == "print_DI":
         a = [{"title":"Invoice", "body":"Invoice"}, {"title":"Delivery", "body":"Delivery Note"}]
+        response = util.create_pdf(context, a)
+        return response
+    elif type == "print_receipt":
+        a = [{"title":"Receipt", "body":"Receipt"}]
         response = util.create_pdf(context, a)
         return response

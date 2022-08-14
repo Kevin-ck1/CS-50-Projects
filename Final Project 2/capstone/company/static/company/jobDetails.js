@@ -23,7 +23,8 @@ class Supply{
 }
 
 //Global Variables
-const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+//const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+const categories = JSON.parse(localStorage.getItem("data")).Categories
 
 //Function for getting crsf token
 function getCookie(name) {
@@ -179,14 +180,17 @@ class UI {
         const newRow = document.createElement('tr')
         //Getting the price of the selected product
         let prices = JSON.parse(localStorage.getItem("prices"));
-        //Get the various prices of the prouct
+        //Get the various prices of the product
         let productPrices = prices.filter(x => x.product_id == product.id);
 
         let maxPrice = Math.max.apply(Math, productPrices.map(x => x.price));
         let minPrice = Math.min.apply(Math, productPrices.map(x => x.price));
         let qty = 1;
+
         //Calulating the selling price for the product
-        let price = (Math.ceil(maxPrice*1.36/5))*5 //Round Up to the nearest 5
+        //let price = (Math.ceil(maxPrice*1.36/5))*5 //Round Up to the nearest 5
+        
+        let price = (Math.ceil(maxPrice*(UI.calc_selling(product))/5))*5 //Round Up to the nearest 5
         let total = price * qty
 
         //Fetching the id for the job
@@ -240,6 +244,15 @@ class UI {
         UI.censorLinks()
     };
 
+    static calc_selling(product){
+        var county = parseInt(document.querySelector('.jobCounty').innerText)
+        var distance = JSON.parse(localStorage.getItem("counties"))[county - 1]["Distance(km)"]
+        var weight = (product.weight)/1000
+
+        var factor = 1+(distance/806)+(0.16+0.1)+(weight)
+
+        return factor
+    }
 
     //To clear the filter input field
     static clearFilter(){
@@ -716,6 +729,8 @@ class Store{
             localStorage.setItem("suppliers", JSON.stringify(res.suppliers));
             localStorage.setItem("jobs", JSON.stringify(res.jobs));
             localStorage.setItem("prices", JSON.stringify(res.prices));
+            localStorage.setItem("data", res.data);
+            localStorage.setItem("counties", res.counties);
         })
         .then(()=>{
             //Place Items into the Search list
@@ -859,6 +874,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
     //Grey out links/ block some options in drop down
     UI.censorLinks()
 
+    //Test
+    
 });
 
 //Event: Add Product Row -- Method no longer in use

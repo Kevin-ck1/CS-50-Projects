@@ -142,6 +142,18 @@ try {
         })
     })
 } catch {
+    //Masking the input fields
+    // var add_field = document.querySelector('#address')
+    // add_field.addEventListener('keyup', ()=>{
+    //     console.log(add_field.value)
+    //     var value = add_field.value
+    //     var formatted = value.replace(/^(\d{3})(\d{4}).*/, '$1-$2');
+    //     console.log(formatted)
+    //     add_field.value = formatted
+
+    //     console.log("input field formatted")
+    // })
+
     //Submiting Form
     document.querySelector('#companyForm').addEventListener('submit', (e)=>{
         e.preventDefault();

@@ -20,7 +20,15 @@
         </div>
 
         <div>
-            <p>#</p>
+            {% if type.title == "Invoice" %}
+                <p>{{type.title}} # - {{notes.invoiceNo}}</p>
+            {% elif type.title == "Delivery" %}
+                <p>{{type.title}} # - {{notes.deliveryNo}}</p>
+            {% elif type.title == "Receipt" %}
+                <p>{{type.title }}# - {{notes.receiptNo}}</p>
+            {%else%}
+            <p></p>
+            {%endif%}
         </div>
     </div>
 

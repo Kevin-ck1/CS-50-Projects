@@ -27,9 +27,11 @@ To print pdf -- html to pdf
 `pip install django-wkhtmltopdf`
 
 For Merging pdf files
-
 ```pip install PyPDF2```
+Ensure that the typing_extensions are up to date for PyPDF2 to function properly
+`python -m pip install typing-extensions --upgrade`
 
 To print pdf -- html to pdf 
 `pip install -U django-weasyprint`
+
 
