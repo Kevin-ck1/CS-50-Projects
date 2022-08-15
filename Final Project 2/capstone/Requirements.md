@@ -34,4 +34,7 @@ Ensure that the typing_extensions are up to date for PyPDF2 to function properly
 To print pdf -- html to pdf 
 `pip install -U django-weasyprint`
 
+To ensure proper functioning of pandas, upgrade to the latest openpyxl
+`pip install openpyxl`
+
 

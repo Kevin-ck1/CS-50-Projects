@@ -56,8 +56,8 @@ if (perfEntries[0].type === "back_forward") {
 var table = document.querySelector('#pricesTable');
 const suppliers = JSON.parse(localStorage.getItem("suppliers"));
 const newPriceRow = table.querySelector('#newPriceRow');
-const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
-
+//const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+const categories = JSON.parse(localStorage.getItem("data")).Categories
 
 //Display Class
 class UI{
@@ -373,12 +373,32 @@ class UI{
 
 //Store Class
 class Store {
-    static fetchSuppliers(){
-        fetch("/company/fetchSuppliers")
-        .then(response => response.json())
+    // static fetchSuppliers(){
+    //     fetch("/company/fetchSuppliers")
+    //     .then(response => response.json())
+    //     .then((res)=>{
+    //         localStorage.setItem("suppliers", JSON.stringify(res.suppliers))
+    //     })
+    // };
+
+    static fetchItems(){
+        //Get csrf token
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request(
+            `/company/fetchItems`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        );
+
+        console.log(request)
+
+        fetch(request)
+        .then(response=> response.json())
         .then((res)=>{
-            localStorage.setItem("suppliers", JSON.stringify(res.suppliers))
+            localStorage.setItem("products", JSON.stringify(res.products));
+            localStorage.setItem("suppliers", JSON.stringify(res.suppliers));
+            localStorage.setItem("data", res.data);
         })
+
     };
 
     static addPrice(price, rIndex){
@@ -473,7 +493,7 @@ class Store {
 //Events : Events that deal with the prices
 //Load
 window.addEventListener('DOMContentLoaded', ()=>{
-    Store.fetchSuppliers();
+    Store.fetchItems();
     UI.dropDownValues();
     UI.displayCategory();
 });

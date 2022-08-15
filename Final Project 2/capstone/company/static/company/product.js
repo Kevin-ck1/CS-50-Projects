@@ -38,8 +38,8 @@ window.addEventListener("pageshow", (event)=>{
 });
 
 //Variables
-const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
-
+//const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+const categories = JSON.parse(localStorage.getItem("data")).Categories
 
 //UI Class: UserInterface
 class UI {
@@ -81,7 +81,7 @@ class UI {
                 supplierName = supplier.nameC
             }
         }
-        const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
+        //const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"]
         var category = categories[product.category - 1]
         newRow.innerHTML = `
             <td scope="row" class="rowCounter"></td>
@@ -214,6 +214,7 @@ class Store {
         .then((res)=>{
             localStorage.setItem("products", JSON.stringify(res.products));
             localStorage.setItem("suppliers", JSON.stringify(res.suppliers));
+            localStorage.setItem("data", res.data);
         })
 
     };

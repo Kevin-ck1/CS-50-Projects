@@ -39,16 +39,20 @@ function requestPath(url){
     return request;
 }
 
+//Common Variables
+var zones = JSON.parse(localStorage.getItem("data")).Zones
+
 //UI_Company Class: User Interface
 class UI_Company {
     static clearForm(){
-        document.querySelector('#nameC').value = '';
-        document.querySelector('#address').value = '';
-        document.querySelector('#email').value = '';
-        document.querySelector('#contact').value = '';
-        document.querySelector('#zone').value = '';
-        document.querySelector('#county').value = '';
-        document.querySelector('#location').value = '';
+        document.querySelector('#companyForm').reset()
+        // document.querySelector('#nameC').value = '';
+        // document.querySelector('#address').value = '';
+        // document.querySelector('#email').value = '';
+        // document.querySelector('#contact').value = '';
+        // document.querySelector('#zone').value = '';
+        // document.querySelector('#county').value = '';
+        // document.querySelector('#location').value = '';
     }
 
     static supplierDetails(id){
@@ -61,7 +65,7 @@ class UI_Company {
 
 
     static editCompany(company){
-        const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
+        //const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"]
         const zone = zones[company.zone - 1];
         const county = counties[company.county - 1];
         document.querySelector('.cName').innerHTML = company.nameC
@@ -77,6 +81,24 @@ class UI_Company {
 
 //Storage Class
 class Store_Company {
+    static fetchItems(){
+        //Get csrf token
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request(
+            `/company/fetchItems`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        );
+
+        console.log(request)
+
+        fetch(request)
+        .then(response=> response.json())
+        .then((res)=>{
+            localStorage.setItem("data", res.data);
+        })
+
+    };
+
     static addCompany(company, mode){
         let request;
         if(mode == "Supplier"){
@@ -129,6 +151,12 @@ class Store_Company {
 }
 
 //Events
+//Onload
+window.addEventListener('DOMContentLoaded', ()=>{
+    //Fetch data
+    Store_Company.fetchItems();
+})
+
 try {
     //Clicking Product: Opening supplier details
     document.querySelector('#companyTable').querySelectorAll('tr').forEach((tr)=>{

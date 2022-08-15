@@ -37,17 +37,21 @@ function requestPath(url){
 
 //Variables
 const modal = document.querySelector('.modal1') //Edit form form variable
-const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"];
-const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"];
-const counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana', 
-'River', 'Lamu', 'Taita', 'Mak', 'Taveta', 'Garissa', 'Wajir', 
-'Mandera', 'Marsabit', 'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 
-'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang’a', 
-'Kiambu', 'The', 'Turkana', 'West', 'Pokot', 'Samburu', 'Trans-Nzoia', 
-'Uasin', 'Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru',
- 'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
- 'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
- 'Nairobi']
+//const zones = ["Zone 1: CBD", "Zone 2: Down Town", "Zone 3: Industrial Area"];
+//const categories = ["ICT", "Electricity", "Hairdressing", "Hospitality", "Plumbing & Masonry", "Stationary"];
+// const counties = ['Mombasa', 'Kwale', 'Kilifi', 'Tana', 
+// 'River', 'Lamu', 'Taita', 'Mak', 'Taveta', 'Garissa', 'Wajir', 
+// 'Mandera', 'Marsabit', 'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 
+// 'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang’a', 
+// 'Kiambu', 'The', 'Turkana', 'West', 'Pokot', 'Samburu', 'Trans-Nzoia', 
+// 'Uasin', 'Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru',
+//  'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga', 'Bungoma', 
+//  'Busia', 'Siaya', 'Kisumu', 'Homa', 'Bay', 'Migori', 'Kisii', 'Nyamira', 
+//  'Nairobi']
+ var zones = JSON.parse(localStorage.getItem("data")).Zones
+ const categories = JSON.parse(localStorage.getItem("data")).Categories
+ const counties = JSON.parse(localStorage.getItem("data")).Counties
+
 
 //UI Class
 class UI{
@@ -299,6 +303,22 @@ class UI{
 
 //Storage Class
 class Store{
+    static fetchItems(){
+        //Get csrf token
+        const csrftoken = getCookie('csrftoken');
+        const request = new Request(
+            `/company/fetchItems`,
+            {headers: {'X-CSRFToken': csrftoken}}
+        );
+
+        fetch(request)
+        .then(response=> response.json())
+        .then((res)=>{
+            localStorage.setItem("data", res.data);
+        })
+
+    };
+
     static storePerson(person,rIndex){
         const request = requestPath(`/company/personnel`);
         console.log(request)
@@ -408,6 +428,12 @@ class Store{
     }
 }
 //Events
+
+//Onload
+// window.addEventListener('DOMContentLoaded', ()=>{
+//     //Fetch data
+//     Store.fetchItems();
+// })
 //Generate New table Row
 document.querySelector('#addPerson').addEventListener('click',()=>{
     UI.addRow()
@@ -499,6 +525,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     //Display the Counties in string format
     UI.displayCounty();
+
+    Store.fetchItems()
 
     try {
         //Display the categories in string format
